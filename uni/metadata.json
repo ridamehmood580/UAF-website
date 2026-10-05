@@ -1,0 +1,6 @@
+{
+  "name": "University of Agriculture, Faisalabad (UAF)",
+  "description": "Official Web Portal of University of Agriculture, Faisalabad (UAF) - Pakistan's premier agricultural, veterinary, engineering, and science university established in 1906.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
