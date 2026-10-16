@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { GraduationCap, ArrowRight, CheckCircle2, Calculator } from 'lucide-react';
 
@@ -43,7 +45,7 @@ export const AdmissionsSection: React.FC<AdmissionsSectionProps> = ({
             }`}
           >
             {/* Main Top Heading (Increased Size) */}
-            <div className="inline-flex items-center gap-3 text-[#0f766e] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
+            <div className="inline-flex items-center gap-3 text-[#1e3a7a] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
               <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block"></span>
               <span>Admissions 2026-27</span>
             </div>
@@ -70,7 +72,7 @@ export const AdmissionsSection: React.FC<AdmissionsSectionProps> = ({
                   key={idx}
                   className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-[#f5f8fa] transition-all duration-300 hover:translate-x-2"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-[#0f766e] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-black shrink-0" />
                   <span>{benefit}</span>
                 </div>
               ))}
@@ -80,7 +82,7 @@ export const AdmissionsSection: React.FC<AdmissionsSectionProps> = ({
             <div className="pt-4 flex flex-wrap items-center gap-4">
               <button
                 onClick={onOpenCalculator}
-                className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded bg-[#0f766e] hover:bg-[#102a43] text-white font-bold text-xs sm:text-[13px] uppercase tracking-wider transition-all hover:-translate-y-1 shadow-md active:scale-95 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded bg-[#1d4e89] hover:bg-[#102a43] text-white font-bold text-xs sm:text-[13px] uppercase tracking-wider transition-all hover:-translate-y-1 shadow-md active:scale-95 cursor-pointer"
               >
                 <Calculator className="w-4 h-4 text-[#e8a62a]" />
                 <span>Undergraduate Merit Calculator</span>
@@ -88,7 +90,7 @@ export const AdmissionsSection: React.FC<AdmissionsSectionProps> = ({
 
               <button
                 onClick={onOpenCalculator}
-                className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded border border-[#0f766e] hover:bg-[#dff5f1] text-[#0f766e] font-bold text-xs sm:text-[13px] uppercase tracking-wider transition-all hover:-translate-y-1 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded border border-[#1d4e89] hover:bg-[#e8eef9] text-black font-bold text-xs sm:text-[13px] uppercase tracking-wider transition-all hover:-translate-y-1 cursor-pointer"
               >
                 <GraduationCap className="w-4 h-4" />
                 <span>Postgraduate & PhD</span>
@@ -99,7 +101,7 @@ export const AdmissionsSection: React.FC<AdmissionsSectionProps> = ({
             <div className="pt-2">
               <button
                 onClick={onOpenAdvisor}
-                className="text-xs text-[#0f766e] hover:underline font-semibold flex items-center gap-1.5 cursor-pointer group"
+                className="text-xs text-black hover:underline font-semibold flex items-center gap-1.5 cursor-pointer group"
               >
                 <span>Need admission counseling or fee details? Ask the UAF Guide</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
@@ -117,7 +119,7 @@ export const AdmissionsSection: React.FC<AdmissionsSectionProps> = ({
             }`}
           >
             <div className="relative group transition-transform duration-500 hover:-translate-y-2">
-              <div className="absolute -inset-3 bg-gradient-to-tr from-[#0f766e]/15 to-[#e8a62a]/15 rounded-2xl -z-10" />
+              <div className="absolute -inset-3 bg-gradient-to-tr from-[#1d4e89]/15 to-[#e8a62a]/15 rounded-2xl -z-10" />
               <div className="rounded-xl overflow-hidden shadow-2xl border-4 border-white bg-stone-100">
                 <img
                   src="/uaf_facade_no_road.jpg"

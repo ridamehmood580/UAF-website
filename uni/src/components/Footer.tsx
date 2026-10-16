@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import {
   MapPin,
@@ -25,21 +27,25 @@ export const Footer: React.FC<FooterProps> = ({
   return (
     <footer className="bg-[#071b2d] text-white/80 border-t border-white/10 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-14 border-b border-white/10">
-          
+
           {/* Col 1: University Brand & Mission (4 cols) */}
           <div className="lg:col-span-4 space-y-5">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-full bg-[#102a43] text-[#e8a62a] flex items-center justify-center text-2xl border-2 border-white/20 shadow-md">
-                <i className="fa-solid fa-seedling"></i>
+              <div className="w-12 h-12 rounded-full bg-white border-2 border-white/20 shadow-md flex items-center justify-center overflow-hidden shrink-0">
+                <img
+                  src="/uaf.jpeg"
+                  alt="University of Agriculture Faisalabad Logo"
+                  className="w-full h-full object-contain p-1"
+                />
               </div>
               <div>
                 <h3 className="font-serif-heading font-bold text-white text-lg leading-tight">
                   University of Agriculture
                 </h3>
-                <span className="text-[#0f766e] text-[10px] tracking-[2px] font-bold uppercase block">
+                <span className="text-blue-200 text-[10px] tracking-[2px] font-bold uppercase block">
                   Faisalabad, Pakistan
                 </span>
               </div>
@@ -55,7 +61,7 @@ export const Footer: React.FC<FooterProps> = ({
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#0f766e] text-white flex items-center justify-center transition-colors text-sm shadow-xs"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#1d4e89] text-white flex items-center justify-center transition-colors text-sm shadow-xs"
                 aria-label="Facebook"
               >
                 <i className="fa-brands fa-facebook-f"></i>
@@ -64,7 +70,7 @@ export const Footer: React.FC<FooterProps> = ({
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#0f766e] text-white flex items-center justify-center transition-colors text-sm shadow-xs"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#1d4e89] text-white flex items-center justify-center transition-colors text-sm shadow-xs"
                 aria-label="Instagram"
               >
                 <i className="fa-brands fa-instagram"></i>
@@ -73,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#0f766e] text-white flex items-center justify-center transition-colors text-sm shadow-xs"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#1d4e89] text-white flex items-center justify-center transition-colors text-sm shadow-xs"
                 aria-label="LinkedIn"
               >
                 <i className="fa-brands fa-linkedin-in"></i>
@@ -82,7 +88,7 @@ export const Footer: React.FC<FooterProps> = ({
                 href="https://youtube.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#0f766e] text-white flex items-center justify-center transition-colors text-sm shadow-xs"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#1d4e89] text-white flex items-center justify-center transition-colors text-sm shadow-xs"
                 aria-label="YouTube"
               >
                 <i className="fa-brands fa-youtube"></i>
@@ -98,37 +104,37 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2 text-xs sm:text-[13px]">
               <li>
                 <a href="#vision" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>Vision 2050 & Heritage</span>
                 </a>
               </li>
               <li>
                 <a href="#programs" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>Faculties & Programs</span>
                 </a>
               </li>
               <li>
                 <a href="#rti" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>Research & Innovation</span>
                 </a>
               </li>
               <li>
                 <a href="#campus" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>Campus Life & Green Spaces</span>
                 </a>
               </li>
               <li>
                 <a href="#administration" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>University Administration</span>
                 </a>
               </li>
               <li>
                 <a href="#latest-events" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>Latest News & Events</span>
                 </a>
               </li>
@@ -149,31 +155,31 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <button onClick={onOpenAdvisor} className="hover:text-[#e8a62a] transition-colors text-left flex items-center gap-1.5 cursor-pointer">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>Ask UAF Guide</span>
                 </button>
               </li>
               <li>
                 <a href="https://lms.uaf.edu.pk" target="_blank" rel="noopener noreferrer" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>AgriLearn LMS</span>
                 </a>
               </li>
               <li>
                 <a href="https://sis.uaf.edu.pk" target="_blank" rel="noopener noreferrer" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>SIS Student Portal</span>
                 </a>
               </li>
               <li>
                 <a href="#notices" className="hover:text-[#e8a62a] transition-colors flex items-center gap-1.5">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>Careers & Tenders</span>
                 </a>
               </li>
               <li>
                 <button onClick={onOpenAppointment} className="hover:text-[#e8a62a] transition-colors text-left flex items-center gap-1.5 cursor-pointer">
-                  <ChevronRight className="w-3 h-3 text-[#0f766e]" />
+                  <ChevronRight className="w-3 h-3 text-blue-200" />
                   <span>Meet VC Secretariat</span>
                 </button>
               </li>
@@ -191,11 +197,11 @@ export const Footer: React.FC<FooterProps> = ({
                 <span>University of Agriculture, Jail Road, Faisalabad, 38000, Punjab, Pakistan</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-[#0f766e] shrink-0" />
+                <Phone className="w-4 h-4 text-blue-200 shrink-0" />
                 <span>+92 41 9200161-70</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-[#0f766e] shrink-0" />
+                <Mail className="w-4 h-4 text-blue-200 shrink-0" />
                 <span>info@uaf.edu.pk / admissions@uaf.edu.pk</span>
               </li>
             </ul>
@@ -211,10 +217,10 @@ export const Footer: React.FC<FooterProps> = ({
             <a href="#vision" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#vision" className="hover:text-white transition-colors">Terms of Use</a>
             <a href="#vision" className="hover:text-white transition-colors">Accessibility</a>
-            
+
             <button
               onClick={scrollToTop}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#0f766e] text-white flex items-center justify-center transition-colors ml-2 cursor-pointer"
+              className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#1d4e89] text-white flex items-center justify-center transition-colors ml-2 cursor-pointer"
               title="Back to top"
             >
               <ArrowUp className="w-4 h-4" />

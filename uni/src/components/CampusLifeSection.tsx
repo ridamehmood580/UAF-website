@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Users, Trophy, Trees } from 'lucide-react';
 
@@ -14,7 +16,7 @@ export const CampusLifeSection: React.FC<CampusLifeSectionProps> = ({
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-          <div className="inline-flex items-center justify-center gap-2 text-[#0f766e] text-xs sm:text-[13px] font-bold tracking-[1.8px] uppercase">
+          <div className="inline-flex items-center justify-center gap-2 text-black text-xs sm:text-[13px] font-bold tracking-[1.8px] uppercase">
             <span className="w-6 h-[2px] bg-[#e8a62a] inline-block"></span>
             <span>Beyond Academics</span>
             <span className="w-6 h-[2px] bg-[#e8a62a] inline-block"></span>
@@ -86,7 +88,7 @@ export const CampusLifeSection: React.FC<CampusLifeSectionProps> = ({
                 }}
               />
               <div className="relative z-10 space-y-1.5">
-                <div className="w-8 h-8 rounded-full bg-[#0f766e] text-white flex items-center justify-center shadow-md">
+                <div className="w-8 h-8 rounded-full bg-[#1d4e89] text-white flex items-center justify-center shadow-md">
                   <Trees className="w-4 h-4" />
                 </div>
                 <h3 className="font-serif-heading font-bold text-xl text-white">

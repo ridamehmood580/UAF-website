@@ -48,17 +48,17 @@ export default function TemplatePicker({ hasContent, onPick, onBlank, onClose })
         <div className="tpl-head">
           <div>
             <strong><LayoutTemplate size={16} style={{ verticalAlign: '-3px', marginRight: 6 }} />Choose a page template</strong>
-            <span>{hasContent ? 'Choose a department page layout. Save unsaved work before replacing this page.' : 'Choose a department page layout, or start with a blank page.'}</span>
+            <span>{hasContent ? 'Choose a page layout, or select the separate Header or Footer template. Save unsaved work before replacing this page.' : 'Choose a page layout or the separate Header and Footer templates.'}</span>
           </div>
           <button className="icon-button" onClick={onClose} title="Close"><X size={18} /></button>
         </div>
         <div className="tpl-body">
           {PAGE_TEMPLATES.map(t => (
-            <button className="tpl-card" key={t.id} onClick={() => onPick(t.id)}>
+            <button className="tpl-card" key={t.id} onClick={() => onPick(t.id)} aria-label={`Use ${t.name || t.id} template`}>
+              <span className="tpl-name">{t.name || t.id}</span>
               <Thumb id={t.id} />
               <span className="tpl-info">
                 <i>{t.category}</i>
-                <b>{t.name}</b>
                 <small>{t.description}</small>
               </span>
             </button>
@@ -66,7 +66,7 @@ export default function TemplatePicker({ hasContent, onPick, onBlank, onClose })
           <button className="tpl-card tpl-blank" onClick={onBlank}>
             <span className="tpl-blank-icon"><FilePlus size={26} /></span>
             <span className="tpl-info">
-              <b>Empty page</b>
+              <b className="tpl-name">Empty page</b>
               <small>Start from scratch with nothing on the page.</small>
             </span>
           </button>

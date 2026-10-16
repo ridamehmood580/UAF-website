@@ -4,15 +4,16 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PRIMITIVE_PALETTE, createPrimitiveElement } from '../lib/elementPrimitives';
 import PrimitiveRenderer from './PrimitiveRenderer';
 import TemplatePicker from './TemplatePicker';
+import LayerOrderPanel from './LayerOrderPanel';
 import { buildTemplate } from '../lib/pageTemplates';
 import { STYLE_LOCK, LOOKS_BY_TYPE, LOOK_LABEL, themeElement } from '../lib/uafTheme';
-import { Eye, FolderOpen, Save, Type, Image as ImageIcon, Shapes, MousePointer2, Undo2, Redo2, Trash2, Copy, Download, Upload, PanelLeftClose, X, Plus, Check, Smartphone, Monitor, AlignLeft, AlignCenter, AlignRight, LayoutTemplate, Lock } from 'lucide-react';
+import { Eye, FolderOpen, Save, Type, Image as ImageIcon, Shapes, MousePointer2, Undo2, Redo2, Trash2, Copy, Download, Upload, PanelLeftClose, X, Plus, Check, Smartphone, Monitor, AlignLeft, AlignCenter, AlignRight, AlignJustify, LayoutTemplate, Lock, Globe } from 'lucide-react';
 
 const STORAGE_KEY = 'faculty-page-builder-drafts-v1';
 const freshPage = () => ({ draftId: `draft-${Date.now()}-${Math.floor(Math.random() * 10000)}`, meta: { title: 'Untitled faculty page', author: 'Faculty', allowPageScroll: true }, elements: [] });
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
-export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, onOpenWorkflow }) {
+export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, onOpenWorkflow, onOpenPublished }) {
   const [selectedId, setSelectedId] = useState(null);
   const [draftsOpen, setDraftsOpen] = useState(false);
   const [drafts, setDrafts] = useState([]);
@@ -24,6 +25,7 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
   const [shapePickerOpen, setShapePickerOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [activeCardText, setActiveCardText] = useState(null);
+  const [simpleTextBulletStyle, setSimpleTextBulletStyle] = useState('disc');
   const [history, setHistory] = useState([]);
   const [future, setFuture] = useState([]);
   const canvasRef = useRef(null);
@@ -44,8 +46,6 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
 
   useEffect(() => {
     try { setDrafts(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); } catch { setDrafts([]); }
-    // A new visit always opens a clean page. Existing work is available from Drafts.
-    setPageData(freshPage());
   }, []);
 
   const saveDraftSnapshot = (snapshot = pageData) => {
@@ -112,6 +112,27 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
   const commit = (next) => { setHistory(prev => [...prev.slice(-29), pageData]); setFuture([]); setPageData(next); setSaved(false); dirtyRef.current = true; };
   const updateElement = (id, changes) => { if (elements.find(el => el.id === id)?.fixed) return; commit({ ...pageData, elements: elements.map(el => el.id === id ? { ...el, ...changes } : el) }); };
   updateElementRef.current = updateElement;
+  const updateHeaderMenuItem = (menuId, path, action, value) => {
+    const menuElement = elements.find(el => el.id === menuId);
+    if (!menuElement) return;
+    const menuItems = JSON.parse(JSON.stringify(menuElement.menuItems || []));
+    let siblings = menuItems;
+    for (const index of path.slice(0, -1)) siblings = siblings[index].children ||= [];
+    const index = path[path.length - 1];
+    if (action === 'delete') siblings.splice(index, 1);
+    else if (action === 'add-child') (siblings[index].children ||= []).push({ label: 'New submenu option', url: 'https://web.uaf.edu.pk' });
+    else if (action === 'add-root') siblings.push({ label: 'New menu option', url: 'https://web.uaf.edu.pk' });
+    else siblings[index] = { ...siblings[index], [action]: value };
+    updateElement(menuId, { menuItems });
+  };
+  const renderHeaderMenuRows = (menuId, items, parentPath = []) => items.map((item, index) => {
+    const path = [...parentPath, index];
+    return <div className="header-menu-option" key={`${menuId}-${path.join('-')}`}>
+      <div className="header-menu-option-fields"><input aria-label="Dropdown option label" value={item.label || ''} onChange={e => updateHeaderMenuItem(menuId, path, 'label', e.target.value)} placeholder="Option label"/><input aria-label="Dropdown option URL" value={item.url || ''} onChange={e => updateHeaderMenuItem(menuId, path, 'url', e.target.value)} placeholder="https://…"/></div>
+      <div className="header-menu-option-actions"><button type="button" onClick={() => updateHeaderMenuItem(menuId, path, 'add-child', true)}>+ Suboption</button><button type="button" onClick={() => updateHeaderMenuItem(menuId, path, 'delete')}>Remove</button></div>
+      {!!item.children?.length && <div className="header-menu-nested-rows">{renderHeaderMenuRows(menuId, item.children, path)}</div>}
+    </div>;
+  });
   const onPrimitiveChange = useCallback((id, key, value) => updateElementRef.current(id, typeof key === 'object' ? key : { [key]: value }), []);
   const updateStyle = (key, value) => selected && updateElement(selectedId, { style: { ...selected.style, [key]: value } });
   const add = (type, at) => {
@@ -148,6 +169,18 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
   const finishPointer = () => { if (dragging.current) { dragging.current = null; setSaved(false); dirtyRef.current = true; } };
   const deleteSelected = () => { if (!selected || selected.fixed) return; commit({ ...pageData, elements: elements.filter(el => el.id !== selectedId) }); setSelectedId(null); };
   const duplicateSelected = () => { if (!selected || selected.fixed) return; const copy = { ...JSON.parse(JSON.stringify(selected)), id: `el-${Date.now()}`, x: (selected.x || 0) + 24, y: (selected.y || 0) + 24 }; commit({ ...pageData, elements: [...elements, copy] }); setSelectedId(copy.id); };
+  const moveSelectedLayer = direction => {
+    if (!selected || selected.fixed) return;
+    const from = elements.findIndex(element => element.id === selectedId);
+    if (from < 0) return;
+    const to = direction === 'front' ? elements.length - 1 : 0;
+    if (to === from) return;
+    const nextElements = [...elements];
+    const [element] = nextElements.splice(from, 1);
+    nextElements.splice(to, 0, element);
+    commit({ ...pageData, elements: nextElements });
+    setToast(`Moved ${element.type} ${direction === 'front' ? 'to front' : 'to back'}.`);
+  };
   const undo = () => { if (!history.length) return; setFuture(v => [pageData, ...v]); setPageData(history.at(-1)); setHistory(v => v.slice(0, -1)); dirtyRef.current = true; setSaved(false); };
   const redo = () => { if (!future.length) return; setHistory(v => [...v, pageData]); setPageData(future[0]); setFuture(v => v.slice(1)); dirtyRef.current = true; setSaved(false); };
   const openDraft = (draft) => { setPageData({ ...draft.data, draftId: draft.id }); setSelectedId(null); setDraftsOpen(false); setToast('Draft opened. You can continue editing.'); };
@@ -156,7 +189,7 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
     if (dirtyRef.current && window.confirm('Save your unsaved design to Drafts before replacing it with this template? Choose Cancel to discard it and continue.')) saveDraftSnapshot();
     // A new draft id keeps the previous page safe in Drafts.
     const draftId = `draft-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    commit({ ...pageData, draftId, meta: { ...pageData.meta, title: tpl.title, template: tpl.id }, elements: tpl.elements });
+    commit({ ...pageData, draftId, meta: { ...pageData.meta, ...tpl.meta, title: tpl.title, template: tpl.id }, elements: tpl.elements });
     setSelectedId(null); setTemplatesOpen(false); setToast('Template ready. Click any text or image to edit it.');
   };
   const newPage = () => { if (dirtyRef.current) { const shouldSave = window.confirm('Save your unsaved design to Drafts before starting a new page? Choose Cancel to discard it and continue.'); if (shouldSave) saveDraftSnapshot(); } setPageData(freshPage()); setSelectedId(null); dirtyRef.current = false; setSaved(true); };
@@ -173,11 +206,50 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
       dirtyRef.current = false; setSaved(true); setToast('Page saved to your computer.');
     } catch (error) { if (error.name !== 'AbortError') setToast('Could not save the page.'); }
   };
-  const importPage = (event) => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const value = JSON.parse(reader.result); if (!Array.isArray(value.elements)) throw new Error(); setPageData(value); setSelectedId(null); dirtyRef.current = false; setSaved(true); setToast('Page opened.'); } catch { setToast('This file is not a valid page design.'); } }; reader.readAsText(file); event.target.value = ''; };
+  const importPage = (event) => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const value = JSON.parse(reader.result); if (!Array.isArray(value.elements)) throw new Error(); const elements = value.elements.filter(el => !el.fixed); setPageData({ ...value, elements }); setSelectedId(null); dirtyRef.current = false; setSaved(true); setToast('Page opened. The university header and footer are added when published.'); } catch { setToast('This file is not a valid page design.'); } }; reader.readAsText(file); event.target.value = ''; };
   const chooseImage = (target = null) => { pendingUploadRef.current = target; fileRef.current?.click(); };
-  const onImageUpload = (e) => { const file = e.target.files?.[0]; if (!file) return; const reader = new FileReader(); const target = pendingUploadRef.current; reader.onload = () => { if (target?.type === 'card') updateElement(target.id, { imageUrl: reader.result }); else if (target?.type === 'image') updateElement(target.id, { src: reader.result, alt: file.name }); else { const el = createPrimitiveElement('image'); el.src = reader.result; el.alt = file.name; el.x = 72; el.y = 72; el.width = 360; el.height = 220; commit({ ...pageData, elements: [...elements, el] }); setSelectedId(el.id); } }; reader.readAsDataURL(file); e.target.value = ''; pendingUploadRef.current = null; };
+  const onImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const target = pendingUploadRef.current;
+    e.target.value = '';
+    pendingUploadRef.current = null;
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const response = await fetch('/api/upload-asset', { method: 'POST', body: form });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Upload failed.');
+      if (target?.type === 'card') updateElement(target.id, { imageUrl: result.url });
+      else if (target?.type === 'image') updateElement(target.id, { src: result.url, alt: file.name });
+      else {
+        const el = createPrimitiveElement('image');
+        el.src = result.url; el.alt = file.name; el.x = 72; el.y = 72; el.width = 360; el.height = 220;
+        commit({ ...pageData, elements: [...elements, el] });
+        setSelectedId(el.id);
+      }
+      setToast('Image uploaded to the university site.');
+    } catch (error) {
+      setToast(error.message || 'Could not upload this image.');
+    }
+  };
   const chooseVideo = (id = selectedId) => { pendingVideoRef.current = id; videoFileRef.current?.click(); };
-  const onVideoUpload = (e) => { const file = e.target.files?.[0]; const id = pendingVideoRef.current; if (!file || !id) return; const reader = new FileReader(); reader.onload = () => updateElement(id, { videoUrl: reader.result, videoName: file.name, isLocalVideo: true }); reader.readAsDataURL(file); e.target.value = ''; pendingVideoRef.current = null; };
+  const onVideoUpload = async (e) => {
+    const file = e.target.files?.[0]; const id = pendingVideoRef.current;
+    e.target.value = ''; pendingVideoRef.current = null;
+    if (!file || !id) return;
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const response = await fetch('/api/upload-asset', { method: 'POST', body: form });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Upload failed.');
+      updateElement(id, { videoUrl: result.url, videoName: file.name, isLocalVideo: true });
+      setToast('Video uploaded to the university site.');
+    } catch (error) {
+      setToast(error.message || 'Could not upload this video.');
+    }
+  };
   const setVideoUrl = (value, id = selectedId) => {
     let url = value.trim();
     const youtube = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/i);
@@ -210,6 +282,33 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
     selection.removeAllRanges(); selection.addRange(nextRange);
     savedRangeRef.current = { range: nextRange.cloneRange(), node: saved.node };
   };
+  const addSimpleTextBullets = (style = simpleTextBulletStyle) => {
+    if (!selected || selected.type !== 'text') return;
+    const roman = ['i','ii','iii','iv','v','vi','vii','viii','ix','x'];
+    const prefixFor = index => {
+      switch (style) {
+        case 'circle': return '◦ ';
+        case 'square': return '▪ ';
+        case 'check': return '✓ ';
+        case 'decimal': return `${index + 1}. `;
+        case 'lower-alpha': return `${String.fromCharCode(97 + index)}. `;
+        case 'upper-alpha': return `${String.fromCharCode(65 + index)}. `;
+        case 'lower-roman': return `${roman[index] || index + 1}. `;
+        case 'upper-roman': return `${(roman[index] || String(index + 1)).toUpperCase()}. `;
+        default: return '• ';
+      }
+    };
+    const lines = (selected.text || '').split('\n').map(line => line.trim()).filter(Boolean)
+      .map(line => line.replace(/^(?:✓|▪|◦|•|\*|-|\d+\.|[a-zA-Z]+\.)\s*/, ''));
+    updateElement(selectedId, { text: lines.map((line, index) => `${prefixFor(index)}${line}`).join('\n'), richHtml: '' });
+  };
+  const rememberToolbarSelection = () => {
+    const selection = window.getSelection();
+    if (!selection?.rangeCount || selection.isCollapsed) return;
+    const range = selection.getRangeAt(0);
+    const node = range.commonAncestorContainer.parentElement?.closest?.('[data-rich-editor]');
+    if (node) savedRangeRef.current = { range: range.cloneRange(), node };
+  };
   const zoomCanvas = (direction) => {
     manualZoomRef.current = true;
     setZoom(value => clamp(value + direction * 10, 25, 160));
@@ -231,7 +330,7 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
     </select></label>;
   })();
   const lockedStyleCard = selected ? <div className="inspector-card"><div className="section-label">UAF style</div>{lookPicker}
-    {selected.type !== 'image' && <div className="align-control"><button onClick={() => updateStyle('align','left')} title="Align left"><AlignLeft size={16}/></button><button onClick={() => updateStyle('align','center')} title="Align center"><AlignCenter size={16}/></button><button onClick={() => updateStyle('align','right')} title="Align right"><AlignRight size={16}/></button></div>}
+    {selected.type !== 'image' && <div className="align-control"><button onClick={() => updateStyle('align','left')} title="Align left"><AlignLeft size={16}/></button><button onClick={() => updateStyle('align','center')} title="Align center"><AlignCenter size={16}/></button><button onClick={() => updateStyle('align','right')} title="Align right"><AlignRight size={16}/></button>{selected.type === 'text' && (selected.tag === 'p' || !selected.tag) && <button onClick={() => updateStyle('align','justify')} title="Justify paragraph"><AlignJustify size={16}/></button>}</div>}
     <p className="lock-note"><Lock size={13}/><span>Colors, fonts and corners follow the official UAF design, so every page looks the same.</span></p></div> : null;
 
   return <div className="builder-shell">
@@ -240,12 +339,13 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
       <div className="top-divider" />
       <input className="page-title" value={pageData.meta?.title || ''} onChange={e => { setPageData({ ...pageData, meta: { ...pageData.meta, title: e.target.value } }); setSaved(false); dirtyRef.current = true; }} aria-label="Page title" />
       <span className={`save-status ${saved ? 'is-saved' : ''}`}><i />{saved ? 'Ready to save' : 'Unsaved changes'}</span>
-      <div className="top-actions"><button className="button button-light" onClick={() => setTemplatesOpen(true)} title="Choose a ready-made page"><LayoutTemplate size={15}/> Templates</button><button className="button button-quiet" onClick={undo} title="Undo"><Undo2 size={16}/></button><button className="button button-quiet" onClick={redo} title="Redo"><Redo2 size={16}/></button><button className="button button-quiet" onClick={() => setDraftsOpen(true)}><FolderOpen size={16}/> Drafts <span className="draft-count">{drafts.length}</span></button><button className="button button-light" onClick={() => { if (!saved) saveDraftSnapshot(); onOpenWorkflow(); }} title="Submit your design for review"><Check size={15}/> Workflow</button><button className="button button-light" onClick={resetCanvas} title="Remove everything from the canvas"><Trash2 size={15}/> Reset</button><button className="button button-light" onClick={savePage}><Save size={16}/> Save</button><button className="button button-primary" onClick={onSwitchToPublic}><Eye size={16}/> Preview page</button></div>
+      <div className="top-actions"><button className="button button-light" onClick={onOpenPublished} title="View previously published pages"><Globe size={15}/> Published</button><button className="button button-quiet" onClick={undo} title="Undo"><Undo2 size={16}/></button><button className="button button-quiet" onClick={redo} title="Redo"><Redo2 size={16}/></button><button className="button button-quiet" onClick={() => setDraftsOpen(true)}><FolderOpen size={16}/> Drafts <span className="draft-count">{drafts.length}</span></button><button className="button button-light" onClick={() => { if (!saved) saveDraftSnapshot(); onOpenWorkflow(); }} title="Review your design and publish"><Check size={15}/> Done</button><button className="button button-light" onClick={resetCanvas} title="Remove everything from the canvas"><Trash2 size={15}/> Reset</button><button className="button button-light" onClick={savePage}><Save size={16}/> Save</button><button className="button button-primary" onClick={onSwitchToPublic} title="Preview the design as a page"><Eye size={16}/> Preview page</button></div>
     </header>
     <div className="builder-workspace">
       <aside className="builder-library">
         <div className="panel-heading"><div><strong>Add to your page</strong><span>Click an item, then drag it</span></div><button className="icon-button" onClick={newPage} title="New page"><Plus size={17}/></button></div>
         <div className="library-scroll">
+          {(pageData.meta?.templateType === 'site-header' || pageData.meta?.template === 'site-header') && <section className="header-menu-sidebar"><h3>Header dropdown options</h3><p>Edit dropdown labels and addresses here, without selecting the small menu text on the canvas.</p>{elements.filter(el => el.type === 'hyperlink' && el.templateRegion === 'header' && el.menuItems?.length).map(el => <details className="header-menu-group" key={el.id}><summary>{el.text?.replace(/\s*▾\s*$/, '') || 'Header menu'}</summary><div className="header-menu-fields"><label>Main link URL<input value={el.url || ''} onChange={e => updateElement(el.id, { url: e.target.value })}/></label>{renderHeaderMenuRows(el.id, el.menuItems || [])}<button type="button" className="small-action" onClick={() => updateHeaderMenuItem(el.id, [], 'add-root')}>+ Add dropdown option</button><button type="button" className="small-action" onClick={() => setSelectedId(el.id)}>Select this menu on canvas</button></div></details>)}</section>}
           <button className="template-launch" onClick={() => setTemplatesOpen(true)}><LayoutTemplate size={20}/><span><b>Page templates</b><small>Start from a ready-made UAF page</small></span><Plus size={15}/></button><div className="quick-add"><button onClick={() => add('text')}><Type size={18}/><span><b>Text</b><small>Heading or paragraph</small></span><Plus size={15}/></button><button onClick={() => add('image')}><ImageIcon size={18}/><span><b>Image</b><small>Choose on canvas</small></span><Plus size={15}/></button><button onClick={() => setShapePickerOpen(true)}><Shapes size={18}/><span><b>Shape</b><small>Choose a shape</small></span><Plus size={15}/></button></div>
           {['Text & Links', 'Cards & Media', 'Forms & Media'].map(category => <section className="library-group" key={category}><h3>{category}</h3><div className="library-items">{palette.filter(item => item.category === category).map(item => <button className="library-item" key={item.type} onClick={() => add(item.type)} title={item.description}><span className="item-icon">{item.type === 'image' ? <ImageIcon size={17}/> : item.type === 'text' || item.type === 'paragraph' ? <Type size={17}/> : <Shapes size={17}/>}</span><span>{item.name.replace(' / ', ' ')}</span><Plus size={14}/></button>)}</div></section>)}
           <button className="upload-tile" onClick={chooseImage}><ImageIcon size={17}/> Upload image from your device</button>
@@ -255,10 +355,10 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
       </aside>
       <main className="canvas-area">
         <div className="canvas-toolbar"><div className="canvas-label"><MousePointer2 size={15}/><span>Page canvas</span><span className="canvas-size">{mobile ? '375 px · mobile' : '1200 px · desktop'}</span></div><div className="canvas-controls">{mobile && <button onClick={() => setShowMobilePanels(v => !v)} title="Show editing panels">{showMobilePanels ? 'Hide' : 'Edit'}</button>}<button className={!mobile ? 'device-active' : ''} onClick={() => { manualZoomRef.current = false; setMobile(false); }} title="Desktop view"><Monitor size={16}/></button><button className={mobile ? 'device-active' : ''} onClick={() => { manualZoomRef.current = false; setMobile(true); setShowMobilePanels(false); }} title="Mobile view"><Smartphone size={16}/></button><i/><button onClick={() => zoomCanvas(-1)}>−</button><span>{zoom}%</span><button onClick={() => zoomCanvas(1)}>+</button><button onClick={() => { manualZoomRef.current = false; const host = canvasScrollRef.current; if (host) setZoom(clamp(Math.floor((host.clientWidth - (mobile ? 28 : 96)) / (mobile ? 375 : 1200) * 100), 25, 100)); }} title="Fit canvas">Fit</button></div></div>
-        <div className="canvas-text-toolbar" onMouseDown={e => e.preventDefault()}><span>{STYLE_LOCK ? 'Bold / italic / underline (select text first)' : 'Format selected text (select text first)'}</span><button title="Bold" onClick={() => formatSelection('bold')}><b>B</b></button><button title="Italic" onClick={() => formatSelection('italic')}><i>I</i></button><button title="Underline" onClick={() => formatSelection('underline')}><u>U</u></button>{!STYLE_LOCK && <><i/>{[12,14,16,18,24,32,40].map(size => <button key={size} title={`Set selected text to ${size}px`} onClick={() => formatSelectionStyle('font-size', `${size}px`)}>{size}</button>)}<i/>{['#111827','#dc2626','#2563eb','#15803d','#9333ea','#d97706'].map(color => <button key={color} title={`Set selected text color ${color}`} onClick={() => formatSelectionStyle('color', color)} style={{ background:color,width:17,height:17,borderRadius:9,padding:0 }} />)}<i/>{['Arial','Verdana','Georgia','Times New Roman','Courier New','Impact'].map(font => <button key={font} title={`Apply ${font}`} style={{ fontFamily:font }} onClick={() => formatSelectionStyle('font-family', font)}>{font}</button>)}</>}</div>
+        <div className="canvas-text-toolbar"><span>Select text, then format</span><button title="Bold" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('bold')}><b>B</b></button><button title="Italic" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('italic')}><i>I</i></button><button title="Underline" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('underline')}><u>U</u></button>{!STYLE_LOCK && <><i/><label className="toolbar-select" title="Font family"><select aria-label="Font family" defaultValue="Arial" onMouseDown={rememberToolbarSelection} onChange={e => formatSelectionStyle('font-family', e.target.value)}>{['Arial','Calibri','Verdana','Tahoma','Trebuchet MS','Georgia','Times New Roman','Garamond','Palatino Linotype','Courier New','Consolas','Impact','Comic Sans MS'].map(font => <option key={font} value={font}>{font}</option>)}</select></label><label className="toolbar-select" title="Font size"><select aria-label="Font size" defaultValue="16" onMouseDown={rememberToolbarSelection} onChange={e => formatSelectionStyle('font-size', `${e.target.value}px`)}>{[8,9,10,11,12,14,16,18,20,22,24,26,28,32,36,40,48,56,72].map(size => <option key={size} value={size}>{size}</option>)}</select></label><label className="toolbar-color" title="Text color"><input aria-label="Text color" type="color" defaultValue="#202b38" onMouseDown={rememberToolbarSelection} onChange={e => formatSelectionStyle('color', e.target.value)}/></label></>}</div>
         <div ref={canvasScrollRef} className={`canvas-scroll ${mobile && !showMobilePanels ? 'mobile-preview-only' : ''}`}><div className="canvas-frame" style={{ width: `${(mobile ? 375 : 1200) * zoom / 100}px`, height: `${(mobile ? Math.max(740, elements.reduce((sum, el) => sum + (el.height || 100) + 24, 0) + 40) : (pageData.meta?.allowPageScroll === false ? 900 : autoPageHeight)) * zoom / 100}px` }}><div ref={canvasRef} className={`page-canvas ${mobile ? 'mobile-canvas' : ''}`} style={{ minHeight: mobile ? Math.max(740, elements.reduce((sum, el) => sum + (el.height || 100) + 24, 0) + 40) : (pageData.meta?.allowPageScroll === false ? 900 : autoPageHeight), transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }} onPointerMove={onPointerMove} onPointerUp={finishPointer} onPointerCancel={finishPointer} onClick={() => { setSelectedId(null); setActiveCardText(null); }}>
           {!elements.length && <div className="canvas-empty"><div className="empty-icon"><MousePointer2 size={22}/></div><h2>Your page starts here</h2><p>Choose something from the left to add it. Drag items to move them and use the corner handle to resize.</p><div className="empty-shortcuts"><button onClick={e => { e.stopPropagation(); setTemplatesOpen(true); }}><LayoutTemplate size={16}/> Use a template</button><button onClick={e => { e.stopPropagation(); add('text'); }}><Type size={16}/> Add a heading</button><button onClick={e => { e.stopPropagation(); chooseImage(); }}><ImageIcon size={16}/> Add an image</button></div></div>}
-          {elements.map(el => <div key={el.id} data-type={el.type} className={`canvas-item ${el.id === selectedId ? 'selected' : ''}`} style={{ left: el.x || 0, top: el.y || 0, width: el.width || 260, minHeight: el.height || 80, ...(el.fixed ? { cursor: 'default' } : {}) }} onPointerDown={e => onPointerDown(e, el)} onClick={e => { e.stopPropagation(); setSelectedId(el.id); const cardText = e.target.closest('[data-card-text]')?.getAttribute('data-card-text'); setActiveCardText(cardText || null); if (el.type === 'image' && !el.src) chooseImage({ id: el.id, type: 'image' }); }}>
+            {elements.map((el, layerIndex) => <div key={el.id} data-type={el.type} className={`canvas-item ${el.id === selectedId ? 'selected' : ''}`} style={{ left: el.x || 0, top: el.y || 0, width: el.width || 260, minHeight: el.height || 80, zIndex: layerIndex, ...(el.fixed ? { cursor: 'default' } : {}) }} onPointerDown={e => onPointerDown(e, el)} onClick={e => { e.stopPropagation(); setSelectedId(el.id); const cardText = e.target.closest('[data-card-text]')?.getAttribute('data-card-text'); setActiveCardText(cardText || null); if (el.type === 'image' && !el.src) chooseImage({ id: el.id, type: 'image' }); }}>
             <div className="canvas-item-content"><PrimitiveRenderer el={el} isEditing onChange={onPrimitiveChange} onRequestImage={id => { const target = elements.find(item => item.id === id); setSelectedId(id); chooseImage({ id, type: target?.type === 'card' ? 'card' : 'image' }); }} onRequestVideo={id => { setSelectedId(id); chooseVideo(id); }}/></div>
             {el.id === selectedId && <><span className="selection-tag">{el.type}</span>{!el.fixed && ['nw','n','ne','e','se','s','sw','w'].map(handle => <button key={handle} className={`resize-handle handle-${handle}`} aria-label={`Resize element ${handle}`} onPointerDown={e => onPointerDown(e, el, true, handle)} onPointerMove={onPointerMove} onPointerUp={finishPointer}/>)}</>}
           </div>)}
@@ -268,10 +368,11 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
       <aside className="builder-inspector"><div className="panel-heading"><div><strong>{selected ? 'Edit selection' : 'Page settings'}</strong><span>{selected ? 'Adjust its look and size' : 'Set up your page'}</span></div>{selected && !selected.fixed && <button className="icon-button" onClick={deleteSelected} title="Delete"><Trash2 size={16}/></button>}</div>
         <div className="inspector-scroll">{selected ? <>
           <div className="inspector-card"><div className="section-label">Content</div>
-            {selected.type === 'text' && <><label>Text<textarea value={selected.text || ''} onChange={e => updateElement(selectedId, { text: e.target.value, richHtml: '' })}/></label>{!STYLE_LOCK && <><label>Text style<select value={selected.tag || 'h2'} onChange={e => updateElement(selectedId, { tag: e.target.value })}><option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="h4">Heading 4</option><option value="p">Paragraph</option></select></label><label>Font family<select value={selected.fontFamily || 'Arial, Helvetica, sans-serif'} onChange={e => updateElement(selectedId, { fontFamily: e.target.value })}>{['Arial, Helvetica, sans-serif','Arial','Helvetica','Verdana','Tahoma','Trebuchet MS','Georgia','Times New Roman','Garamond','Palatino Linotype','Courier New','Consolas','Impact','Comic Sans MS'].map(font => <option key={font} value={font}>{font.split(',')[0]}</option>)}</select></label><label>Font weight<select value={selected.fontWeight || 'normal'} onChange={e => updateElement(selectedId, { fontWeight: e.target.value })}><option value="normal">Regular</option><option value="semibold">Semi-bold</option><option value="bold">Bold</option><option value="black">Black</option></select></label><label>Font size <input type="range" min="12" max="56" value={selected.fontSize || 20} onChange={e => updateElement(selectedId, { fontSize: Number(e.target.value) })}/></label></>}</>}
-            {['text','card','button','hyperlink','container'].includes(selected.type) && <div className="rich-toolbar"><div className="section-label">Format selected text</div><div className="rich-actions"><button type="button" title="Bold" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('bold')}><b>B</b></button><button type="button" title="Italic" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('italic')}><i>I</i></button><button type="button" title="Underline" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('underline')}><u>U</u></button>{!STYLE_LOCK && ['#111827','#dc2626','#2563eb','#15803d','#9333ea','#d97706'].map(color => <button type="button" key={color} title={`Text color ${color}`} aria-label={`Text color ${color}`} onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('foreColor', color)} style={{ width:18,height:18,background:color,borderRadius:9 }} />)}</div>{!STYLE_LOCK && <div className="rich-fonts">{['Arial','Verdana','Tahoma','Trebuchet MS','Georgia','Times New Roman','Garamond','Palatino Linotype','Courier New','Consolas','Impact','Comic Sans MS'].map(font => <button type="button" key={font} title={`Apply ${font} to selected text`} onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('fontName', font)}>{font}</button>)}</div>}<small>Select text on the canvas, then choose a format.</small></div>}
+            {selected.type === 'text' && <><label>Text<textarea value={selected.text || ''} onChange={e => updateElement(selectedId, { text: e.target.value, richHtml: '' })}/></label><label>Bullet style<select value={simpleTextBulletStyle} onChange={e => { setSimpleTextBulletStyle(e.target.value); addSimpleTextBullets(e.target.value); }}><option value="disc">Filled circle</option><option value="circle">Hollow circle</option><option value="square">Square</option><option value="decimal">1, 2, 3</option><option value="lower-alpha">a, b, c</option><option value="upper-alpha">A, B, C</option><option value="lower-roman">i, ii, iii</option><option value="upper-roman">I, II, III</option><option value="check">Check marks</option></select></label>{!STYLE_LOCK && <><label>Text style<select value={selected.tag || 'h2'} onChange={e => updateElement(selectedId, { tag: e.target.value })}><option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="h4">Heading 4</option><option value="p">Paragraph</option></select></label><label>Font family<select value={selected.fontFamily || 'Arial, Helvetica, sans-serif'} onChange={e => updateElement(selectedId, { fontFamily: e.target.value })}>{['Arial, Helvetica, sans-serif','Arial','Calibri','Helvetica','Verdana','Tahoma','Trebuchet MS','Georgia','Times New Roman','Garamond','Palatino Linotype','Courier New','Consolas','Impact','Comic Sans MS'].map(font => <option key={font} value={font}>{font.split(',')[0]}</option>)}</select></label><label>Font weight<select value={selected.fontWeight || 'normal'} onChange={e => updateElement(selectedId, { fontWeight: e.target.value })}><option value="normal">Regular</option><option value="semibold">Semi-bold</option><option value="bold">Bold</option><option value="black">Black</option></select></label><label>Font size<input type="number" min="8" max="96" value={selected.fontSize || 20} onChange={e => updateElement(selectedId, { fontSize: clamp(Number(e.target.value) || 8, 8, 96) })}/></label></>}</>}
+            {['text','card','button','hyperlink','container'].includes(selected.type) && <div className="rich-toolbar"><div className="section-label">Format selected text</div><div className="rich-actions"><button type="button" title="Bold" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('bold')}><b>B</b></button><button type="button" title="Italic" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('italic')}><i>I</i></button><button type="button" title="Underline" onMouseDown={e => e.preventDefault()} onClick={() => formatSelection('underline')}><u>U</u></button></div><small>Select text on the canvas, then choose a format.</small></div>}
             {['button','hyperlink'].includes(selected.type) && <label>{selected.type === 'button' ? 'Button label' : 'Link text'}<input value={selected.label || selected.text || ''} onChange={e => updateElement(selectedId, selected.type === 'button' ? { label: e.target.value, richHtml: '' } : { text: e.target.value, richHtml: '' })}/></label>}
             {['button','hyperlink'].includes(selected.type) && <label>Link address<input value={selected.url || ''} onChange={e => updateElement(selectedId, { url: e.target.value })} placeholder="https://…"/></label>}
+            {selected.type === 'hyperlink' && <label>Social media logo<select value={selected.iconName || 'None'} onChange={e => updateElement(selectedId, { iconName: e.target.value })}><option value="None">Text link</option><option value="Facebook">Facebook logo</option><option value="Instagram">Instagram logo</option><option value="LinkedIn">LinkedIn logo</option><option value="YouTube">YouTube logo</option></select></label>}
             {selected.type === 'image' && <><label>Image address<input value={selected.src || ''} onChange={e => updateElement(selectedId, { src: e.target.value })} placeholder="Paste image URL"/></label><label>Caption<input value={selected.caption || ''} onChange={e => updateElement(selectedId, { caption: e.target.value })}/></label><button className="small-action" onClick={() => chooseImage({ id: selectedId, type: 'image' })}><Upload size={14}/> Upload a different image</button></>}
             {selected.type === 'container' && <><label>Shape<select value={selected.shapeType || 'rectangle'} onChange={e => updateElement(selectedId, { shapeType: e.target.value })}><option value="rectangle">Rectangle</option><option value="rounded">Rounded rectangle</option><option value="circle">Circle</option><option value="pill">Pill</option><option value="triangle">Triangle</option><option value="diamond">Diamond</option></select></label><button className="small-action" onClick={() => updateElement(selectedId, { shapeTextEnabled: !(selected.shapeTextEnabled || selected.shapeText), ...(selected.shapeTextEnabled || selected.shapeText ? { shapeText: '', shapeHtml: '' } : {}) })}>{selected.shapeTextEnabled || selected.shapeText ? 'Remove text from shape' : 'Add text to shape'}</button></>}
             {selected.type === 'card' && <><label>Title<input value={selected.title || ''} onChange={e => updateElement(selectedId, { title: e.target.value, titleHtml: '' })}/></label><label>Description<textarea value={selected.description || ''} onChange={e => updateElement(selectedId, { description: e.target.value, descriptionHtml: '' })}/></label><p className="helper-note">{STYLE_LOCK ? 'Fonts and colors follow the UAF design.' : 'Click the title or description on the card to style that text.'}</p>{!STYLE_LOCK && activeCardText && <><div className="section-label">Selected {activeCardText} style</div><label>Font size<input type="number" min="10" max="72" value={selected.cardTextStyles?.[activeCardText]?.fontSize || (activeCardText === 'title' ? 16 : 12)} onChange={e => updateElement(selectedId, { cardTextStyles: { ...selected.cardTextStyles, [activeCardText]: { ...selected.cardTextStyles?.[activeCardText], fontSize: `${Number(e.target.value)}px` } } })}/></label><label>Font family<select value={selected.cardTextStyles?.[activeCardText]?.fontFamily || 'sans-serif'} onChange={e => updateElement(selectedId, { cardTextStyles: { ...selected.cardTextStyles, [activeCardText]: { ...selected.cardTextStyles?.[activeCardText], fontFamily: e.target.value } } })}><option value="sans-serif">Sans serif</option><option value="serif">Serif</option><option value="monospace">Monospace</option></select></label><label>Font weight<select value={selected.cardTextStyles?.[activeCardText]?.fontWeight || '400'} onChange={e => updateElement(selectedId, { cardTextStyles: { ...selected.cardTextStyles, [activeCardText]: { ...selected.cardTextStyles?.[activeCardText], fontWeight: e.target.value } } })}><option value="400">Regular</option><option value="600">Semi-bold</option><option value="700">Bold</option><option value="900">Black</option></select></label><label>Text color<input type="color" value={selected.cardTextStyles?.[activeCardText]?.color || (activeCardText === 'title' ? '#0f172a' : '#475569')} onChange={e => updateElement(selectedId, { cardTextStyles: { ...selected.cardTextStyles, [activeCardText]: { ...selected.cardTextStyles?.[activeCardText], color: e.target.value } } })}/></label></>}</>}
@@ -279,8 +380,9 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
             {selected.type === 'input' && <><label>Field label<input value={selected.label || ''} onChange={e => updateElement(selectedId, { label: e.target.value })}/></label><label>Placeholder<input value={selected.placeholder || ''} onChange={e => updateElement(selectedId, { placeholder: e.target.value })}/></label><label>Field type<select value={selected.inputType || 'text'} onChange={e => updateElement(selectedId, { inputType: e.target.value })}><option value="text">Text</option><option value="email">Email</option><option value="select">Dropdown</option><option value="textarea">Multi-line text</option></select></label>{selected.inputType === 'select' && <label>Dropdown options<input value={selected.options || ''} onChange={e => updateElement(selectedId, { options: e.target.value })}/></label>}</>}
             {selected.type === 'video' && <><label>Video URL<input value={selected.isLocalVideo ? (selected.videoName || 'Video from computer') : (selected.videoUrl || '')} readOnly={!!selected.isLocalVideo} onChange={e => updateElement(selectedId, { videoUrl: e.target.value })} onBlur={e => !selected.isLocalVideo && e.target.value && setVideoUrl(e.target.value)}/></label><button className="small-action" onClick={chooseVideo}><Upload size={14}/> Upload video from computer</button></>}
           </div>
+          <LayerOrderPanel selected={selected} onMove={moveSelectedLayer}/>
           <div className="inspector-card"><div className="section-label">Size & position{selected.fixed ? ' (fixed)' : ''}</div>{selected.fixed && <p className="helper-note">This part of the template is fixed so every page keeps the same header and footer. You can edit its text.</p>}<fieldset disabled={!!selected.fixed} className="plain-fieldset"><div className="number-grid"><label>Width<input type="number" min="60" value={selected.width || 260} onChange={e => updateElement(selectedId, { width: Number(e.target.value) })}/></label><label>Height<input type="number" min="36" value={selected.height || 100} onChange={e => updateElement(selectedId, { height: Number(e.target.value) })}/></label><label>Left<input type="number" min="0" value={selected.x || 0} onChange={e => updateElement(selectedId, { x: Number(e.target.value) })}/></label><label>Top<input type="number" min="0" value={selected.y || 0} onChange={e => updateElement(selectedId, { y: Number(e.target.value) })}/></label></div></fieldset></div>
-          {STYLE_LOCK ? lockedStyleCard : <div className="inspector-card"><div className="section-label">Appearance</div><label>Background color<div className="color-input"><input type="color" value={selected.style?.bgColor?.startsWith('#') ? selected.style.bgColor : '#ffffff'} onChange={e => updateStyle('bgColor', e.target.value)}/><span>{selected.style?.bgColor || 'Transparent'}</span></div></label><label>Text color<div className="color-input"><input type="color" value={selected.style?.textColor || '#1e293b'} onChange={e => updateStyle('textColor', e.target.value)}/><span>{selected.style?.textColor || '#1e293b'}</span></div></label>{['image','card'].includes(selected.type) && <label>Image opacity<input type="range" min="0" max="100" value={selected.type === 'card' ? (selected.imageOpacity ?? 100) : (selected.opacity ?? 100)} onChange={e => updateElement(selectedId, selected.type === 'card' ? { imageOpacity: Number(e.target.value) } : { opacity: Number(e.target.value) })}/></label>}<label>Corner roundness<input type="range" min="0" max="36" value={selected.style?.borderRadius || 0} onChange={e => updateStyle('borderRadius', Number(e.target.value))}/></label>{selected.type !== 'image' && <div className="align-control"><button onClick={() => updateStyle('align','left')} title="Align left"><AlignLeft size={16}/></button><button onClick={() => updateStyle('align','center')} title="Align center"><AlignCenter size={16}/></button><button onClick={() => updateStyle('align','right')} title="Align right"><AlignRight size={16}/></button></div>}</div>}
+          {STYLE_LOCK ? lockedStyleCard : <div className="inspector-card"><div className="section-label">Appearance</div><label>Background color<div className="color-input"><input type="color" value={selected.style?.bgColor?.startsWith('#') ? selected.style.bgColor : '#ffffff'} onChange={e => updateStyle('bgColor', e.target.value)}/><span>{selected.style?.bgColor || 'Transparent'}</span></div></label><label>Text color<div className="color-input"><input type="color" value={selected.style?.textColor || '#1e293b'} onChange={e => updateStyle('textColor', e.target.value)}/><span>{selected.style?.textColor || '#1e293b'}</span></div></label>{['image','card'].includes(selected.type) && <label>Image opacity<input type="range" min="0" max="100" value={selected.type === 'card' ? (selected.imageOpacity ?? 100) : (selected.opacity ?? 100)} onChange={e => updateElement(selectedId, selected.type === 'card' ? { imageOpacity: Number(e.target.value) } : { opacity: Number(e.target.value) })}/></label>}<label>Corner roundness<input type="range" min="0" max="36" value={selected.style?.borderRadius || 0} onChange={e => updateStyle('borderRadius', Number(e.target.value))}/></label>{selected.type !== 'image' && <div className="align-control"><button onClick={() => updateStyle('align','left')} title="Align left"><AlignLeft size={16}/></button><button onClick={() => updateStyle('align','center')} title="Align center"><AlignCenter size={16}/></button><button onClick={() => updateStyle('align','right')} title="Align right"><AlignRight size={16}/></button>{selected.type === 'text' && (selected.tag === 'p' || !selected.tag) && <button onClick={() => updateStyle('align','justify')} title="Justify paragraph"><AlignJustify size={16}/></button>}</div>}</div>}
           {!selected.fixed && <div className="inspector-card"><div className="section-label">Arrange</div><button className="small-action full-action" onClick={duplicateSelected}><Copy size={14}/> Duplicate this item</button></div>}
         </> : <><div className="inspector-card"><div className="section-label">Page details</div><label>Page name<input value={pageData.meta?.title || ''} onChange={e => { setPageData({ ...pageData, meta: { ...pageData.meta, title: e.target.value } }); setSaved(false); dirtyRef.current = true; }}/></label><label>Author / faculty<input value={pageData.meta?.author || ''} onChange={e => setPageData({ ...pageData, meta: { ...pageData.meta, author: e.target.value } })}/></label><label className="checkbox-label"><input type="checkbox" checked={pageData.meta?.allowPageScroll !== false} onChange={e => setPageData({ ...pageData, meta: { ...pageData.meta, allowPageScroll: e.target.checked } })}/> Allow vertical page scroll</label><p className="helper-note">When enabled, the page grows to fit its content and can scroll vertically in Preview.</p><p className="helper-note">Select anything on the canvas to change its text, size and position.{STYLE_LOCK ? ' Colors and fonts follow the UAF design.' : ''}</p></div><div className="inspector-card"><div className="section-label">Helpful tip</div><p className="helper-note">Keep headings clear and use images that represent your faculty. Save your design to Drafts to keep it on this device.</p></div></>}</div>
       </aside>

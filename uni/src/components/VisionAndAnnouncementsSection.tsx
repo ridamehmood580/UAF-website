@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ChevronRight, ExternalLink } from 'lucide-react';
 
@@ -78,7 +80,7 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
     <section
       id="vision"
       ref={sectionRef}
-      className="pt-20 sm:pt-28 lg:pt-44 pb-20 sm:pb-28 bg-white border-b border-[#e5eaee] overflow-hidden"
+      className="pt-16 sm:pt-20 lg:pt-24 pb-20 sm:pb-28 bg-white border-b border-[#e5eaee] overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
@@ -92,7 +94,7 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
             }`}
           >
             {/* Main Top Heading (Increased Size) */}
-            <div className="inline-flex items-center gap-3 text-[#0f766e] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
+            <div className="inline-flex items-center gap-3 text-[#1e3a7a] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
               <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block"></span>
               <span>Vision 2050</span>
             </div>
@@ -103,7 +105,7 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
             </h2>
 
             {/* Body Text */}
-            <div className="space-y-4 text-[#0f766e] text-[15px] sm:text-[16px] leading-[1.85] text-justify font-medium">
+            <div className="space-y-4 text-[#46505a] text-[15px] sm:text-[16px] leading-[1.85] text-justify font-normal">
               <p>
                 Founded in 1906 as the Punjab Agricultural College and Research Institute, Lyallpur, the institution became the West Pakistan Agricultural University in 1961 and has stood as the University of Agriculture, Faisalabad since 1973. Into the 21st century, UAF continues to push the frontiers of knowledge through interdisciplinary teaching, research and outreach that serve agricultural and rural development.
               </p>
@@ -116,9 +118,9 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
             <div className="pt-3">
               <a
                 href="#about"
-                className="inline-flex items-center gap-4 text-[#102a43] hover:text-[#0f766e] font-bold text-sm sm:text-base group transition-colors"
+                className="inline-flex items-center gap-4 text-[#102a43] hover:text-blue-700 font-bold text-sm sm:text-base group transition-colors"
               >
-                <span className="w-12 h-12 rounded-full bg-[#0f766e] group-hover:bg-[#102a43] text-white flex items-center justify-center transition-all group-hover:translate-x-1.5 shadow-md">
+                <span className="w-12 h-12 rounded-full bg-[#1d4e89] group-hover:bg-[#102a43] text-white flex items-center justify-center transition-all group-hover:translate-x-1.5 shadow-md">
                   <ArrowRight className="w-5 h-5" />
                 </span>
                 <span>Read more about Vision 2050</span>
@@ -129,14 +131,14 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-[#e5eaee]">
               {[
                 { num: '1906', label: '119+ Yrs Legacy', color: 'text-[#102a43]' },
-                { num: 'Top 100', label: 'QS Agri Ranking', color: 'text-[#0f766e]' },
+                { num: 'Top 100', label: 'QS Agri Ranking', color: 'text-black' },
                 { num: '7+', label: 'Main Faculties', color: 'text-[#e8a62a]' },
                 { num: '150+', label: 'Degrees Offered', color: 'text-[#102a43]' }
               ].map((item, idx) => (
                 <div
                   key={item.num}
                   style={{ transitionDelay: `${idx * 120}ms` }}
-                  className={`bg-[#f7f5f0] p-3 rounded-lg border border-[#ddd6c9] text-center transition-all duration-700 hover:-translate-y-1.5 hover:border-[#0f766e] hover:shadow-md cursor-pointer ${
+                  className={`bg-[#f7f5f0] p-3 rounded-lg border border-[#ddd6c9] text-center transition-all duration-700 hover:-translate-y-1.5 hover:border-[#1d4e89] hover:shadow-md cursor-pointer ${
                     isVisible
                       ? 'opacity-100 translate-x-0'
                       : 'opacity-0 -translate-x-12'
@@ -161,13 +163,13 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
                 : 'opacity-0 -translate-x-20'
             }`}
           >
-            <div className="bg-white border-t-4 border-[#0f766e] rounded-sm shadow-xl p-6 sm:p-7 border-x border-b border-[#e5eaee] flex flex-col max-h-[580px] hover:shadow-2xl transition-shadow duration-500">
+            <div className="bg-white border-t-4 border-[#1d4e89] rounded-sm shadow-xl p-6 sm:p-7 border-x border-b border-[#e5eaee] flex flex-col max-h-[580px] hover:shadow-2xl transition-shadow duration-500">
               
               <div className="flex items-center justify-between border-b border-[#e5eaee] pb-4 mb-4">
                 <h3 className="font-serif-heading text-2xl sm:text-[28px] font-bold text-[#071b2d]">
                   Announcements
                 </h3>
-                <span className="text-[11px] font-bold text-[#0f766e] bg-[#dff5f1] px-2 py-0.5 rounded">
+                <span className="text-[11px] font-bold text-black bg-[#e8eef9] px-2 py-0.5 rounded">
                   Live Feed 2026
                 </span>
               </div>
@@ -180,7 +182,7 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
                     className="pt-4 first:pt-0 flex gap-4 items-start group transition-transform duration-300 hover:translate-x-2"
                   >
                     {/* Date Block */}
-                    <div className="shrink-0 w-12 h-12 bg-[#071b2d] text-white rounded flex flex-col items-center justify-center leading-none group-hover:bg-[#0f766e] transition-colors shadow-xs">
+                    <div className="shrink-0 w-12 h-12 bg-[#071b2d] text-white rounded flex flex-col items-center justify-center leading-none group-hover:bg-[#1d4e89] transition-colors shadow-xs">
                       <strong className="text-base font-bold">{item.day}</strong>
                       <span className="text-[10px] uppercase font-semibold mt-0.5">{item.month}</span>
                     </div>
@@ -191,7 +193,7 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
                         href={item.link}
                         target={item.link.startsWith('http') ? '_blank' : '_self'}
                         rel="noopener noreferrer"
-                        className="font-bold text-sm text-[#18212b] group-hover:text-[#0f766e] transition-colors line-clamp-2 leading-snug flex items-center gap-1.5 cursor-pointer"
+                        className="font-bold text-sm text-[#18212b] group-hover:text-blue-700 transition-colors line-clamp-2 leading-snug flex items-center gap-1.5 cursor-pointer"
                       >
                         <span>{item.title}</span>
                         {item.link.startsWith('http') && <ExternalLink className="w-3 h-3 text-stone-400 shrink-0 inline" />}
@@ -208,7 +210,7 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
               <div className="pt-4 mt-4 border-t border-[#e5eaee] flex items-center justify-between">
                 <button
                   onClick={onOpenCalculator}
-                  className="text-xs font-bold text-[#0f766e] hover:text-[#071b2d] flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-bold text-black hover:text-[#071b2d] flex items-center gap-1 cursor-pointer"
                 >
                   <span>Admission Merit Calculator 2026</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -216,7 +218,7 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
 
                 <a
                   href="#latest-events"
-                  className="text-xs font-bold text-[#46505a] hover:text-[#0f766e]"
+                  className="text-xs font-bold text-[#46505a] hover:text-blue-700"
                 >
                   View All Notices →
                 </a>

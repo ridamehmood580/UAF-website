@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
 import {
   Search,
@@ -78,7 +80,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-black text-xs font-bold uppercase tracking-wider mb-3">
             <GraduationCap className="w-3.5 h-3.5" />
             <span>Academic Faculties & Degree Finder</span>
           </div>
@@ -102,7 +104,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by degree title, department, or keyword (e.g. Agriculture, DVM, CS, Data Science)..."
-                className="w-full pl-10 pr-10 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white transition-all"
+                className="w-full pl-10 pr-10 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:bg-white transition-all"
               />
               {searchQuery && (
                 <button
@@ -123,7 +125,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
                     onClick={() => setSelectedShift(shift)}
                     className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
                       selectedShift === shift
-                        ? 'bg-emerald-800 text-white font-bold shadow-xs'
+                        ? 'bg-blue-800 text-white font-bold shadow-xs'
                         : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
@@ -143,7 +145,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
                   onClick={() => setSelectedLevel(level)}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     selectedLevel === level
-                      ? 'bg-emerald-800 text-white shadow-xs'
+                      ? 'bg-blue-800 text-white shadow-xs'
                       : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                   }`}
                 >
@@ -172,7 +174,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
           <span>Showing <strong>{filteredPrograms.length}</strong> academic programs</span>
           <button
             onClick={() => onOpenCalculator()}
-            className="text-emerald-800 font-bold hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-black font-bold hover:underline flex items-center gap-1 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>Open Aggregate Merit & Fee Calculator</span>
@@ -194,7 +196,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
                 setSelectedShift('All');
                 onClearFacultyFilter();
               }}
-              className="px-4 py-2 bg-emerald-800 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-blue-800 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors cursor-pointer"
             >
               Reset All Filters
             </button>
@@ -204,12 +206,12 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
             {filteredPrograms.map((prog) => (
               <div
                 key={prog.id}
-                className="bg-white rounded-2xl border border-stone-200 hover:border-emerald-700/60 shadow-xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group"
+                className="bg-white rounded-2xl border border-stone-200 hover:border-blue-700/60 shadow-xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group"
               >
                 <div className="p-5 sm:p-6 space-y-4">
                   {/* Card Header: Level & Shift Badge */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-black border border-blue-200">
                       {prog.degreeLevel}
                     </span>
                     <div className="flex items-center gap-1 text-[11px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
@@ -219,7 +221,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
 
                   {/* Title & Department */}
                   <div>
-                    <h3 className="font-serif-heading text-lg font-bold text-stone-900 group-hover:text-emerald-800 transition-colors leading-snug">
+                    <h3 className="font-serif-heading text-lg font-bold text-stone-900 group-hover:text-blue-700 transition-colors leading-snug">
                       {prog.title}
                     </h3>
                     <p className="text-xs text-stone-500 font-medium mt-1">
@@ -235,7 +237,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
                   {/* Meta Specs Grid */}
                   <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-100 text-xs text-stone-600">
                     <div className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <Clock className="w-3.5 h-3.5 text-black shrink-0" />
                       <span>{prog.duration}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -267,7 +269,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
                 <div className="p-4 bg-stone-50 border-t border-stone-100 flex items-center justify-between gap-2">
                   <button
                     onClick={() => setActiveModalProgram(prog)}
-                    className="text-xs font-bold text-stone-700 hover:text-emerald-800 py-1.5 px-3 rounded-lg hover:bg-stone-200/60 transition-colors flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-stone-700 hover:text-blue-700 py-1.5 px-3 rounded-lg hover:bg-stone-200/60 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Info className="w-3.5 h-3.5 text-stone-500" />
                     <span>Details & Careers</span>
@@ -275,7 +277,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
 
                   <button
                     onClick={() => onOpenCalculator(prog.id)}
-                    className="py-2 px-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold transition-all flex items-center gap-1 shadow-xs cursor-pointer"
+                    className="py-2 px-3.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold transition-all flex items-center gap-1 shadow-xs cursor-pointer"
                   >
                     <span>Check Merit</span>
                     <ArrowRight className="w-3 h-3" />
@@ -294,7 +296,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-stone-100 pb-4">
               <div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 mb-2">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-black mb-2">
                   {activeModalProgram.degreeLevel} • {activeModalProgram.facultyName}
                 </span>
                 <h3 className="font-serif-heading text-2xl font-bold text-stone-900">
@@ -324,7 +326,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
               </div>
               <div>
                 <span className="text-[11px] text-stone-500 block">Est. Semester Fee</span>
-                <span className="text-xs font-bold text-emerald-800">PKR {activeModalProgram.semesterFeePKR.toLocaleString()}</span>
+                <span className="text-xs font-bold text-black">PKR {activeModalProgram.semesterFeePKR.toLocaleString()}</span>
               </div>
               <div>
                 <span className="text-[11px] text-stone-500 block">Available Seats</span>
@@ -347,7 +349,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
               <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
                 Eligibility & Admission Requirements
               </h4>
-              <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-950 font-medium">
+              <div className="bg-blue-50/70 p-3 rounded-xl border border-blue-200 text-xs text-black font-medium">
                 {activeModalProgram.eligibility}
               </div>
             </div>
@@ -360,7 +362,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 {activeModalProgram.careerProspects.map((career, i) => (
                   <div key={i} className="flex items-center gap-2 bg-stone-50 p-2.5 rounded-lg border border-stone-200 text-stone-800">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-black shrink-0" />
                     <span>{career}</span>
                   </div>
                 ))}
@@ -375,7 +377,7 @@ export const AcademicProgramsSection: React.FC<AcademicProgramsSectionProps> = (
                   setActiveModalProgram(null);
                   onOpenCalculator(progId);
                 }}
-                className="flex-1 py-3 px-4 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                className="flex-1 py-3 px-4 bg-blue-800 hover:bg-blue-900 text-white rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-amber-300" />
                 <span>Calculate My Merit for this Degree</span>

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
 import {
   X,
@@ -134,7 +136,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
             <select
               value={selectedProgramId}
               onChange={(e) => setSelectedProgramId(e.target.value)}
-              className="w-full p-3.5 bg-[#f5f8fa] border border-[#e5eaee] rounded-lg text-sm font-semibold text-[#18212b] focus:ring-2 focus:ring-[#0f766e] focus:outline-none cursor-pointer"
+              className="w-full p-3.5 bg-[#f5f8fa] border border-[#e5eaee] rounded-lg text-sm font-semibold text-[#18212b] focus:ring-2 focus:ring-[#1d4e89] focus:outline-none cursor-pointer"
             >
               {ACADEMIC_PROGRAMS.map((prog) => (
                 <option key={prog.id} value={prog.id}>
@@ -151,7 +153,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
             <div className="bg-[#f7f5f0] p-4.5 rounded-xl border border-[#e5eaee] space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs text-[#18212b]">1. Matriculation</span>
-                <span className="text-[11px] font-bold bg-[#0f766e]/10 text-[#0f766e] px-2 py-0.5 rounded">30%</span>
+                <span className="text-[11px] font-bold bg-[#1d4e89]/10 text-black px-2 py-0.5 rounded">30%</span>
               </div>
               <div className="space-y-2">
                 <div>
@@ -173,7 +175,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
                   />
                 </div>
               </div>
-              <div className="text-[11px] font-bold text-[#0f766e] text-right">
+              <div className="text-[11px] font-bold text-black text-right">
                 Weightage: {calculation.matricPct}%
               </div>
             </div>
@@ -182,7 +184,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
             <div className="bg-[#f7f5f0] p-4.5 rounded-xl border border-[#e5eaee] space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs text-[#18212b]">2. Intermediate (F.Sc)</span>
-                <span className="text-[11px] font-bold bg-[#0f766e]/10 text-[#0f766e] px-2 py-0.5 rounded">30%</span>
+                <span className="text-[11px] font-bold bg-[#1d4e89]/10 text-black px-2 py-0.5 rounded">30%</span>
               </div>
               <div className="space-y-2">
                 <div>
@@ -204,7 +206,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
                   />
                 </div>
               </div>
-              <div className="text-[11px] font-bold text-[#0f766e] text-right">
+              <div className="text-[11px] font-bold text-black text-right">
                 Weightage: {calculation.interPct}%
               </div>
             </div>
@@ -235,7 +237,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
                   />
                 </div>
               </div>
-              <div className="text-[11px] font-bold text-[#0f766e] text-right">
+              <div className="text-[11px] font-bold text-black text-right">
                 Weightage: {calculation.testPct}%
               </div>
             </div>
@@ -243,13 +245,13 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
           </div>
 
           {/* Hafiz-e-Quran Checkbox */}
-          <div className="flex items-center gap-3 p-3.5 bg-[#dff5f1]/60 rounded-lg border border-[#0f766e]/20">
+          <div className="flex items-center gap-3 p-3.5 bg-[#e8eef9]/60 rounded-lg border border-[#1d4e89]/20">
             <input
               type="checkbox"
               id="hafizCheck"
               checked={isHafiz}
               onChange={(e) => setIsHafiz(e.target.checked)}
-              className="w-4 h-4 text-[#0f766e] rounded focus:ring-[#0f766e] cursor-pointer"
+              className="w-4 h-4 text-black rounded focus:ring-[#1d4e89] cursor-pointer"
             />
             <label htmlFor="hafizCheck" className="text-xs sm:text-sm font-semibold text-[#18212b] cursor-pointer">
               Hafiz-e-Quran (+20 marks added to Intermediate score upon verification test)
@@ -257,7 +259,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
           </div>
 
           {/* Real-Time Aggregate Score Card */}
-          <div className="bg-gradient-to-r from-[#071b2d] via-[#102a43] to-[#0f766e] text-white p-6 rounded-xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="bg-gradient-to-r from-[#071b2d] via-[#102a43] to-[#1d4e89] text-white p-6 rounded-xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-1 text-center sm:text-left">
               <span className="text-xs text-[#e8a62a] font-bold uppercase tracking-wider">
                 Calculated Final Merit
@@ -274,7 +276,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
               <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-xs bg-white text-[#071b2d] shadow-sm">
                 {calculation.isEligible ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <CheckCircle2 className="w-4 h-4 text-black" />
                     <span>Strong Admission Chance ({calculation.difference > '0' ? `+${calculation.difference}%` : '0%'} above cutoff)</span>
                   </>
                 ) : (
@@ -294,7 +296,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
           <div className="pt-2 flex flex-wrap items-center justify-between gap-4 border-t border-[#e5eaee]">
             <button
               onClick={handleDownloadChallan}
-              className="px-5 py-3 rounded bg-[#0f766e] hover:bg-[#102a43] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md transition-all cursor-pointer"
+              className="px-5 py-3 rounded bg-[#1d4e89] hover:bg-[#102a43] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md transition-all cursor-pointer"
             >
               <Download className="w-4 h-4 text-[#e8a62a]" />
               <span>{downloadSuccess ? 'Challan PDF Generated!' : 'Generate Admission Fee Challan (PKR 1,000)'}</span>
@@ -305,7 +307,7 @@ export const AdmissionEligibilityCalculatorModal: React.FC<AdmissionEligibilityC
                 onClose();
                 onOpenAdvisor();
               }}
-              className="text-xs font-bold text-[#0f766e] hover:text-[#071b2d] flex items-center gap-1.5 cursor-pointer"
+              className="text-xs font-bold text-black hover:text-[#071b2d] flex items-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-[#e8a62a]" />
               <span>Ask Advisor for Hostel & Fee Details</span>

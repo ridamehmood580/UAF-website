@@ -1,30 +1,31 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
+  Home,
   ChevronDown,
   ChevronRight,
   Mail,
   Phone,
-  MapPin,
   GraduationCap,
   BookOpen,
   Building,
   CheckCircle2,
-  Users,
-  FileText,
   Tag,
   Eye,
   ExternalLink,
   Search,
-  Award,
   Sparkles,
-  Globe,
-  Calendar,
-  Layers,
-  Link as LinkIcon
+  Globe
 } from 'lucide-react';
 import { Header } from './Header';
+import { PublishedSiteHeader } from './PublishedSiteHeader';
+import { PublishedDepartmentContent } from './PublishedDepartmentContent';
 import { FacultyProfileDetailPage } from './FacultyProfileDetailPage';
-import { PublishedPageRenderer } from './PublishedPageRenderer';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TYPES & DEFINITIONS (Clean & 100% Self-Contained)
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type FacultySection =
   | 'overview'
@@ -34,16 +35,8 @@ export type FacultySection =
   | 'internship'
   | 'short-courses'
   | 'portfolio'
-  | 'agronomy'
-  | 'entomology'
-  | 'plant-pathology'
-  | 'plant-breeding'
-  | 'forestry'
-  | 'horticulture'
-  | 'soil-sciences'
+  | 'centres'
   | string;
-
-export type DepartmentSubView = 'overview' | 'staff' | 'portfolio';
 
 export interface FacultyMeta {
   id: string;
@@ -93,8 +86,55 @@ export interface DepartmentDetailData {
   staffList: StaffMember[];
 }
 
-// Professional Male Academic Portrait Pool for Faculty Profile Cards
-export const FACULTY_PORTRAIT_POOL = [
+export interface DynamicDivisionMeta {
+  id: string;
+  label: string;
+  fullName: string;
+  focus: string;
+  subDivisions?: DynamicDivisionMeta[];
+}
+
+export interface DynamicFacultyMenuConfig {
+  undergradDegree?: string;
+  undergradSubtitle?: string;
+  undergradDuration?: string;
+  deanImage: string;
+  deanDepartment: string;
+  deanBio1: string;
+  deanBio2: string;
+  departments: DynamicDivisionMeta[];
+  institutes?: DynamicDivisionMeta[];
+  centres?: DynamicDivisionMeta[];
+  hasEducationalPrograms?: boolean;
+  hasPortfolio?: boolean;
+  hasCentres?: boolean;
+  undergradMajors?: string[];
+}
+
+export interface PublicationItem {
+  id: string;
+  srNo: number;
+  type: 'journal' | 'conference';
+  title: string;
+  authors: string;
+  journalOrConf: string;
+  impactFactor?: string;
+  date: string;
+  doi: string;
+  issnOnline?: string;
+  issnPrint?: string;
+  url: string;
+  department: string;
+}
+
+export type DepartmentSubView = 'overview' | 'staff' | 'portfolio';
+type SlideDirection = 'left' | 'right' | 'bottom' | 'top';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA CONSTANTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const FACULTY_PORTRAIT_POOL: string[] = [
   'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
   'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80',
@@ -105,173 +145,24 @@ export const FACULTY_PORTRAIT_POOL = [
   'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=600&q=80'
 ];
 
-type SlideDirection = 'left' | 'right' | 'bottom' | 'top';
-
-/**
- * Scroll-Triggered Directional Slide Row
- * Alternates sliding from Left -> Right -> Bottom -> Top row by row
- */
-export const AnimatedSlideRow: React.FC<{
-  direction: SlideDirection;
-  delayMs?: number;
-  className?: string;
-  children: React.ReactNode;
-}> = ({ direction, delayMs = 0, className = '', children }) => {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const el = rowRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        } else {
-          setIsVisible(false);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const hiddenTransform =
-    direction === 'left'
-      ? '-translate-x-24 opacity-0'
-      : direction === 'right'
-      ? 'translate-x-24 opacity-0'
-      : direction === 'bottom'
-      ? 'translate-y-20 opacity-0'
-      : '-translate-y-20 opacity-0';
-
-  return (
-    <div
-      ref={rowRef}
-      style={{ transitionDelay: `${delayMs}ms` }}
-      className={`transition-all duration-900 ease-out ${
-        isVisible ? 'translate-x-0 translate-y-0 opacity-100' : hiddenTransform
-      } ${className}`}
-    >
-      {children}
-    </div>
-  );
-};
-
-/**
- * Renders Faculty & Staff in Rows of 4 Cards per Row (matching official UAF Faculty Profiles layout),
- * where each row slides in one-by-one from alternating directions (Left, Right, Bottom, Top).
- * Clicking any card or image opens the redesigned individual Faculty Person Profile Page.
- */
-const FacultyStaffRowsGrid: React.FC<{
-  staffList: StaffMember[];
-  onSelectMember: (member: StaffMember, portraitUrl: string, phoneNum: string) => void;
-}> = ({ staffList, onSelectMember }) => {
-  const rows: StaffMember[][] = [];
-  for (let i = 0; i < staffList.length; i += 4) {
-    rows.push(staffList.slice(i, i + 4));
-  }
-
-  const directions: SlideDirection[] = ['left', 'right', 'bottom', 'top'];
-
-  return (
-    <div className="space-y-9 overflow-hidden py-2">
-      {rows.map((rowMembers, rowIndex) => {
-        const dir = directions[rowIndex % directions.length];
-        return (
-          <AnimatedSlideRow
-            key={rowIndex}
-            direction={dir}
-            delayMs={rowIndex * 110}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7"
-          >
-            {rowMembers.map((member, cardIdx) => {
-              const globalIdx = rowIndex * 4 + cardIdx;
-              const portraitUrl =
-                member.image || FACULTY_PORTRAIT_POOL[globalIdx % FACULTY_PORTRAIT_POOL.length];
-              const phoneNum = member.phone || `+92419200161 - Ext. ${2901 + globalIdx}`;
-
-              return (
-                <div
-                  key={member.name + cardIdx}
-                  onClick={() => onSelectMember(member, portraitUrl, phoneNum)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onSelectMember(member, portraitUrl, phoneNum);
-                    }
-                  }}
-                  style={{ transitionDelay: `${cardIdx * 90}ms` }}
-                  className="bg-white rounded-2xl overflow-hidden border border-stone-200/90 shadow-md hover:shadow-2xl hover:border-[#005a36]/40 transition-all duration-500 hover:-translate-y-2 flex flex-col min-h-[460px] sm:min-h-[480px] group cursor-pointer"
-                >
-                  {/* Top Portrait Image (Increased Height & Width, Clickable) */}
-                  <div className="relative w-full h-76 sm:h-80 bg-stone-100 overflow-hidden p-3 pb-0">
-                    <div className="w-full h-full rounded-xl overflow-hidden bg-stone-200 relative">
-                      <img
-                        src={portraitUrl}
-                        alt={member.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#00472a]/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
-                        <span className="inline-flex items-center gap-1.5 bg-white/95 text-[#005a36] text-xs font-bold px-3.5 py-1.5 rounded-full shadow-md">
-                          <Eye className="w-3.5 h-3.5 text-[#c99738]" />
-                          <span>View Faculty Profile</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card Details (Name in UAF Green + Designation + Phone Ext + Email) */}
-                  <div className="p-5 pt-4 flex-1 flex flex-col justify-between space-y-3 bg-white">
-                    <div className="space-y-2">
-                      <h4 className="font-bold text-base sm:text-[17px] text-[#005a36] group-hover:text-[#071b2d] transition-colors leading-snug">
-                        {member.name}
-                      </h4>
-
-                      <div className="space-y-1.5 text-[13px] sm:text-[13.5px] text-stone-600 pt-1">
-                        <div className="flex items-center gap-2.5">
-                          <Tag className="w-4 h-4 text-[#3b5998] shrink-0" />
-                          <span className="font-medium text-stone-700">{member.designation}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2.5">
-                          <Phone className="w-4 h-4 text-[#3b5998] shrink-0" />
-                          <span>{phoneNum}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
-                          <Mail className="w-4 h-4 text-[#3b5998] shrink-0" />
-                          <a
-                            href={`mailto:${member.email}`}
-                            className="text-stone-700 hover:text-[#005a36] hover:underline truncate"
-                            title={member.email}
-                          >
-                            {member.email}
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-
-                    {member.specialization && (
-                      <div className="pt-2.5 border-t border-stone-100">
-                        <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed">
-                          {member.specialization}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </AnimatedSlideRow>
-        );
-      })}
-    </div>
-  );
-};
+export const MALE_PROFESSOR_NAMES_POOL: string[] = [
+  'Prof. Dr. Abdul Khaliq',
+  'Prof. Dr. Muhammad Asghar',
+  'Prof. Dr. Tariq Aziz',
+  'Prof. Dr. Javaid Akhtar',
+  'Prof. Dr. Zahir Ahmad Zahir',
+  'Prof. Dr. Rana Nadeem Abbas',
+  'Prof. Dr. Ashfaq Ahmad Chattha',
+  'Prof. Dr. Muhammad Farooq',
+  'Dr. Fahd Rasul',
+  'Dr. Shakeel Ahmad Anjum',
+  'Dr. Imran Khan',
+  'Dr. M. Saqib',
+  'Dr. Haroon Zaman Khan',
+  'Dr. Muhammad Ather Nadeem',
+  'Dr. M. Shahid Ibni Zamir',
+  'Dr. M. Bilal Chattha'
+];
 
 export const FACULTY_DATA_MAP: Record<string, FacultyMeta> = {
   'fac-agri': {
@@ -320,7 +211,7 @@ export const FACULTY_DATA_MAP: Record<string, FacultyMeta> = {
     deanEmail: 'dean.sciences@uaf.edu.pk',
     deanOffice: 'Dean Secretariat, Faculty of Sciences, UAF Main Campus',
     historyText:
-      'The Faculty of Sciences provides foundational scientific training and cutting-edge basic and applied research across Biochemistry, Botany, Zoology, Chemistry, Physics, Mathematics, and Statistics, empowering scientific discoveries and interdisciplinary innovation.',
+      'The Faculty of Sciences provides foundational scientific training and cutting-edge basic and applied research across Biochemistry, Botany, Zoology, Chemistry, Physics, Mathematics, and Computer Science, empowering scientific discoveries and interdisciplinary innovation.',
     departmentsCount: '8 Departments',
     institutesCount: '1 Research Center',
     farmsCount: '4 Modern Labs'
@@ -371,10 +262,12 @@ export const FACULTY_DATA_MAP: Record<string, FacultyMeta> = {
     deanEmail: 'dean.social@uaf.edu.pk',
     deanOffice: 'Dean Secretariat, Faculty of Social Sciences, UAF',
     historyText:
-      'The Faculty of Social Sciences focuses on agricultural policy, development economics, agribusiness supply chains, and rural extension methodologies to link scientific innovations directly with smallholder farmers.',
-    departmentsCount: '4 Departments',
-    institutesCount: '2 Institutes',
-    farmsCount: '1 Field Outreach Center'
+      `The Faculty of Social Sciences, formally the faculty of Agricultural Economics and Rural Sociology was established in 1963, with its constituent departments of Agricultural Economics, Farm Management, Agricultural Marketing, Cooperation and Credit and Rural Sociology. The Faculty now has three institutes namely Institute of Agricultural & Resource Economics, Institute of Business Management Sciences and Institute of Agricultural Extension and Rural Development and two Departments namely Department of Rural Sociology and Department of Continuing Education. The Faculty has endeavored to keep abreast with the emerging requirements and challenges in terms of academic programs/activities from its inception. However, looking at the likely shape of agriculture under the fast changing climatic and policy changes, the direction and quality of research and the make-up of trained manpower output in the discipline of agricultural social sciences need to be looked into seriously in order to meet the challenges of the 21st century. The majority of faculty staff is well-qualified having doctorates from world known universities. The faculty imparts education to the undergraduate classes in the field of Agricultural and Resource Economics and post graduate classes in the field of Economics, Agri. Economics, Development Economics, Environmental and Resource Economics, Rural Sociology, Education and Extension, Anthropology, Rural Development, Business Management, Commerce and a number of associate degrees and diploma certificates.
+
+Over the past few decades, the Faculty has dynamically and timely responded to desirable input for policy and research support for the uplift of rural masses, increased food security and need-based educational and curricular development. The recent phasing out of the Faculty was a result of serious debate and policy discussions in order to address wide range of issues including socioeconomic development, demographic and gender-based challenges, vocational education and outreach, community development and extension for sustainable agriculture. The faculty has been actively involved in research and development activities as well both funded from within Pakistan and abroad. The collaborative partners include DAAD, IFPRI, ACIAR, USAID, ILRI, IWMI and many more. Under WTO set up, concerted efforts are needed to shift our agriculture from subsistence to commercial one putting further pressure to emphasize resource management and commercialization strategy. Such a focus has become a major push factor to pursue for sustainable agricultural development and ultimately rural development. Another impetus for meaningful restructuring and fine tuning of the faculty is to meet emerging requirements of the economy in the light of changing global relationship between Pakistan and China under CPEC regime. The Faculty is actively involved in assisting provincial and federal governments on various policy issues by contributing through policy briefs and arranging policy oriented seminars and colloquia.`,
+    departmentsCount: '2 Departments',
+    institutesCount: '3 Institutes',
+    farmsCount: '2 Specialized Centres'
   },
   'fac-food': {
     id: 'fac-food',
@@ -398,1127 +291,683 @@ export const FACULTY_DATA_MAP: Record<string, FacultyMeta> = {
     name: 'Faculty of Arts and Humanities',
     shortName: 'Arts & Humanities',
     fullName: 'Faculty of Arts and Humanities',
-    tagline: 'Cultivating Critical Inquiry, Linguistics, Literature and Cultural Heritage.',
-    deanName: 'Prof. Dr. Muhammad Asif',
+    tagline: 'Where Creativity Meets Critical Inquiry: Exploring human experience and culture.',
+    deanName: 'Prof. Dr. Shaheen Akhtar',
     deanTitle: 'Dean, Faculty of Arts & Humanities',
-    deanPhone: '+92 41 9200161-70 Ext: 2700',
+    deanPhone: '+92 41 9200161-70 Ext: 3600',
     deanEmail: 'dean.arts@uaf.edu.pk',
-    deanOffice: 'Dean Secretariat, Faculty of Arts & Humanities, UAF',
+    deanOffice: 'Dean Secretariat, Faculty of Arts & Humanities, UAF Main Campus',
     historyText:
-      'The Faculty of Arts and Humanities promotes critical thinking, communication, language studies, and ethical awareness through rigorous academic programs in English, Islamic Studies, Pakistan Studies, and Humanities.',
-    departmentsCount: '4 Departments',
-    institutesCount: '1 Language Lab',
-    farmsCount: '1 Cultural Archive'
+      'Faculty of Arts and Humanities: Where Creativity Meets Critical Inquiry Our faculty is dedicated to exploring the complexities of human experience through a diverse range of disciplines, including English and Linguistics, History, Pakistan Studies, Waris Shah Chair (cultural studies), Art and Design, and Islamic Studies. At the heart of the faculty\'s mission is the belief that understanding the arts and humanities is essential for fostering engaged, informed, and empathetic citizens. The faculty aims to cultivate critical thinkers who can navigate and contribute to an increasingly interconnected world. Our programs emphasize interdisciplinary collaboration, encouraging students to draw connections across fields and apply their knowledge to real-world challenges. Whether through analyzing classical texts, engaging in artistic expression, or exploring social justice issues, our students are empowered to develop unique perspectives that enrich their academic and professional journeys. This helps create the richness of human culture and creativity while preparing students to make a meaningful impact in a variety of careers and communities.\n\nVision and Mission of the Faculty:\nThe Faculty of Arts and Humanities aspires to provide holistic education. It fosters a well-rounded education, emphasizing critical thinking, creativity, and ethical reasoning, which are essential in various fields. The faculty will enhance cultural awareness, and its programs in arts and humanities intend to promote understanding of diverse cultures and histories, preparing students to engage in a globalized world. This fosters interdisciplinary collaboration across disciplines, enhancing research and innovation by blending perspectives and critical thinking. It encourages analytical thinking, problem-solving, and the ability to view issues from multiple angles. The faculty recognizes that graduates of Arts and Humanities often pursue careers in public service, education, and community development, directly contributing to societal well-being. The Faculty is working on a priority basis to develop effective communication skills in both verbal and written forms, which are valuable in any career. Exposure to various forms of artistic expression and theoretical frameworks can inspire creative solutions in business, technology, and other fields. That\'s how it fosters lifelong learning. Above all, establishing a faculty like this can attract funding and resources for research in critical areas such as social justice, ethics, and cultural studies. By prioritizing arts and humanities, universities can enrich their academic environments and better prepare students for the complexities of modern life.',
+    departmentsCount: '6 Departments',
+    institutesCount: '1 Cultural Chair',
+    farmsCount: '2 Art Studios'
   },
   'fac-health': {
     id: 'fac-health',
     name: 'Faculty of Health and Pharmaceutical Sciences',
-    shortName: 'Health Sciences',
+    shortName: 'Health & Pharmacy',
     fullName: 'Faculty of Health and Pharmaceutical Sciences',
-    tagline: 'Excellence in Pharmacy, Clinical Therapeutics and Public Health Education.',
-    deanName: 'Prof. Dr. Ghulam Muhammad',
+    tagline: 'Demand-Driven Research, Clinical Training & UN SDG#3 Good Health and Well-Being.',
+    deanName: 'Prof. Dr. Bilal Aslam',
     deanTitle: 'Dean, Faculty of Health & Pharmaceutical Sciences',
     deanPhone: '+92 41 9200161-70 Ext: 3500',
-    deanEmail: 'dean.pharmacy@uaf.edu.pk',
-    deanOffice: 'Dean Secretariat, Faculty of Health & Pharmaceutical Sciences, UAF',
+    deanEmail: 'dean.health@uaf.edu.pk',
+    deanOffice: 'Dean Secretariat, Faculty of Health and Pharmaceutical Sciences, UAF',
     historyText:
-      'Offering Doctor of Pharmacy (Pharm-D) and advanced clinical health certifications, this faculty provides top-tier laboratory training, hospital pharmacy residencies, and pharmacological research.',
+      'The UN SDG#3, Good Health and Well-being goal necessitates equitable health and services for communities, provision of innovative healthcare technologies and prevention of public health diseases. The Faculty of Health and Pharmaceutical Sciences at UAF is mandated to play a quintessential role through demand-driven research, innovation, teaching, skill development, capacity building and community service. To comply with the WHO International Health Regulations (IHR) and Global Health initiatives, the Faculty is committed to attain the targets of universal healthcare provision, education, policy and international collaborations. The priority areas of research and innovation are pharmacy, public health, epidemiology, One Health, medicinal plants, nutraceuticals, neurocognitive/mental health research and medical health services. The guidelines of Pharmacy Council of Pakistan, DRAP and HEC are in place. To substitute the import bill of country, indigenous solutions of pharmaceutical production and commercialization are main priorities of the Faculty. The Faculty of Health and Pharmaceutical Sciences mission is to produce skilled graduates, biologics-diagnostics production and public-private entrepreneurial research to contribute in the knowledge-based economy of Pakistan.',
     departmentsCount: '3 Departments',
-    institutesCount: '1 Institute of Pharmacy',
-    farmsCount: '3 Analytical Labs'
+    institutesCount: '0 Institutes',
+    farmsCount: '2 Clinical Research Centres'
   }
 };
-
-// Detailed Overview & Faculty/Staff data for all Departments & Institutes
-export const DEPARTMENT_DETAILS_MAP: Record<string, DepartmentDetailData> = {
-  'sci-cs': {
-    id: 'sci-cs',
-    name: 'Department of Computer Science',
-    shortLabel: 'Computer Science',
-    overviewTitle: 'Department of Computer Science - Overview',
-    staffTitle: 'Department of Computer Science - Faculty and Staff',
-    buildingImage: '/uaf_historic_campus.jpg',
-    buildingCaption: 'Department of Computer Science, Faculty of Sciences, University of Agriculture, Faisalabad',
-    paragraphsTop: [
-      'The Department of Computer Science at the University of Agriculture Faisalabad was established to pioneer cutting-edge computer education, artificial intelligence, precision agriculture, and computational sciences in Pakistan.',
-      'The department offers high-caliber undergraduate and postgraduate programs accredited by NCEAC and HEC, including BS Computer Science, BS Software Engineering, BS Information Technology, MS Computer Science, and Ph.D. in Computer Science.'
-    ],
-    paragraphsWithImage: [
-      'Equipped with modern AI computing clusters, high-speed fiber internet, and specialized research laboratories for Data Science, Image Processing, and Agri-IoT, the department bridges computational intelligence with real-world agricultural and industrial challenges.'
-    ],
-    paragraphsBottom: [
-      'The faculty members actively collaborate with national and international research groups, publishing extensively in premier peer-reviewed journals including Springer, IEEE, ACM, and Elsevier. Faculty scholars also conduct groundbreaking research under HEC NRPU, PSF, and international funding grants.'
-    ],
-    societiesOrLabsTitle: 'Specialized Labs & Research Groups',
-    societiesOrLabs: [
-      'Artificial Intelligence & Deep Learning Research Group',
-      'Computer Vision & Agricultural Image Processing Laboratory',
-      'Big Data Analytics & Precision Cloud Telemetry Lab',
-      'Agri-IoT & Sensor Networks Laboratory',
-      'Software Engineering & High-Performance Computing Cluster'
-    ],
-    facultySummaryBadge: '06 Professors • 04 Associate Professors • 08 Assistant Professors • 05 Lecturers',
-    staffList: [
-      {
-        name: 'Dr. Saqib Ali',
-        designation: 'Chairman / Professor',
-        qualification: 'Post-Doc',
-        specialization: 'Artificial Intelligence, Big Data Analytics, Image Processing, Precision Agriculture',
-        researchAreas: 'My research interests incorporate the intersection of Artificial Intelligence, Big Data Analytics, and Image Processing, focusing on their transformative potential in agriculture. By harnessing AI and big data analytics techniques coupled with advanced image processing algorithms, I aim to revolutionize farming practices, optimize crop yield, and ensure sustainable agricultural development for future generations.',
-        address: 'Department of Computer Science, University of Agriculture, Faisalabad, Pakistan. 38000',
-        phone: '+92419200829 - Ext. 3318',
-        email: 'saqib@uaf.edu.pk',
-        secondaryEmail: 'saqibutm@outlook.com',
-        hecApprovedSupervisor: 'Yes',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Prof. Dr. Tasleem Mustafa',
-        designation: 'Professor',
-        qualification: 'Ph.D. (Computer Science)',
-        specialization: 'Software Engineering, Distributed Systems & Cloud Architecture',
-        phone: '+92419200161 - Ext. 3321',
-        email: 'tasleem@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Muhammad Ahsan',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (Computer Science)',
-        specialization: 'Computer Vision, Medical Imaging & Pattern Recognition',
-        phone: '+92419200161 - Ext. 3325',
-        email: 'mahsan@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Zulfiqar Habib',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (Japan)',
-        specialization: 'Geometric Modeling, AI Robotics & Agri-Drones',
-        phone: '+92419200161 - Ext. 3330',
-        email: 'zhabib@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Asim Raza',
-        designation: 'Assistant Professor',
-        qualification: 'Ph.D. (CS)',
-        specialization: 'Machine Learning, Remote Sensing & Spatial Data Modeling',
-        phone: '+92419200161 - Ext. 3335',
-        email: 'asim.raza@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80'
-      }
-    ]
-  },
-
-  entomology: {
-    id: 'entomology',
-    name: 'Department of Entomology',
-    shortLabel: 'Entomology',
-    overviewTitle: 'Department of Entomology - Overview',
-    staffTitle: 'Department of Entomology - Faculty and Staff',
-    buildingImage: '/uaf_historic_campus.jpg',
-    buildingCaption: 'Department of Entomology Building, University of Agriculture, Faisalabad',
-    paragraphsTop: [
-      'The foundation of teaching and research in Entomology in the Province was laid with the establishment of the Punjab Agricultural College, Lyallpur (Department of Agriculture, Punjab) in 1905. From 1905-1907 an Agricultural Assistant carried out research on crop pests. In 1908, an Assistant Professor of Entomology was appointed on the staff of Economic Botanist. The first class of Licentiate in Agriculture (LAG), a 3 years diploma, course, was admitted in 1909, in 1913, an independent Entomological Section came into existence under the Assistant Professor of Entomology. In 1914, the duration of the LAG diploma course was increased from 3 to 4 years and in 1916 it was made a degree course (B.Sc. Agriculture) and the responsibility of conducting the examination was entrusted to the Punjab University.'
-    ],
-    paragraphsWithImage: [
-      "In 1919, Mian M. Afzal Husain was appointed as Entomologist. This was a corner stone in the history of Entomology and a true beginning of entomological research and teaching was conducted. Mian M. Afzal Husain for his keen interest and dedicated service in this field was very correctly and deservedly called the 'Father of Entomology' in this region. He was instrumental in raising the status of this subject to a major field of study in 1931 and thus Entomology assumed its rightful place. The LAG diploma course was discontinued in 1920. In 1923, the Punjab University recognized the Punjab Agricultural College for M.Sc. (Agri.) and in 1929, the first student (Mr. Abdul Wahid Khan) was awarded this degree. With the passage of time the standard of teaching and research continued to rise rapidly and the college was consequently recognized by the Punjab University for Ph.D. degree. The first Ph.D. degree was completed by Dr. Atiq-ur-Rahman Ansari in 1945."
-    ],
-    paragraphsBottom: [
-      'With the appointment of Mian M. Afzal Husain as Vice-Chancellor of the Punjab University in 1938, Dr. Khan A. Rehman took over the charge as Entomologist and continued till 1950, afterward, he was appointed as Director Agriculture, Punjab. During this period entomological research and teaching continued to make great progress. He was succeeded by Dr. Abdul Latif who assumed the charge of Principal, Agricultural College in 1961. In 1959, Kh. Abdul Haq took over as Entomologist till 1961 when the College was raised to the status of the University of Agriculture, Lyallpur (now Faisalabad). Now, the Department of Entomology falls in Faculty of Agriculture at University of Agriculture, Faisalabad. Up till today, the Department has produced more than 2683 B.Sc (Hons.), 2760 M.Sc (Hons.) and 133 Ph.D. students.',
-      'The Department of Entomology comprises distinguished faculty members belonging to diverse fields of study. Since 2000 till date, faculty members have earned national and international research grants in various fundamental and applied research fields like Integrated Pest Management, Eco-Toxicology, Stored Grain Pest Management, Insect Biodiversity & Biosystematics, Acarology, Insect Molecular Biology and Integrated Vector Management.'
-    ],
-    societiesOrLabsTitle: 'Professional Societies & Research Laboratories',
-    societiesOrLabs: [
-      'Pakistan Entomological Society (Publishing Pakistan Entomologist since 1979)',
-      'Integrated Pest Management (IPM) & Biological Control Lab',
-      'Eco-Toxicology & Insecticide Resistance Monitoring Lab',
-      'Stored Grain Pest Management & Post-Harvest Protection Cell',
-      'Insect Biodiversity, Biosystematics & National Insect Museum',
-      'Acarology, Apiculture & Integrated Vector Management Unit'
-    ],
-    facultySummaryBadge: '07 Professors • 07 Associate Professors • 02 Assistant Professors • 01 Lecturer',
-    staffList: [
-      {
-        name: 'Dr. Waseem Akram',
-        designation: 'Chairman / Professor',
-        qualification: 'Ph.D.',
-        specialization: 'Entomology',
-        researchAreas: 'Vector borne disease management, Bio systematic, Medical Entomology',
-        address:
-          'Department of Entomology, Faculty of Agriculture, University of Agriculture, Faisalabad-Punjab-Pakistan, Postal Code: 38000',
-        phone: '+92419200161 - Ext. 2922',
-        email: 'Waseemakram68@uaf.edu.pk',
-        hecApprovedSupervisor: 'Yes',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Prof. Dr. Zain Ul Abdin',
-        designation: 'Professor',
-        qualification: 'Ph.D. (Italy) • Post-Doc (USA)',
-        specialization: 'Insect Molecular Biology & Functional Genomics',
-        phone: '+92419200161 - Ext. 2991',
-        email: 'zainentomology@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Prof. Dr. Muhammad Dildar Gogi',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Fruit Fly IPM & Ecological Pest Control',
-        phone: '+92419200161 - Ext. 2952',
-        email: 'drmdgogi@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Prof. Dr. Jam Nazeer Ahmad',
-        designation: 'Professor',
-        qualification: 'Ph.D. (France)',
-        specialization: 'Molecular Entomology & Phytoplasma Vectors',
-        phone: '+92419200161 - Ext. 2909',
-        email: 'jam.ahmad@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Bilal Saeed Khan',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Agricultural Acarology & Predatory Mites',
-        phone: '+92412611129 - Ext. 2906',
-        email: 'dr.bilal.saeed@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Rashad Rasool Khan',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Eco-Toxicology & Beneficial Arthropods',
-        phone: '+92419200161 - Ext. 2935',
-        email: 'rashadkhan@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Muhammad Sagheer',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Stored Grain Pest Management & Botanical Extracts',
-        phone: '+92419200161 - Ext. 2971',
-        email: 'dr.muhammad.sagheer@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Shahid Majeed',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (SWU, Sweden)',
-        specialization: 'Insect Chemical Ecology & Olfaction',
-        phone: '+92419200161 - Ext. 2996',
-        email: 'shahid.majeed@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Muhammad Tayyib',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Biological Control & Crop Protection',
-        phone: '+92419200161 - Ext. 2927',
-        email: 'muhammadtayyib@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Muhammad Sufyan',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (Germany)',
-        specialization: 'Chemical Ecology & Wireworm Management',
-        phone: '+92419200161 - Ext. 2909',
-        email: 'muhammad.sufyan@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Waseem Abbas',
-        designation: 'Assistant Professor',
-        qualification: 'Ph.D. (China)',
-        specialization: 'Insect Gut Microbiome & Pest Management',
-        phone: '+92419200161 - Ext. 2909',
-        email: 'waseem.abbas55@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Muhammad Umair Sial',
-        designation: 'Assistant Professor',
-        qualification: 'Ph.D. (Australia)',
-        specialization: 'Toxicology & Integrated Pest Management',
-        phone: '+92419200161 - Ext. 2938',
-        email: 'umair.sial@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Prof. Dr. Sohail Ahmed',
-        designation: 'Professor',
-        qualification: 'Ph.D. Entomology (UK)',
-        specialization: 'Termite Biology & Urban Pest Management',
-        phone: '+92419200161 - Ext. 2912',
-        email: 'sohail_ahmed@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1537511446984-935f663eb1f4?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Prof. Dr. Muhammad Jalal Arif',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF) • Post-Doc (USA)',
-        specialization: 'Integrated Pest Management (IPM) & Cotton Entomology',
-        phone: '+92419200161 - Ext. 2901',
-        email: 'jalalarif@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Prof. Dr. Mansoor ul Hasan',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Stored Product Entomology & Fumigation Technology',
-        phone: '+92419200161 - Ext. 2914',
-        email: 'mansoor.ent@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80'
-      },
-      {
-        name: 'Dr. Abid Ali',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (China) • Post-Doc (Brazil)',
-        specialization: 'Soil Arthropod Ecology & Biopesticides',
-        phone: '+92419200161 - Ext. 2940',
-        email: 'abid_ali@uaf.edu.pk',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'
-      }
-    ]
-  },
-
-  agronomy: {
-    id: 'agronomy',
-    name: 'Department of Agronomy',
-    shortLabel: 'Agronomy',
-    overviewTitle: 'Department of Agronomy - Overview',
-    staffTitle: 'Department of Agronomy - Faculty and Staff',
-    buildingImage: '/uaf_facade_no_road.jpg',
-    buildingCaption: 'Department of Agronomy & Experimental Farms, UAF',
-    paragraphsTop: [
-      'The Department of Agronomy is one of the oldest and premier departments of the Faculty of Agriculture, tracing its origins to the establishment of the Punjab Agricultural College and Research Institute at Lyallpur in 1906. Agronomy serves as the backbone of crop production sciences, integrating soil, water, climate, and crop genetics into profitable and sustainable production packages for farmers.'
-    ],
-    paragraphsWithImage: [
-      'Over the past century, the Department has pioneered production technologies for major cereal, fiber, oilseed, sugar, pulse, and forage crops across the Indus Basin. From the Green Revolution of the 1960s to modern climate-smart conservation agriculture, the department has trained thousands of agronomists serving in national research institutes, provincial extension wings, and international organizations such as CIMMYT, IRRI, and FAO. The Department maintains a 100-acre Agronomic Research Area at Main Campus and an extensive Postgraduate Agricultural Research Station (PARS).'
-    ],
-    paragraphsBottom: [
-      'Current research programs focus on Crop Modeling & Climate Change Adaptation, Conservation Agronomy, Weed Science & Allelopathy, Seed Science & Physiology, Precision Nutrient & Irrigation Scheduling, and High-Value Alternative Crops. Faculty members actively lead national and international research grants tackling heat stress in wheat, direct-seeded rice (DSR), and resource-conserving zero-tillage technologies.'
-    ],
-    societiesOrLabsTitle: 'Specialized Research Labs & Farm Facilities',
-    societiesOrLabs: [
-      'Allelopathy & Weed Management Research Lab',
-      'Crop Modeling & Climate Change Simulation Unit',
-      'Seed Physiology & Priming Technology Lab',
-      'Medicinal & Alternative Crops Research Cell',
-      'Student & Postgraduate Agronomic Research Farms (100+ Acres)',
-      'Pakistan Society of Agronomy Secretariat'
-    ],
-    facultySummaryBadge: '08 Professors • 06 Associate Professors • 04 Assistant Professors',
-    staffList: [
-      {
-        name: 'Prof. Dr. Abdul Khaliq',
-        designation: 'Professor / Chairman',
-        qualification: 'Ph.D. (UAF) • Post-Doc (Australia)',
-        specialization: 'Weed Science, Allelopathy & Direct-Seeded Rice',
-        email: 'akhaliq@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Ehsanullah',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Crop Husbandry & Agro-Technology',
-        email: 'ehsanullah@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Ashfaq Ahmad Chattha',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UK) • Post-Doc (USA)',
-        specialization: 'Agro-Climatology & Crop Growth Modeling (DSSAT)',
-        email: 'ashfaqchattha@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr.Rana Nadeem Abbas',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Integrated Weed Management & Cereal Agronomy',
-        email: 'nadeem.abbas@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Fahd Rasul',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF) • Post-Doc (USA)',
-        specialization: 'Climate Change Resilience & Remote Sensing in Crops',
-        email: 'fahdrasul@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Muhammad Farooq',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF) • Alexander von Humboldt Fellow',
-        specialization: 'Seed Science, Abiotic Stress & Biofortification',
-        email: 'farooqcp@uaf.edu.pk'
-      },
-      {
-        name: 'Dr.Shakeel Ahmad Anjum',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (China)',
-        specialization: 'Drought Physiology & Maize Agronomy',
-        email: 'shakeelanjum@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Imran Khan',
-        designation: 'Assistant Professor',
-        qualification: 'Ph.D. (Germany)',
-        specialization: 'Forage Production & Sustainable Cropping Systems',
-        email: 'imrankhan.agr@uaf.edu.pk'
-      }
-    ]
-  },
-
-  'plant-pathology': {
-    id: 'plant-pathology',
-    name: 'Department of Plant Pathology',
-    shortLabel: 'Plant Pathology',
-    overviewTitle: 'Department of Plant Pathology - Overview',
-    staffTitle: 'Department of Plant Pathology - Faculty and Staff',
-    buildingImage: '/uaf_historic_empty_campus.jpg',
-    buildingCaption: 'Department of Plant Pathology & Plant Health Clinic, UAF',
-    paragraphsTop: [
-      'The Department of Plant Pathology evolved from the Mycology and Plant Disease Section established at the Punjab Agricultural College and Research Institute, Lyallpur in the early twentieth century. Over the decades, it has stood at the forefront of safeguarding Pakistan’s food and fiber crops against devastating epidemics such as wheat rusts, cotton leaf curl virus (CLCuV), chickpea blight, citrus greening, and mango sudden death syndrome.'
-    ],
-    paragraphsWithImage: [
-      'The Department houses specialized diagnostic and research laboratories in Mycology, Plant Virology, Phytobacteriology, Plant Nematology, Molecular Plant Pathology, and Epidemiological Disease Forecasting. It also operates a dedicated Plant Health Clinic and the National Rust Screening Nursery, providing diagnostic services to progressive farmers, seed corporations, and provincial extension officers.'
-    ],
-    paragraphsBottom: [
-      'Up to the present day, the Department of Plant Pathology has produced thousands of B.Sc. (Hons.), M.Sc. (Hons.), and Ph.D. graduates who lead plant quarantine departments, national research centers (NARC, AARI, NIAB), and international crop protection initiatives.'
-    ],
-    societiesOrLabsTitle: 'Diagnostic Clinics & Research Laboratories',
-    societiesOrLabs: [
-      'Molecular Plant Virology & PCR Diagnostics Lab',
-      'Fungal Systematics, Mycology & Mycotoxin Lab',
-      'Plant Nematology & Soil-Borne Pathogens Unit',
-      'Phytobacteriology & Biological Disease Control Lab',
-      'Epidemiology, Climate & Crop Loss Assessment Cell',
-      'Pakistan Phytopathological Society Headquarters'
-    ],
-    facultySummaryBadge: '06 Professors • 05 Associate Professors • 04 Assistant Professors',
-    staffList: [
-      {
-        name: 'Prof. Dr. Amer Habib',
-        designation: 'Professor / Chairman',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Plant Virology & Potato/Citrus Disease Management',
-        email: 'amer.habib@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Nazir Javed',
-        designation: 'Professor',
-        qualification: 'Ph.D. (University of Reading, UK)',
-        specialization: 'Plant Nematology & Biological Control',
-        email: 'nazir.javed@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Abdul Rehman',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UK)',
-        specialization: 'Forest Pathology, Tree Decline & Fungal Diagnostics',
-        email: 'arahman_pp@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Muhammad Inam-ul-Haq',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Mushroom Technology & Soil-Borne Pathogens',
-        email: 'inam.pp@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Safdar Ali',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Epidemiology & Wheat Rust Resistance',
-        email: 'safdar.ali@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Muhammad Atiq',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Phytobacteriology & Citrus Canker Management',
-        email: 'dratiqpp@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Sajid Aleem Khan',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Root Knot Nematodes & Vegetable Pathology',
-        email: 'sajid_aleem@uaf.edu.pk'
-      }
-    ]
-  },
-
-  'plant-breeding': {
-    id: 'plant-breeding',
-    name: 'Department of Plant Breeding & Genetics',
-    shortLabel: 'Plant Breeding & Genetics',
-    overviewTitle: 'Department of Plant Breeding & Genetics - Overview',
-    staffTitle: 'Department of Plant Breeding & Genetics - Faculty and Staff',
-    buildingImage: '/uaf_facade_no_road.jpg',
-    buildingCaption: 'Department of Plant Breeding & Genetics, UAF Main Campus',
-    paragraphsTop: [
-      'The Department of Plant Breeding and Genetics (PBG) traces its roots to the Cereal and Economic Botanist Sections established at the Punjab Agricultural College, Lyallpur in 1907. Throughout the 20th and 21st centuries, the department has been the cradle of varietal development in South Asia, spearheading breakthroughs in wheat, cotton, oilseeds, pulses, maize, and fodder crops.'
-    ],
-    paragraphsWithImage: [
-      'Combining classical Mendelian breeding with modern molecular genetics, Marker-Assisted Selection (MAS), speed breeding, and functional genomics, the Department has developed and released over 40 high-yielding, heat-tolerant, and disease-resistant crop cultivars. Its germplasm banks preserve thousands of indigenous and exotic crop accessions used by breeders nationwide.'
-    ],
-    paragraphsBottom: [
-      'The Department offers rigorous training at B.Sc. (Hons.), M.Sc. (Hons.), and Ph.D. levels, equipping geneticists with hands-on skills in experimental field design, biometrical genetics, cytogenetics, and CRISPR/molecular marker genotyping.'
-    ],
-    societiesOrLabsTitle: 'Breeding Programs & Genomics Core Labs',
-    societiesOrLabs: [
-      'Wheat Breeding, Rust Genetics & Speed Breeding Glasshouse',
-      'Cotton Genomics, Fiber Quality & CLCuV Resistance Lab',
-      'Maize, Sorghum & Fodder Hybrid Development Program',
-      'Oilseed (Brassica, Sunflower & Sesame) Breeding Unit',
-      'Pulses & Grain Legumes Germplasm Improvement Cell',
-      'Cytogenetics & Molecular Marker-Assisted Selection Lab'
-    ],
-    facultySummaryBadge: '07 Professors • 06 Associate Professors • 05 Assistant Professors',
-    staffList: [
-      {
-        name: 'Prof. Dr. Muhammad Tehseen Azhar',
-        designation: 'Professor / Chairman',
-        qualification: 'Ph.D. (UAF) • Post-Doc (France)',
-        specialization: 'Cotton Breeding, Fiber Genetics & Abiotic Stress',
-        email: 'tehseen.pbg@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Abdus Salam Khan',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UK)',
-        specialization: 'Wheat Breeding & Biometrical Genetics',
-        email: 'askhan_pbg@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Farooq Ahmad Khan',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Cereals & Quantitative Genetics',
-        email: 'farooq_pbg@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Hafeez Ahmad Sadaqat',
-        designation: 'Professor',
-        qualification: 'Ph.D. (Germany)',
-        specialization: 'Oilseed Breeding & Hybrid Sunflower Development',
-        email: 'hasadaqat@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Muhammad Kashif',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Wheat Rust Resistance & Quality Breeding',
-        email: 'mkashif_pbg@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Zulfiqar Ali',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF) • Post-Doc (USA)',
-        specialization: 'Maize Genetics & Drought Tolerance',
-        email: 'zulfiqar.pbg@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Amir Shakeel',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Cotton Germplasm & Salinity Tolerance',
-        email: 'amirshakeel@uaf.edu.pk'
-      }
-    ]
-  },
-
-  forestry: {
-    id: 'forestry',
-    name: 'Department of Forestry & Range Management',
-    shortLabel: 'Forestry & Range Management',
-    overviewTitle: 'Department of Forestry & Range Management - Overview',
-    staffTitle: 'Department of Forestry & Range Management - Faculty and Staff',
-    buildingImage: '/uaf_historic_campus.jpg',
-    buildingCaption: 'Department of Forestry & Range Management and Experimental Arboretum, UAF',
-    paragraphsTop: [
-      'The Department of Forestry and Range Management was established to address the critical challenges of low forest cover, watershed degradation, rangeland overgrazing, and timber scarcity in Pakistan. Since its inception in 1962, the department has led agroforestry education, farm forestry outreach, and rangeland rehabilitation.'
-    ],
-    paragraphsWithImage: [
-      'Given that irrigated farmlands in Punjab and Sindh supply the majority of fuelwood and industrial timber in Pakistan, the Department pioneered linear and block agroforestry models that allow farmers to grow trees alongside agricultural crops without sacrificing crop yields. The department maintains an extensive botanical arboretum, forest tree seed nursery, and wood testing laboratory.'
-    ],
-    paragraphsBottom: [
-      'Faculty members conduct funded research in Carbon Sequestration, Climate Change Mitigation, Silviculture, Eco-Tourism, Wildlife Habitat Conservation, and Desert/Cholistan Rangeland Management.'
-    ],
-    societiesOrLabsTitle: 'Forestry Research Units & Field Stations',
-    societiesOrLabs: [
-      'Silviculture & Agroforestry Experimental Arboretum',
-      'Forest Mensuration, Wood Anatomy & Timber Tech Lab',
-      'Rangeland Ecology & Desert Pastorals Rehabilitation Cell',
-      'Watershed Management & GIS Forest Mapping Lab',
-      'Carbon Sequestration & Climate Mitigation Research Group'
-    ],
-    facultySummaryBadge: '03 Professors • 04 Associate Professors • 04 Assistant Professors',
-    staffList: [
-      {
-        name: 'Prof. Dr. Farrakh Nawaz',
-        designation: 'Professor / Chairman',
-        qualification: 'Ph.D. (France)',
-        specialization: 'Tree Ecophysiology, Agroforestry & Stress Tolerance',
-        email: 'farrakh.nawaz@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Tahir Siddiqui',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Farm Forestry & Silvicultural Systems',
-        email: 'tahirsiddiqui@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Muhammad Zubair',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (New Zealand)',
-        specialization: 'Social Forestry & Natural Resource Management',
-        email: 'm.zubair@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Irfan Ahmad',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Range Management & Forest Mensuration',
-        email: 'irfan.forestry@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Muhammad Asif',
-        designation: 'Assistant Professor',
-        qualification: 'Ph.D. (China)',
-        specialization: 'Forest Ecology, Carbon Stocks & Remote Sensing',
-        email: 'asif.frm@uaf.edu.pk'
-      }
-    ]
-  },
-
-  horticulture: {
-    id: 'horticulture',
-    name: 'Institute of Horticultural Sciences',
-    shortLabel: 'Horticultural Sciences',
-    overviewTitle: 'Institute of Horticultural Sciences - Overview',
-    staffTitle: 'Institute of Horticultural Sciences - Faculty and Staff',
-    buildingImage: '/uaf_historic_empty_campus.jpg',
-    buildingCaption: 'Institute of Horticultural Sciences & Square 9 Orchards, UAF',
-    paragraphsTop: [
-      'Horticultural research and education at Faisalabad began in 1925 with the appointment of a Fruit Specialist at the Punjab Agricultural College. Elevated to the status of a full-fledged Institute of Horticultural Sciences in 2003, it is Pakistan’s premier center for Pomology (Fruit Science), Olericulture (Vegetable Science), Floriculture & Landscape Architecture, and Postharvest Biology.'
-    ],
-    paragraphsWithImage: [
-      'The Institute manages over 150 acres of experimental fruit orchards (Square No. 9 & Square No. 32), vegetable breeding blocks, commercial tissue culture laboratories, and controlled-atmosphere cold storage suites. Its scientists have played a transformative role in Kinnow mandarin export quality, mango orchard modernization, seedless citrus breeding, and high-value cut-flower production.'
-    ],
-    paragraphsBottom: [
-      'Through international collaborations with UC Davis, ACIAR (Australia), and USDA, the Institute trains undergraduate and postgraduate scholars in modern supply-chain management, hydroponics, and ornamental horticulture.'
-    ],
-    societiesOrLabsTitle: 'Orchards, Labs & Research Cells',
-    societiesOrLabs: [
-      'Postharvest Research & Cold-Chain Technology Center',
-      'Citrus Sanitation, Nursery & Germplasm Unit (Square 9)',
-      'Mango Research & High-Density Orchard Block',
-      'Plant Tissue Culture & Micro-Propagation Cell',
-      'Floriculture, Turfgrass & Landscape Design Studio',
-      'Mushroom Research & Commercial Training Unit'
-    ],
-    facultySummaryBadge: '06 Professors • 07 Associate Professors • 05 Assistant Professors',
-    staffList: [
-      {
-        name: 'Prof. Dr. Ahmad Sattar Khan',
-        designation: 'Professor / Director',
-        qualification: 'Ph.D. (Curtin University, Australia)',
-        specialization: 'Postharvest Biology & Fruit Supply Chain Technology',
-        email: 'ahmad_khan157@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Aman Ullah Malik',
-        designation: 'Professor Emeritus',
-        qualification: 'Ph.D. (Australia)',
-        specialization: 'Postharvest Physiology & Mango/Citrus Export Tech',
-        email: 'malikaman1@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Muhammad Jafar Jaskani',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF) • Post-Doc (USA)',
-        specialization: 'Citrus Breeding, Biotechnology & Tissue Culture',
-        email: 'jjaskani@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. CM Ayyub',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Olericulture, Tunnel Vegetable Production & Hydroponics',
-        email: 'cmayyub@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Iftikhar Ahmad',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF) • Post-Doc (UC Davis, USA)',
-        specialization: 'Commercial Floriculture & Postharvest Cut Flowers',
-        email: 'iftikharahmad@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Raheel Anwar',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (Purdue University, USA)',
-        specialization: 'Fruit Physiology & Molecular Pomology',
-        email: 'raheelanwar@uaf.edu.pk'
-      }
-    ]
-  },
-
-  'soil-sciences': {
-    id: 'soil-sciences',
-    name: 'Institute of Soil and Environmental Sciences',
-    shortLabel: 'Soil & Environmental Sciences',
-    overviewTitle: 'Institute of Soil & Environmental Sciences - Overview',
-    staffTitle: 'Institute of Soil & Environmental Sciences - Faculty and Staff',
-    buildingImage: '/uaf_facade_no_road.jpg',
-    buildingCaption: 'Institute of Soil & Environmental Sciences (ISES), UAF',
-    paragraphsTop: [
-      'The Institute of Soil and Environmental Sciences (ISES) is one of the oldest scientific divisions of the university, originating as the Chemical Section in 1907 at the Punjab Agricultural College and Research Institute, Lyallpur. Over more than a century, it has evolved into a globally respected institute addressing soil health, plant nutrition, salinity reclamation, and environmental sustainability.'
-    ],
-    paragraphsWithImage: [
-      'ISES operates the renowned Saline Agriculture Research Centre (SARC), where scientists develop bio-saline cropping technologies and gypsum/biochar reclamation protocols for millions of acres of salt-affected soils in Pakistan. Additionally, the Institute houses state-of-the-art laboratories in Soil Microbiology & Biochemistry, Soil Fertility & Plant Nutrition, Soil Physics, and Environmental Pollution Remediation.'
-    ],
-    paragraphsBottom: [
-      'Faculty members of ISES have won numerous national civil awards, HEC Best Teacher awards, and international grants from ACIAR, IAEA, and UNESCO, producing over 3,500 B.Sc. (Hons.), M.Sc. (Hons.), and Ph.D. graduates.'
-    ],
-    societiesOrLabsTitle: 'Premier Centres & Analytical Laboratories',
-    societiesOrLabs: [
-      'Saline Agriculture Research Centre (SARC)',
-      'Soil Microbiology, Biofertilizers & Rhizosphere Lab',
-      'Soil Fertility, Plant Nutrition & Nano-Fertilizer Lab',
-      'Environmental Soil Chemistry & Heavy Metal Remediation Lab',
-      'Soil & Water Conservation / GIS Mapping Lab',
-      'Soil Science Society of Pakistan Central Office'
-    ],
-    facultySummaryBadge: '08 Professors • 06 Associate Professors • 05 Assistant Professors',
-    staffList: [
-      {
-        name: 'Prof. Dr. Ghulam Murtaza',
-        designation: 'Professor / Dean Faculty of Agriculture',
-        qualification: 'Ph.D. (UAF) • Post-Doc (Australia)',
-        specialization: 'Soil & Environmental Chemistry, Salt-Affected Soils',
-        email: 'gmurtaza@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Muhammad Naveed',
-        designation: 'Professor / Director ISES',
-        qualification: 'Ph.D. (UAF) • Post-Doc (Denmark)',
-        specialization: 'Soil Microbiology, Endophytes & Bio-physicochemical Processes',
-        email: 'muhammad.naveed@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Zahir Ahmad Zahir',
-        designation: 'Professor (Sitara-i-Imtiaz)',
-        qualification: 'Ph.D. (UAF) • Post-Doc (Canada)',
-        specialization: 'Soil Microbiology, PGPR & Biofertilizer Technology',
-        email: 'zazahir@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Javaid Akhtar',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UK)',
-        specialization: 'Saline Agriculture & Crop Salt Tolerance',
-        email: 'javaidakhtar@uaf.edu.pk'
-      },
-      {
-        name: 'Prof. Dr. Muhammad Yaseen',
-        designation: 'Professor',
-        qualification: 'Ph.D. (UK)',
-        specialization: 'Soil Fertility, Polymer-Coated & Nano Fertilizers',
-        email: 'myaseen@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Muhammad Zia-ur-Rehman',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (UAF)',
-        specialization: 'Soil Chemistry, Nanoparticles & Metal Remediation',
-        email: 'ziasindhu1399@uaf.edu.pk'
-      },
-      {
-        name: 'Dr. Abdul Wakeel',
-        designation: 'Associate Professor',
-        qualification: 'Ph.D. (Giessen, Germany) • Fulbright Fellow',
-        specialization: 'Plant Nutrition, Potassium Dynamics & Nitrogen Use Efficiency',
-        email: 'abdulwakeel77@uaf.edu.pk'
-      }
-    ]
-  }
-};
-
-// Static Hero Headings for each section (Typewriter removed as requested)
-export const SECTION_HERO_TITLES: Record<FacultySection, { title: string; highlight: string }> = {
-  overview: { title: 'Faculty of Agriculture —', highlight: 'Overview & Academic Profile' },
-  dean: { title: 'Faculty of Agriculture —', highlight: "The Dean's Secretariat" },
-  undergraduate: { title: 'Educational Programs —', highlight: 'B.Sc. (Hons.) Agriculture' },
-  postgraduate: { title: 'Postgraduate Studies —', highlight: 'M.Sc. (Hons.) & Ph.D. Programs' },
-  internship: { title: 'Experiential Learning —', highlight: 'Field Internship Program' },
-  'short-courses': { title: 'Skill Development —', highlight: 'Vocational Short Courses' },
-  agronomy: { title: 'Academic Department —', highlight: 'Department of Agronomy' },
-  entomology: { title: 'Academic Department —', highlight: 'Department of Entomology' },
-  'plant-pathology': { title: 'Academic Department —', highlight: 'Department of Plant Pathology' },
-  'plant-breeding': { title: 'Academic Department —', highlight: 'Plant Breeding & Genetics' },
-  forestry: { title: 'Academic Department —', highlight: 'Forestry & Range Management' },
-  horticulture: { title: 'Premier Research Institute —', highlight: 'Institute of Horticultural Sciences' },
-  'soil-sciences': { title: 'Premier Research Institute —', highlight: 'Soil & Environmental Sciences' }
-};
-
-export const DEPARTMENTS_MENU_LIST: { id: FacultySection; label: string }[] = [
-  { id: 'agronomy', label: 'Agronomy' },
-  { id: 'entomology', label: 'Entomology' },
-  { id: 'plant-pathology', label: 'Plant Pathology' },
-  { id: 'plant-breeding', label: 'Plant Breeding & Genetics' },
-  { id: 'forestry', label: 'Forestry & Range Management' }
-];
-
-export const INSTITUTES_MENU_LIST: { id: FacultySection; label: string }[] = [
-  { id: 'horticulture', label: 'Institute of Horticultural Sciences' },
-  { id: 'soil-sciences', label: 'Institute of Soil and Environmental Sciences' },
-  { id: 'cabb', label: 'Centre of Agricultural Biochemistry & Biotechnology (CABB)' }
-];
-
-export interface DynamicDivisionMeta {
-  id: string;
-  label: string;
-  fullName: string;
-  focus: string;
-}
-
-export interface DynamicFacultyMenuConfig {
-  departments: DynamicDivisionMeta[];
-  institutes: DynamicDivisionMeta[];
-  deanImage: string;
-  deanDepartment: string;
-  deanBio1: string;
-  deanBio2: string;
-  undergradDegree: string;
-  undergradSubtitle: string;
-  undergradDuration: string;
-  undergradMajors: string[];
-}
 
 export const FACULTY_MENUS_MAP: Record<string, DynamicFacultyMenuConfig> = {
+  // 1. FACULTY OF AGRICULTURE
   'fac-agri': {
+    undergradDegree: 'B.Sc. (Hons.) Agriculture',
+    undergradSubtitle: '4-Year / 8-Semester Professional Agricultural Science Degree',
+    undergradDuration: '4 Years (8 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'Department of Soil & Environmental Sciences',
+    deanBio1:
+      'Welcome to the Faculty of Agriculture, the mother faculty of University of Agriculture, Faisalabad. Since our establishment in 1906, we have trained generations of visionary agricultural scientists, agronomists, soil chemists, and plant breeders who transformed Pakistan from food deficits into major crop exporter status.',
+    deanBio2:
+      'We prepare students for high-impact careers through hands-on learning across 1,950 acres of experimental farms, postgraduate climate simulation chambers, and mandatory agribusiness internships.',
     departments: [
-      { id: 'agronomy', label: 'Agronomy', fullName: 'Department of Agronomy', focus: 'Crop Production, Weed Science & Climate-Smart Agronomy' },
-      { id: 'entomology', label: 'Entomology', fullName: 'Department of Entomology', focus: 'Integrated Pest Management, Bio-Systematics & Medical Entomology' },
-      { id: 'plant-pathology', label: 'Plant Pathology', fullName: 'Department of Plant Pathology', focus: 'Phytobacteriology, Plant Virology, Mycology & Nematology' },
-      { id: 'plant-breeding', label: 'Plant Breeding & Genetics', fullName: 'Department of Plant Breeding & Genetics', focus: 'Crop Genetics, Hybrid Seed Development & Molecular Breeding' },
-      { id: 'forestry', label: 'Forestry & Range Management', fullName: 'Department of Forestry & Range Management', focus: 'Agroforestry, Watershed Management & Carbon Sequestration' }
+      { id: 'agronomy', label: 'Agronomy', fullName: 'Department of Agronomy', focus: 'Crop Husbandry, Weed Science & Climate Modeling' },
+      { id: 'plant-breeding', label: 'Plant Breeding & Genetics', fullName: 'Department of Plant Breeding and Genetics', focus: 'Genomics, Hybrid Development & CRISPR Gene Editing' },
+      { id: 'soil-sciences', label: 'Soil & Environmental Sciences', fullName: 'Institute of Soil and Environmental Sciences', focus: 'Soil Chemistry, Saline Agriculture & Soil Fertility' },
+      { id: 'entomology', label: 'Entomology', fullName: 'Department of Entomology', focus: 'Insect Ecology, Biological Control & Vector Management' },
+      { id: 'plant-pathology', label: 'Plant Pathology', fullName: 'Department of Plant Pathology', focus: 'Mycology, Plant Virology & Diagnostic Plant Clinic' },
+      { id: 'forestry', label: 'Forestry & Range Management', fullName: 'Department of Forestry and Range Management', focus: 'Agroforestry, Watershed Conservation & Silviculture' }
     ],
     institutes: [
-      { id: 'horticulture', label: 'Institute of Horticultural Sciences', fullName: 'Institute of Horticultural Sciences', focus: 'Pomology, Olericulture, Floriculture & Post-Harvest Technology' },
-      { id: 'soil-sciences', label: 'Institute of Soil and Environmental Sciences', fullName: 'Institute of Soil and Environmental Sciences', focus: 'Soil Chemistry, Saline Agriculture, Soil Microbiology & Plant Nutrition' },
-      { id: 'cabb', label: 'Centre of Agri. Biochemistry & Biotechnology (CABB)', fullName: 'Centre of Agricultural Biochemistry & Biotechnology (CABB)', focus: 'Genomics, CRISPR Gene Editing, Plant Tissue Culture & Molecular Biology' }
+      { id: 'horticulture', label: 'Institute of Horticultural Sciences', fullName: 'Institute of Horticultural Sciences', focus: 'Pomology, Olericulture, Floriculture & Post-Harvest' }
     ],
-    deanImage: '/dean_dr_ghulam_murtaza.jpg',
-    deanDepartment: 'Institute of Soil & Environmental Sciences',
-    deanBio1:
-      'Dr. Ghulam Murtaza is a Professor at the Institute of Soil and Environmental Sciences with a distinguished career spanning agriculture, education, and soil, water, and environmental chemistry. After receiving a post-doc fellowship at CRC CARE, University of Adelaide, South Australia through the Higher Education Commission of Pakistan, he established the Teaching Resource Centre (TRC) at UAF.',
-    deanBio2:
-      'His primary research concentrates on mitigating nitrogen losses, improving soil fertility, reclaiming degraded lands, and integrating field experimentation with policy-oriented solutions to build climate-resilient agricultural practices. Beyond research, he serves as an Editor for the International Journal of Agriculture & Biology and has completed 16 funded projects.',
-    undergradDegree: 'B.Sc. (Hons.) Agriculture',
-    undergradSubtitle: 'Four-Year Bachelor of Science (Honours) Professional Degree Program',
-    undergradDuration: '4 Years (8 Sem.)',
+    hasEducationalPrograms: true,
+    hasPortfolio: true,
     undergradMajors: [
       'Agronomy',
-      'Plant Breeding and Genetics',
+      'Plant Breeding & Genetics',
+      'Soil Science',
       'Entomology',
       'Plant Pathology',
-      'Forestry & Range Management',
-      'Institute of Soil & Environmental Sciences',
-      'Institute of Horticultural Sciences',
-      'Agricultural Economics',
-      'Marketing & Agribusiness',
-      'Agricultural Extension',
-      'Animal Sciences',
-      'Food Science & Technology',
-      'Microbiology',
-      'Dairy Science',
-      'Agri. Biotechnology'
+      'Horticulture',
+      'Forestry',
+      'Agricultural Biotechnology'
     ]
   },
-  'fac-vet': {
-    departments: [
-      { id: 'vet-anatomy', label: 'Department of Anatomy', fullName: 'Department of Veterinary Anatomy & Histology', focus: 'Gross Anatomy, Veterinary Histology, Embryology & Neuroanatomy' },
-      { id: 'vet-pathology', label: 'Department of Pathology', fullName: 'Department of Veterinary Pathology', focus: 'Diagnostic Pathology, Avian Histopathology & Molecular Oncology' },
-      { id: 'vet-parasitology', label: 'Department of Parasitology', fullName: 'Department of Veterinary Parasitology', focus: 'Helminthology, Protozoology, Tick-Borne Zoonoses & Immunoparasitology' },
-      { id: 'vet-cms', label: 'Clinical Medicine & Surgery', fullName: 'Department of Clinical Medicine & Surgery (CMS)', focus: 'Large & Small Animal Internal Medicine, Veterinary Surgery & Radiology' },
-      { id: 'vet-theriogenology', label: 'Department of Theriogenology', fullName: 'Department of Animal Reproduction & Theriogenology', focus: 'Reproductive Biotechnology, Artificial Insemination & Embryo Transfer' },
-      { id: 'vet-epidemiology', label: 'Epidemiology & Public Health', fullName: 'Department of Epidemiology & Public Health', focus: 'One Health Surveillance, Zoonotic Disease Modeling & Biosecurity' }
-    ],
-    institutes: [
-      { id: 'vet-microbiology', label: 'Institute of Microbiology', fullName: 'Institute of Microbiology', focus: 'Veterinary Bacteriology, Virology, Vaccine Development & Immunology' },
-      { id: 'vet-physiology', label: 'Institute of Physiology & Pharmacology', fullName: 'Institute of Physiology & Pharmacology', focus: 'Endocrinology, Pharmacokinetics, Toxicology & Ethnopharmacology' }
-    ],
-    deanImage: FACULTY_PORTRAIT_POOL[0],
-    deanDepartment: 'Institute of Microbiology & Veterinary Pathology',
-    deanBio1:
-      'Prof. Dr. Shahid Mahmood leads the Faculty of Veterinary Science at the University of Agriculture, Faisalabad, bringing over three decades of academic, clinical, and diagnostic research leadership in avian pathology, zoonotic disease control, and vaccine development.',
-    deanBio2:
-      'Under his stewardship, the Veterinary Teaching Hospital, Diagnostic Laboratories, and One-Health Research Units have expanded clinical outreach across Punjab while training PVMC-accredited Doctor of Veterinary Medicine (DVM) and postgraduate scholars.',
-    undergradDegree: 'Doctor of Veterinary Medicine (DVM)',
-    undergradSubtitle: 'Five-Year PVMC-Accredited Professional Veterinary Medical Degree Program',
-    undergradDuration: '5 Years (10 Sem.)',
-    undergradMajors: [
-      'Clinical Medicine & Surgery',
-      'Veterinary Pathology',
-      'Veterinary Microbiology & Immunology',
-      'Veterinary Parasitology',
-      'Theriogenology & Reproductive Biotech',
-      'Veterinary Anatomy & Histology',
-      'Physiology & Pharmacology',
-      'Epidemiology & Public Health (One Health)'
-    ]
-  },
-  'fac-sci': {
-    departments: [
-      { id: 'sci-cs', label: 'Department of Computer Science', fullName: 'Department of Computer Science', focus: 'Artificial Intelligence, Big Data Analytics, Image Processing, Software Engineering, IoT & Cloud Systems' },
-      { id: 'sci-botany', label: 'Department of Botany', fullName: 'Department of Botany', focus: 'Plant Physiology, Stress Biology, Ecology, Taxonomy & Ethnobotany' },
-      { id: 'sci-zoology', label: 'Zoology, Wildlife & Fisheries', fullName: 'Department of Zoology, Wildlife & Fisheries', focus: 'Aquaculture, Fisheries Management, Biodiversity & Wildlife Conservation' },
-      { id: 'sci-chemistry', label: 'Department of Chemistry', fullName: 'Department of Chemistry', focus: 'Organic Synthesis, Analytical Chemistry, Nanomaterials & Green Catalysis' },
-      { id: 'sci-biochemistry', label: 'Department of Biochemistry', fullName: 'Department of Biochemistry', focus: 'Enzymology, Clinical Biochemistry, Proteomics & Metabolic Engineering' },
-      { id: 'sci-physics', label: 'Department of Physics', fullName: 'Department of Physics', focus: 'Laser Spectroscopy, Solar Photovoltaics, Solid State & Plasma Physics' },
-      { id: 'sci-math', label: 'Mathematics & Statistics', fullName: 'Department of Mathematics & Statistics', focus: 'Biostatistics, Computational Mathematics, Econometrics & Data Modeling' }
-    ],
-    institutes: [
-      { id: 'sci-cabb', label: 'Centre of Agri. Biochemistry & Biotechnology (CABB)', fullName: 'Centre of Agricultural Biochemistry & Biotechnology (CABB)', focus: 'Genomics, CRISPR Gene Editing, Plant Tissue Culture & Molecular Biology' },
-      { id: 'sci-hitech', label: 'Central Hi-Tech Laboratory', fullName: 'Central Hi-Tech Research & Instrumentation Centre', focus: 'Electron Microscopy, Chromatography, Spectroscopy & Genomic Sequencing' }
-    ],
-    deanImage: FACULTY_PORTRAIT_POOL[2],
-    deanDepartment: 'Department of Biochemistry',
-    deanBio1:
-      'Prof. Dr. Muhammad Asghar serves as Dean, Faculty of Sciences at UAF, spearheading interdisciplinary teaching and basic-to-applied scientific research across biological, chemical, physical, mathematical, and computational sciences.',
-    deanBio2:
-      'He has published extensively in high-impact international journals, supervised numerous Ph.D. and M.Phil. scholars, and established modern analytical and molecular research laboratories across the Faculty of Sciences.',
-    undergradDegree: 'BS (Hons.) Basic & Applied Sciences',
-    undergradSubtitle: 'Four-Year HEC-Accredited Bachelor of Science Honours Degree Programs',
-    undergradDuration: '4 Years (8 Sem.)',
-    undergradMajors: [
-      'BS Botany',
-      'BS Zoology',
-      'BS Chemistry',
-      'BS Biochemistry',
-      'BS Physics',
-      'BS Mathematics',
-      'BS Statistics',
-      'BS Computer Science (BSCS)',
-      'BS Software Engineering (BSSE)',
-      'BS Information Technology (BSIT)'
-    ]
-  },
-  'fac-husbandry': {
-    departments: [
-      { id: 'ah-livestock', label: 'Livestock Management', fullName: 'Department of Livestock Management', focus: 'Dairy Herd Management, Beef Production, Camel & Small Ruminant Systems' },
-      { id: 'ah-breeding', label: 'Animal Breeding & Genetics', fullName: 'Department of Animal Breeding & Genetics', focus: 'Quantitative Genetics, Genomic Selection & Indigenous Breed Conservation' },
-      { id: 'ah-nutrition', label: 'Animal Nutrition', fullName: 'Department of Animal Nutrition', focus: 'Ruminant Nutrition, Feed Technology, Silage Formulation & Metabolic Health' },
-      { id: 'ah-poultry', label: 'Department of Poultry Science', fullName: 'Department of Poultry Science', focus: 'Broiler & Layer Management, Hatchery Operations & Avian Nutrition' }
-    ],
-    institutes: [
-      { id: 'ah-iads', label: 'Institute of Animal & Dairy Sciences (IADS)', fullName: 'Institute of Animal and Dairy Sciences (IADS)', focus: 'Integrated Livestock Production, Dairy Technology & Genetic Improvement' }
-    ],
-    deanImage: FACULTY_PORTRAIT_POOL[4],
-    deanDepartment: 'Institute of Animal & Dairy Sciences',
-    deanBio1:
-      'Prof. Dr. M. Qamar Bilal is Dean, Faculty of Animal Husbandry at UAF, with extensive expertise in dairy production, livestock extension, and sustainable farm management.',
-    deanBio2:
-      'His research and outreach initiatives have modernized commercial dairy and poultry operations across Pakistan while strengthening academia-industry linkages in livestock nutrition and genetics.',
-    undergradDegree: 'B.Sc. (Hons.) Animal Sciences & Poultry',
-    undergradSubtitle: 'Four-Year Professional Degree in Livestock, Dairy & Poultry Sciences',
-    undergradDuration: '4 Years (8 Sem.)',
-    undergradMajors: [
-      'Livestock Management',
-      'Animal Breeding & Genetics',
-      'Animal Nutrition & Feed Technology',
-      'Poultry Science',
-      'Dairy Science & Technology'
-    ]
-  },
-  'fac-engg': {
-    departments: [
-      { id: 'engg-machinery', label: 'Farm Machinery & Power', fullName: 'Department of Farm Machinery & Power', focus: 'Precision Seeding, Combine Harvesters, Agricultural Robotics & Tractor Ergonomics' },
-      { id: 'engg-irrigation', label: 'Irrigation & Drainage', fullName: 'Department of Irrigation & Drainage', focus: 'Hydrology, High-Efficiency Drip Irrigation, Groundwater Modeling & Salinity Control' },
-      { id: 'engg-structures', label: 'Structures & Environmental Engineering', fullName: 'Department of Structures & Environmental Engineering', focus: 'Controlled-Environment Greenhouses, Farm Structures, Air Quality & Waste Engineering' },
-      { id: 'engg-food', label: 'Food, Energy & Process Engineering', fullName: 'Department of Food, Energy & Process Engineering', focus: 'Post-Harvest Process Engineering, Solar Thermal Systems, Biogas & Bioenergy' },
-      { id: 'engg-fiber', label: 'Fiber & Textile Technology', fullName: 'Department of Fiber & Textile Technology', focus: 'Cotton Fiber Testing, Spinning Technology, Yarn Quality & Natural Fibers' }
-    ],
-    institutes: [
-      { id: 'engg-wmrc', label: 'Water Management Research Centre (WMRC)', fullName: 'Directorate of Water Management Research Centre (WMRC)', focus: 'Laser Land Leveling, Bed Planting, Solar Pumping & Canal Command Telemetry' }
-    ],
-    deanImage: FACULTY_PORTRAIT_POOL[5],
-    deanDepartment: 'Department of Irrigation & Drainage',
-    deanBio1:
-      'Prof. Dr. Muhammad Arshad serves as Dean, Faculty of Agricultural Engineering & Technology, leading PEC-accredited engineering education in farm mechanization, water resource engineering, and renewable energy.',
-    deanBio2:
-      'His research focuses on groundwater sustainability, precision irrigation technologies, and climate-resilient water management across the Indus Basin.',
-    undergradDegree: 'B.Sc. Agricultural Engineering (PEC Accredited)',
-    undergradSubtitle: 'Four-Year Washington Accord / PEC Accredited Engineering Degree Programs',
-    undergradDuration: '4 Years (8 Sem.)',
-    undergradMajors: [
-      'B.Sc. Agricultural Engineering',
-      'B.Sc. Environmental Engineering',
-      'B.Sc. Energy Systems Engineering',
-      'B.Sc. Food Engineering',
-      'B.Sc. Textile Technology'
-    ]
-  },
-  'fac-social': {
-    departments: [
-      { id: 'soc-sociology', label: 'Department of Rural Sociology', fullName: 'Department of Rural Sociology', focus: 'Rural Development, Gender Studies, Population Dynamics & Community Mobilization' }
-    ],
-    institutes: [
-      { id: 'soc-iare', label: 'Institute of Agricultural & Resource Economics', fullName: 'Institute of Agricultural & Resource Economics (IARE)', focus: 'Agricultural Policy, Trade Economics, Resource Valuation & Climate Economics' },
-      { id: 'soc-iaeerd', label: 'Institute of Agri. Extension & Rural Development', fullName: 'Institute of Agricultural Extension, Education & Rural Development', focus: 'Digital Extension, Farmer Field Schools, Adult Education & Technology Transfer' },
-      { id: 'soc-ibms', label: 'Institute of Business Management Sciences (IBMS)', fullName: 'Institute of Business Management Sciences (IBMS)', focus: 'Agribusiness Management, Supply Chain, Finance, Marketing & Entrepreneurship' }
-    ],
-    deanImage: FACULTY_PORTRAIT_POOL[6],
-    deanDepartment: 'Institute of Agricultural & Resource Economics',
-    deanBio1:
-      'Prof. Dr. Khalid Mushtaq is Dean, Faculty of Social Sciences at UAF, internationally recognized for his work in agricultural price policy, econometrics, food security analysis, and rural development.',
-    deanBio2:
-      'He has advised national ministries and international development agencies including FAO, World Bank, and IFPRI on agricultural trade, smallholder profitability, and rural poverty alleviation.',
-    undergradDegree: 'BS Economics, Agribusiness & Management (BBA)',
-    undergradSubtitle: 'Four-Year Undergraduate Degrees in Economics, Business & Social Sciences',
-    undergradDuration: '4 Years (8 Sem.)',
-    undergradMajors: [
-      'B.Sc. (Hons.) Agricultural & Resource Economics',
-      'BBA (Hons.) Business Administration',
-      'BS Agribusiness Management',
-      'BS Rural Sociology & Community Development',
-      'BS Agricultural Extension & Education'
-    ]
-  },
-  'fac-food': {
-    departments: [
-      { id: 'food-hnd', label: 'Human Nutrition & Dietetics', fullName: 'Department of Human Nutrition & Dietetics', focus: 'Clinical Nutrition, Public Health Nutrition, Maternal & Child Dietetics' },
-      { id: 'food-safety', label: 'Food Safety & Quality Management', fullName: 'Department of Food Safety & Quality Management', focus: 'HACCP, ISO Food Standards, Mycotoxin Analysis & Halal Food Authentication' }
-    ],
-    institutes: [
-      { id: 'food-nifsat', label: 'National Institute of Food Science & Technology (NIFSAT)', fullName: 'National Institute of Food Science & Technology (NIFSAT)', focus: 'Cereal Technology, Dairy & Meat Processing, Functional Foods & Beverage Tech' },
-      { id: 'food-homesci', label: 'Institute of Home Sciences', fullName: 'Institute of Home Sciences', focus: 'Human Development, Family Studies, Textiles, Clothing & Interior Design' }
-    ],
-    deanImage: FACULTY_PORTRAIT_POOL[7],
-    deanDepartment: 'National Institute of Food Science & Technology (NIFSAT)',
-    deanBio1:
-      'Prof. Dr. Masood Sadiq Butt (Tamgha-i-Imtiaz) serves as Dean, Faculty of Food, Nutrition & Home Sciences, and is a pioneer in functional foods, nutraceuticals, and human nutrition in Pakistan.',
-    deanBio2:
-      'Under his leadership, NIFSAT and the Institute of Home Sciences have established commercial food pilot plants, grain quality testing labs, and clinical dietetics training centers.',
-    undergradDegree: 'B.Sc. (Hons.) Food Science & Human Nutrition',
-    undergradSubtitle: 'Four-Year Professional Degrees in Food Technology, Nutrition & Home Sciences',
-    undergradDuration: '4 Years (8 Sem.)',
-    undergradMajors: [
-      'B.Sc. (Hons.) Food Science & Technology',
-      'B.Sc. (Hons.) Human Nutrition & Dietetics (HND)',
-      'B.Sc. (Hons.) Home Economics',
-      'BS Food Safety & Quality Management'
-    ]
-  },
-  'fac-arts': {
-    departments: [
-      { id: 'arts-english', label: 'Department of English & Linguistics', fullName: 'Department of English & Linguistics', focus: 'Applied Linguistics, Corpus Studies, World Literature & Academic Discourse' },
-      { id: 'arts-islamic', label: 'Department of Islamic Studies', fullName: 'Department of Islamic Studies', focus: 'Islamic Jurisprudence, Comparative Religion, Seerah Studies & Islamic Ethics' },
-      { id: 'arts-pakstudies', label: 'Pakistan Studies, History & Anthropology', fullName: 'Department of Pakistan Studies, History & Anthropology', focus: 'Regional History of Punjab, Cultural Heritage, Political History & Governance' },
-      { id: 'arts-design', label: 'Department of Art & Design', fullName: 'Department of Art & Design', focus: 'Visual Arts, Textile Design, Ceramic Studio & Digital Communication Design' }
-    ],
-    institutes: [
-      { id: 'arts-languages', label: 'Chinese & International Languages Center', fullName: 'Center for International Languages & Cultural Studies', focus: 'Chinese (HSK), Arabic, French, German & Cross-Cultural Communication' }
-    ],
-    deanImage: FACULTY_PORTRAIT_POOL[1],
-    deanDepartment: 'Department of English & Linguistics',
-    deanBio1:
-      'Prof. Dr. Muhammad Asif serves as Dean, Faculty of Arts and Humanities at UAF, fostering critical inquiry, linguistic excellence, and cultural preservation across the university.',
-    deanBio2:
-      'He has spearheaded curriculum modernization in English linguistics, humanities, and fine arts while promoting international language partnerships and literary forums.',
-    undergradDegree: 'BS English, Islamic Studies & Fine Arts',
-    undergradSubtitle: 'Four-Year Honours Degree Programs in Humanities, Languages & Design',
-    undergradDuration: '4 Years (8 Sem.)',
-    undergradMajors: [
-      'BS English (Literature & Linguistics)',
-      'BS Islamic Studies',
-      'BS Pakistan Studies & History',
-      'BFA / BS Art & Design'
-    ]
-  },
+
+  // 2. FACULTY OF HEALTH AND PHARMACEUTICAL SCIENCES (Exact from User Screenshot)
   'fac-health': {
-    departments: [
-      { id: 'health-pharmacology', label: 'Pharmacology & Toxicology', fullName: 'Department of Pharmacology & Toxicology', focus: 'Clinical Pharmacology, Drug Safety, Neuropharmacology & Pre-Clinical Trials' },
-      { id: 'health-pharmaceutics', label: 'Pharmaceutics & Clinical Pharmacy', fullName: 'Department of Pharmaceutics & Clinical Pharmacy', focus: 'Novel Drug Delivery Systems, Biopharmaceutics, Hospital & Community Pharmacy' },
-      { id: 'health-chem', label: 'Pharmaceutical Chemistry', fullName: 'Department of Pharmaceutical Chemistry & Pharmacognosy', focus: 'Medicinal Chemistry, Natural Product Drug Discovery & Phytochemistry' }
-    ],
-    institutes: [
-      { id: 'health-pharmacy', label: 'Institute of Pharmacy (Pharm-D)', fullName: 'Institute of Pharmacy, Physiology & Pharmacology', focus: 'PCP-Accredited Doctor of Pharmacy (Pharm-D), Quality Control & Clinical Therapeutics' }
-    ],
-    deanImage: FACULTY_PORTRAIT_POOL[3],
-    deanDepartment: 'Institute of Pharmacy & Clinical Sciences',
-    deanBio1:
-      'Prof. Dr. Ghulam Muhammad leads the Faculty of Health and Pharmaceutical Sciences at UAF, advancing pharmaceutical education, clinical therapeutics, and medicinal plant research.',
-    deanBio2:
-      'The faculty equips Pharm-D and postgraduate scholars with modern pharmaceutical manufacturing, quality assurance, and hospital pharmacy competencies.',
     undergradDegree: 'Doctor of Pharmacy (Pharm-D)',
-    undergradSubtitle: 'Five-Year Pharmacy Council of Pakistan (PCP) Accredited Professional Degree',
-    undergradDuration: '5 Years (10 Sem.)',
+    undergradSubtitle: '5-Year Professional Degree Program accredited by Pharmacy Council of Pakistan',
+    undergradDuration: '5 Years (10 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'Department of Pharmacy',
+    deanBio1:
+      'The Faculty of Health and Pharmaceutical Sciences at UAF is mandated to play a quintessential role in achieving UN SDG#3 (Good Health and Well-being) through demand-driven research, clinical training, and community healthcare.',
+    deanBio2:
+      'We comply with WHO International Health Regulations and DRAP guidelines, producing clinical pharmacists and public health researchers dedicated to indigenous pharmaceutical solutions and global health standards.',
+    departments: [
+      { id: 'pharmacy', label: 'Pharmacy', fullName: 'Department of Pharmacy', focus: 'Pharmaceutics, Clinical Pharmacy, Pharmacology, Pharmacognosy & Hospital Practice' },
+      { id: 'epidemiology-public-health', label: 'Epidemiology & Public Health', fullName: 'Department of Epidemiology & Public Health', focus: 'One Health, Disease Surveillance, Global Health & Biostatistics' },
+      { id: 'medicinal-plants', label: 'Medicinal Plants & Nutraceuticals', fullName: 'Department of Medicinal Plants & Nutraceuticals', focus: 'Herbal Drug Formulations, Phytochemistry & Bioactive Compounds' }
+    ],
+    institutes: [],
+    centres: [
+      {
+        id: 'centre-neurocognitive',
+        label: 'Neurocognitive Behavioural Sciences Research, Treatment & Rehabilitation Centre',
+        fullName: 'Neurocognitive Behavioural Sciences Research, Treatment & Rehabilitation Centre',
+        focus: 'Clinical Neurocognitive Assessments, Behavioral Therapy, Mental Health Interventions & Cognitive Rehabilitation'
+      },
+      {
+        id: 'centre-medical-health',
+        label: 'Medical & Health Centre',
+        fullName: 'Medical & Health Centre',
+        focus: 'Comprehensive Primary Healthcare Services, Clinical Diagnostics, Emergency Medical Response & Preventive Health Programs'
+      }
+    ],
+    hasEducationalPrograms: false,
+    hasPortfolio: false,
+    hasCentres: true,
     undergradMajors: [
       'Doctor of Pharmacy (Pharm-D)',
-      'Pharmaceutics & Industrial Pharmacy',
-      'Pharmacology & Therapeutics',
-      'Pharmaceutical Chemistry',
-      'Pharmacognosy & Natural Products'
+      'BS Public Health',
+      'BS Medical Laboratory Technology'
     ]
+  },
+
+  // 3. FACULTY OF ARTS AND HUMANITIES (Exact from User Screenshot)
+  'fac-arts': {
+    undergradDegree: 'BS Arts & Humanities',
+    undergradSubtitle: '4-Year Multidisciplinary Undergraduate Programs in Arts, Languages & Social Thought',
+    undergradDuration: '4 Years (8 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'Department of English and Linguistics',
+    deanBio1:
+      'Welcome to the Faculty of Arts and Humanities: Where Creativity Meets Critical Inquiry. Our faculty is dedicated to exploring the complexities of human experience through language, history, literature, philosophy, and visual arts.',
+    deanBio2:
+      'We empower students to develop critical thinking, empathetic perspective, and articulate expression, preparing versatile leaders for public service, education, creative industries, and societal transformation.',
+    departments: [
+      { id: 'english-linguistics', label: 'English and Linguistics', fullName: 'Department of English and Linguistics', focus: 'Applied Linguistics, English Literature, Discourse Analysis & Stylistics' },
+      { id: 'islamic-studies', label: 'Islamic Studies', fullName: 'Department of Islamic Studies', focus: 'Quranic Sciences, Hadith Studies, Islamic Jurisprudence & Comparative Ethics' },
+      { id: 'waris-shah-chair', label: 'Waris Shah Chair', fullName: 'Waris Shah Chair (Cultural Studies)', focus: 'Sufi Poetry, Punjabi Folklore, Heritage Preservation & Classical Literature' },
+      { id: 'pakistan-studies-history', label: 'Pakistan Studies / History / Anthropology', fullName: 'Department of Pakistan Studies / History / Anthropology', focus: 'Ideological History, Cultural Anthropology, Governance & Regional Studies' },
+      { id: 'psychology', label: 'Psychology', fullName: 'Department of Psychology', focus: 'Cognitive Psychology, Clinical Counseling, Behavioral Research & Psychometrics' },
+      { id: 'arts-and-design', label: 'Arts and Design', fullName: 'Department of Arts and Design', focus: 'Studio Fine Arts, Graphic Communication, Textile Design & Digital Illustration' }
+    ],
+    institutes: [],
+    centres: [],
+    hasEducationalPrograms: false,
+    hasPortfolio: false,
+    hasCentres: false,
+    undergradMajors: [
+      'BS English Language & Literature',
+      'BS Islamic Studies',
+      'BS Pakistan Studies',
+      'BS Psychology',
+      'BS Fine Arts & Visual Design'
+    ]
+  },
+
+  // 4. FACULTY OF VETERINARY SCIENCE
+  'fac-vet': {
+    undergradDegree: 'Doctor of Veterinary Medicine (DVM)',
+    undergradSubtitle: '5-Year Professional Veterinary Medical Degree Program',
+    undergradDuration: '5 Years (10 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'Department of Pathology',
+    deanBio1:
+      'The Faculty of Veterinary Science trains world-class veterinarians equipped with clinical diagnosis, animal surgery, disease surveillance, and vaccine technology expertise.',
+    deanBio2:
+      'With round-the-clock veterinary hospitals, companion animal clinics, and biocontainment facilities, our students gain invaluable clinical immersion.',
+    departments: [
+      { id: 'vet-pathology', label: 'Pathology', fullName: 'Department of Pathology', focus: 'Veterinary Pathology, Necropsy, Histopathology & Diagnostic Tests' },
+      { id: 'vet-parasitology', label: 'Parasitology', fullName: 'Department of Parasitology', focus: 'Helminthology, Entomology, Protozoology & Vector Control' },
+      { id: 'vet-cms', label: 'Clinical Medicine & Surgery', fullName: 'Department of Clinical Medicine and Surgery', focus: 'Large & Small Animal Surgery, Veterinary Diagnostics & Critical Care' },
+      { id: 'vet-therio', label: 'Theriogenology', fullName: 'Department of Theriogenology', focus: 'Animal Reproduction, Assisted Reproductive Tech & Embryo Transfer' },
+      { id: 'vet-anatomy', label: 'Anatomy & Histology', fullName: 'Department of Anatomy and Histology', focus: 'Gross Anatomy, Embryology & Structural Biology' },
+      { id: 'vet-physio', label: 'Physiology & Pharmacology', fullName: 'Department of Physiology and Pharmacology', focus: 'Organ Physiology, Pharmacodynamics & Toxicology' }
+    ],
+    institutes: [
+      { id: 'vet-microbiology', label: 'Institute of Microbiology', fullName: 'Institute of Microbiology', focus: 'Bacteriology, Virology, Immunology & Vaccine Production' }
+    ],
+    hasEducationalPrograms: true,
+    hasPortfolio: false,
+    undergradMajors: ['Doctor of Veterinary Medicine (DVM)']
+  },
+
+  // 5. FACULTY OF SCIENCES
+  'fac-sci': {
+    undergradDegree: 'BS Computer Science & Basic Sciences',
+    undergradSubtitle: '4-Year Undergraduate Degree Program in Natural & Computational Sciences',
+    undergradDuration: '4 Years (8 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'Department of Biochemistry',
+    deanBio1:
+      'The Faculty of Sciences serves as the intellectual backbone of basic, applied and mathematical sciences at UAF, hosting world-class computing clusters, genomic sequencing facilities, and chemical instrumentation testbeds.',
+    deanBio2:
+      'Our alumni lead multinational software houses, pharmaceutical laboratories, and prestigious international research institutes across North America, Europe, and Asia.',
+    departments: [
+      { id: 'sci-cs', label: 'Computer Science', fullName: 'Department of Computer Science', focus: 'Artificial Intelligence, Agri-IoT, Data Science & Software Engineering' },
+      { id: 'sci-biochem', label: 'Biochemistry', fullName: 'Department of Biochemistry', focus: 'Enzymology, Molecular Diagnostics & Clinical Proteomics' },
+      { id: 'sci-botany', label: 'Botany', fullName: 'Department of Botany', focus: 'Plant Physiology, Stress Biology & Phytochemistry' },
+      { id: 'sci-zoology', label: 'Zoology, Wildlife & Fisheries', fullName: 'Department of Zoology, Wildlife and Fisheries', focus: 'Fisheries Aquaculture, Wildlife Conservation & Animal Ecology' },
+      { id: 'sci-chemistry', label: 'Chemistry', fullName: 'Department of Chemistry', focus: 'Organic Synthesis, Environmental Chemistry & Spectroscopy' },
+      { id: 'sci-physics', label: 'Physics', fullName: 'Department of Physics', focus: 'Condensed Matter, Material Sciences & Applied Nanotechnology' },
+      { id: 'sci-math', label: 'Mathematics & Statistics', fullName: 'Department of Mathematics and Statistics', focus: 'Biostatistics, Fluid Dynamics & Mathematical Modeling' }
+    ],
+    institutes: [
+      { id: 'sci-biotech', label: 'Center of Agricultural Biochemistry & Biotech', fullName: 'Center of Agricultural Biochemistry and Biotechnology (CABB)', focus: 'Gene Cloning, Tissue Culture & Recombinant Vaccines' }
+    ],
+    hasEducationalPrograms: true,
+    hasPortfolio: true,
+    undergradMajors: [
+      'BS Computer Science',
+      'BS Software Engineering',
+      'BS Information Technology',
+      'BS Data Science',
+      'BS Biochemistry',
+      'BS Botany',
+      'BS Chemistry',
+      'BS Zoology'
+    ]
+  },
+
+  // 6. FACULTY OF ANIMAL HUSBANDRY
+  'fac-husbandry': {
+    undergradDegree: 'B.Sc. (Hons.) Animal Sciences',
+    undergradSubtitle: '4-Year Professional Livestock, Dairy & Poultry Production Program',
+    undergradDuration: '4 Years (8 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'Department of Livestock Management',
+    deanBio1:
+      'The Faculty of Animal Husbandry is dedicated to sustainable livestock breeding, high-efficiency dairy farming, poultry innovation, and animal feed technology.',
+    deanBio2:
+      'Our students train at operational livestock research farms, modern milking parlors, and feed manufacturing pilot plants to ensure food security.',
+    departments: [
+      { id: 'ah-abg', label: 'Animal Breeding & Genetics', fullName: 'Department of Animal Breeding and Genetics', focus: 'Quantitative Genetics, Molecular Breeding & Dairy Improvement' },
+      { id: 'ah-lm', label: 'Livestock Management', fullName: 'Department of Livestock Management', focus: 'Farm Management, Dairy Cattle Production & Calf Rearing' },
+      { id: 'ah-poultry', label: 'Poultry Science', fullName: 'Department of Poultry Science', focus: 'Broiler Management, Breeder Flocks & Hatchery Technology' },
+      { id: 'ah-nutrition', label: 'Animal Nutrition', fullName: 'Department of Animal Nutrition', focus: 'Ruminant Rations, Feed Technology & Forage Quality' }
+    ],
+    institutes: [
+      { id: 'ah-iads', label: 'Institute of Animal & Dairy Sciences', fullName: 'Institute of Animal and Dairy Sciences', focus: 'Modern Dairy Technology, Milk Processing & Dairy Quality' }
+    ],
+    hasEducationalPrograms: true,
+    hasPortfolio: false,
+    undergradMajors: ['B.Sc. (Hons.) Animal Sciences', 'BS Dairy Technology', 'BS Poultry Science']
+  },
+
+  // 7. FACULTY OF AGRICULTURAL ENGINEERING & TECHNOLOGY
+  'fac-engg': {
+    undergradDegree: 'B.Sc. Agricultural Engineering',
+    undergradSubtitle: 'PEC-Accredited 4-Year Professional Engineering Degree',
+    undergradDuration: '4 Years (8 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'Department of Farm Machinery and Power',
+    deanBio1:
+      'We engineer smart solutions for agriculture: precision agricultural machines, solar water management, food processing automation, and biomass renewable energy.',
+    deanBio2:
+      'Equipped with state-of-the-art machine workshops, hydraulics test flumes, and sensor instrumentation labs, we prepare engineers for global challenges.',
+    departments: [
+      { id: 'engg-fmp', label: 'Farm Machinery & Power', fullName: 'Department of Farm Machinery and Power', focus: 'Smart Tractors, Harvesters & Agricultural Mechanization' },
+      { id: 'engg-structures', label: 'Structures & Env Engineering', fullName: 'Department of Structures and Environmental Engineering', focus: 'Farm Structures, Bio-waste Management & Environmental Systems' },
+      { id: 'engg-irrigation', label: 'Irrigation & Drainage', fullName: 'Department of Irrigation and Drainage', focus: 'Hydrology, Precision Drip Irrigation & Groundwater Hydraulics' },
+      { id: 'engg-food', label: 'Food Engineering', fullName: 'Department of Food Engineering', focus: 'Thermal Processing, Cold Storage & Bioprocess Design' },
+      { id: 'engg-energy', label: 'Energy Systems Engineering', fullName: 'Department of Energy Systems Engineering', focus: 'Solar Thermal, Biomass Gasification & Renewable Power' }
+    ],
+    institutes: [],
+    hasEducationalPrograms: true,
+    hasPortfolio: false,
+    undergradMajors: ['B.Sc. Agricultural Engineering', 'B.Sc. Food Engineering', 'B.Sc. Energy Systems Engineering']
+  },
+
+  // 8. FACULTY OF SOCIAL SCIENCES
+  'fac-social': {
+    undergradDegree: 'B.Sc. (Hons.) Agri. & Resource Economics',
+    undergradSubtitle: 'Applied Economics, Agribusiness Management & Rural Sociology',
+    undergradDuration: '4 Years (8 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'Department of Economics',
+    deanBio1:
+      'The Faculty of Social Sciences bridges science and farming communities through robust policy analysis, market economics, rural outreach, and agribusiness leadership.',
+    deanBio2:
+      'Our alumni shape agricultural policy in government ministries, international organizations like FAO and World Bank, and multinational agribusinesses.',
+    departments: [
+      {
+        id: 'soc-sociology',
+        label: 'Department of Rural Sociology',
+        fullName: 'Department of Rural Sociology',
+        focus: 'Social Structure, Rural Development, Community Mobilization & Demographic Analysis',
+        subDivisions: [
+          { id: 'soc-soc-overview', label: 'Overview', fullName: 'Department of Rural Sociology — Overview', focus: 'Sociological Knowledge, Community Dynamics & Human Relationships' },
+          { id: 'soc-soc-objectives', label: 'Objectives', fullName: 'Department of Rural Sociology — Objectives', focus: 'Analytical Skills, Field Methodologies & Social Transformation' },
+          { id: 'soc-soc-people', label: 'Our People', fullName: 'Department of Rural Sociology — Faculty & Staff', focus: 'Highly Qualified Faculty, Doctoral Mentorship & International Research' }
+        ]
+      },
+      {
+        id: 'soc-cont-education',
+        label: 'Department of Continuing Education',
+        fullName: 'Department of Continuing Education',
+        focus: 'Adult Education, Lifelong Learning, Capacity Building & Executive Extension',
+        subDivisions: [
+          { id: 'soc-ce-overview', label: 'Overview', fullName: 'Department of Continuing Education — Overview', focus: 'Professional Training & Non-Formal Education' },
+          { id: 'soc-ce-faculty', label: 'Faculty and Staff', fullName: 'Department of Continuing Education — Faculty and Staff', focus: 'Instructional Designers, Master Trainers & Resource Persons' }
+        ]
+      }
+    ],
+    institutes: [
+      {
+        id: 'soc-ibms',
+        label: 'Institute of Business Management Sciences',
+        fullName: 'Institute of Business Management Sciences (IBMS)',
+        focus: 'Agribusiness, Marketing, Banking & Finance, HRM, MIS & Strategic Management',
+        subDivisions: [
+          { id: 'soc-ibms-overview', label: 'Overview', fullName: 'Institute of Business Management Sciences — Overview', focus: "Pakistan's Lead Institution in Business Education, Innovation & Global Recognition" },
+          { id: 'soc-ibms-director', label: 'The Director', fullName: 'Office of the Director, IBMS', focus: 'Institutional Leadership, Corporate Linkages & Incubation' },
+          { id: 'soc-ibms-visiting', label: 'Visiting Faculty', fullName: 'IBMS Visiting Faculty & Industry Executives', focus: 'Corporate Mentors, Banking Practitioners & C-Suite Guests' },
+          { id: 'soc-ibms-staff', label: 'Faculty and Staff', fullName: 'Institute of Business Management Sciences — Faculty and Staff', focus: 'Permanent Professorial Faculty, Ph.D. Supervisors & Administrative Officers' }
+        ]
+      },
+      {
+        id: 'soc-iaeerd',
+        label: 'Institute of Agricultural Extension, Education and Rural Development',
+        fullName: 'Institute of Agricultural Extension, Education and Rural Development',
+        focus: 'Farmer Extension, ICT Cyber Extension, Distance Education, Rural Development & Agri Journalism',
+        subDivisions: [
+          { id: 'soc-ext-overview', label: 'Overview', fullName: 'Institute of Agri Extension, Education & Rural Dev — Overview', focus: 'Cyber Extension, Mobile Apps, Food Security Projects & Distance Learning' },
+          { id: 'soc-ext-director', label: 'The Director', fullName: 'Office of the Director, Institute of Agri Extension, Education & Rural Dev', focus: 'Extension Leadership, In-Service Army/Civil Training & Research' },
+          { id: 'soc-ext-staff', label: 'Faculty and Staff', fullName: 'Institute of Agri Extension, Education & Rural Dev — Faculty and Staff', focus: 'Senior Extension Specialists, Doctoral Scholars & Field Officers' },
+          { id: 'soc-ext-courses', label: 'Course Contents', fullName: 'Course Contents — Extension, B.Ed, M.Ed & Rural Development', focus: 'Curriculum Syllabi, Field Practicums & Training Modules' }
+        ]
+      },
+      {
+        id: 'soc-iare',
+        label: 'Institute of Agricultural and Resource Economics',
+        fullName: 'Institute of Agricultural and Resource Economics',
+        focus: 'Agricultural Economics, Development Economics, Environmental & Resource Policy, Trade & Econometrics',
+        subDivisions: [
+          { id: 'soc-iare-overview', label: 'Overview', fullName: 'Institute of Agricultural & Resource Economics — Overview', focus: 'Policy Briefs, Trade Impact Analysis & Econometric Research' },
+          { id: 'soc-iare-director', label: 'Director', fullName: 'Office of the Director, Institute of Agricultural & Resource Economics', focus: 'Strategic Economic Research, HEC Accreditation & Policy Outreach' },
+          { id: 'soc-iare-objectives', label: 'Objectives', fullName: 'Institute of Agricultural & Resource Economics — Objectives', focus: 'Analytical Economic Modeling, Sustainable Resource Strategy & Policy Advisory' },
+          { id: 'soc-iare-programs', label: 'Educational Programs', fullName: 'Educational Programs — B.Sc, M.Sc, M.Phil & Ph.D. Economics', focus: 'Comprehensive Undergraduate & Doctoral Academic Degrees' },
+          { id: 'soc-iare-staff', label: 'Faculty and Staff', fullName: 'Institute of Agricultural & Resource Economics — Faculty and Staff', focus: 'Renowned Economists, HEC Approved Supervisors & Research Fellows' }
+        ]
+      }
+    ],
+    centres: [
+      {
+        id: 'soc-ptsdc',
+        label: 'Professional Training & Skill Development Center',
+        fullName: 'Professional Training & Skill Development Centre (PTSDC)',
+        focus: '3-Tier Mandatory Promotion Training (MPT) for Agri Officers Grades 17-19, E-Governance & Ethics',
+        subDivisions: [
+          { id: 'soc-ptsdc-overview', label: 'Overview', fullName: 'Professional Training Program for Agriculture Officers — Overview', focus: 'Structured 3-Tier Mandatory Promotion Training: Finance, Administration, Management & E-Governance' },
+          { id: 'soc-ptsdc-staff', label: 'Faculty and Staff', fullName: 'Professional Training & Skill Development Centre — Faculty & Staff', focus: 'Senior Resource Persons, Civil Service Trainers & Administrative Instructors' }
+        ]
+      },
+      {
+        id: 'soc-pol-centre',
+        label: 'Agri Policy, Law and Governance Centre',
+        fullName: 'Agri Policy, Law and Governance Centre',
+        focus: 'National Agricultural Policy, WTO/CPEC Trade Frameworks, Water Laws & Governance Reforms',
+        subDivisions: [
+          { id: 'soc-pol-overview', label: 'Centre Overview', fullName: 'Agri Policy, Law and Governance Centre — Overview', focus: 'Strategic Policy Formulation, Legal Frameworks & Regulatory Research' },
+          { id: 'soc-pol-staff', label: 'Faculty and Staff', fullName: 'Agri Policy, Law and Governance Centre — Faculty & Staff', focus: 'Policy Fellows, Legal Counselors & Institutional Researchers' }
+        ]
+      }
+    ],
+    hasEducationalPrograms: true,
+    hasPortfolio: false,
+    hasCentres: true,
+    undergradMajors: [
+      'B.Sc. (Hons.) Agricultural and Resource Economics',
+      'Bachelor of Business Administration (BBA)',
+      'BBA (Agribusiness)',
+      'BS (Commerce)',
+      'BS Sociology',
+      'BS Economics'
+    ]
+  },
+
+  // 9. FACULTY OF FOOD, NUTRITION & HOME SCIENCES
+  'fac-food': {
+    undergradDegree: 'B.Sc. (Hons.) Food Science & Technology',
+    undergradSubtitle: 'Food Safety, Post-Harvest Processing & Human Nutrition',
+    undergradDuration: '4 Years (8 Semesters)',
+    deanImage: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=600&q=80',
+    deanDepartment: 'National Institute of Food Science & Technology (NIFSAT)',
+    deanBio1:
+      'National Institute of Food Science & Technology leads the country in addressing food safety, malnutrition, post-harvest losses, and functional foods.',
+    deanBio2:
+      'Our pilot plants for dairy, baking, beverage, and meat processing allow students to develop commercial food products compliant with international standards.',
+    departments: [
+      { id: 'food-safety', label: 'Food Safety & Quality', fullName: 'Department of Food Safety and Quality Assurance', focus: 'HACCP, Food Microbiology & Regulatory Compliance' },
+      { id: 'food-hnd', label: 'Human Nutrition & Dietetics', fullName: 'Department of Human Nutrition and Dietetics', focus: 'Clinical Nutrition, Public Health Diets & Metabolic Health' },
+      { id: 'food-dairy-tech', label: 'Dairy Technology', fullName: 'Department of Dairy Technology', focus: 'Milk Processing, Dairy Chemistry, Fermented Foods & Quality Control' },
+      { id: 'food-processing-preservation', label: 'Food Processing & Preservation', fullName: 'Department of Food Processing and Preservation', focus: 'Thermal Processing, Cold Chain, Drying & Novel Food Technologies' },
+      { id: 'food-home-sci', label: 'Home Sciences', fullName: 'Department of Home Sciences', focus: 'Family Studies, Textile Arts, Child Development & Community Living' }
+    ],
+    institutes: [
+      { id: 'food-nifsat', label: 'NIFSAT', fullName: 'National Institute of Food Science and Technology (NIFSAT)', focus: 'Post-Harvest Technology, Dairy Processing & Functional Foods' },
+      {
+        id: 'ihs-main',
+        label: 'Institute of Home Sciences',
+        fullName: 'Institute of Home Sciences',
+        focus: 'Apparel Design, Human Development, Interior Economics & Community Health',
+        subDivisions: [
+          { id: 'ihs-overview', label: 'Overview', fullName: 'Institute of Home Sciences — Overview', focus: 'Academic Vision, Mission & Interdisciplinary Leadership' },
+          { id: 'ihs-objectives', label: 'Objectives', fullName: 'Institute of Home Sciences — Objectives', focus: 'Educational Goals, Skill Empowerment & Professional Competencies' },
+          { id: 'ihs-director', label: 'The Director', fullName: 'Office of the Director, Institute of Home Sciences', focus: 'Institutional Leadership, Strategic Research & Student Development' },
+          { id: 'ihs-dept-clothing', label: 'Clothing and Textile', fullName: 'Department of Clothing and Textile', focus: 'Textile Science, Apparel Design, Fashion Merchandising & Sustainable Fabrics' },
+          { id: 'ihs-dept-human-dev', label: 'Human Development and Family Studies', fullName: 'Department of Human Development and Family Studies', focus: 'Child Psychology, Family Dynamics, Early Childhood Education & Mental Well-being' },
+          { id: 'ihs-dept-food-nutrition', label: 'Food and Nutrition', fullName: 'Department of Food and Nutrition (IHS)', focus: 'Community Dietetics, Clinical Nutrition, Maternal & Child Health' },
+          { id: 'ihs-dept-resource-management', label: 'Resource and Facility Management', fullName: 'Department of Resource and Facility Management', focus: 'Household Economics, Ergonomics, Consumer Behavior & Sustainable Living' },
+          { id: 'ihs-dept-art-interior', label: 'Art and Interior Design', fullName: 'Department of Art and Interior Design', focus: 'Architectural Interiors, Visual Arts, Aesthetic Styling & Space Planning' },
+          { id: 'ihs-dept-sociology', label: 'Home Economics & Community Development', fullName: 'Department of Home Economics Education and Extension', focus: 'Community Outreach, Rural Women Empowerment & Social Development' }
+        ]
+      }
+    ],
+    hasEducationalPrograms: true,
+    hasPortfolio: false,
+    undergradMajors: ['B.Sc. (Hons.) Food Science & Technology', 'Doctor of Human Nutrition & Dietetics (HND)', 'BS Home Economics']
   }
 };
 
-// Dynamic generator for any Department or Institute across all 9 UAF Faculties
-const MALE_PROFESSOR_NAMES_POOL = [
-  'Prof. Dr. Muhammad Tariq Mahmood',
-  'Prof. Dr. Khalid Javed',
-  'Prof. Dr. Abdul Ghafoor',
-  'Prof. Dr. Zahid Ata Cheema',
-  'Dr. Muhammad Arfan-ul-Haq',
-  'Dr. Kamran Ashraf',
-  'Dr. Shakeel Ahmad Khan',
-  'Dr. Muhammad Imran Arshad',
-  'Prof. Dr. Rashid Ahmad',
-  'Dr. Munir Ahmad',
-  'Dr. Asif Nadeem',
-  'Dr. Tariq Sultan'
+export const SECTION_HERO_TITLES: Record<string, { title: string; highlight: string }> = {
+  overview: { title: 'Faculty Profile —', highlight: 'Overview & Academic Profile' },
+  dean: { title: 'Faculty Leadership —', highlight: "The Dean's Secretariat" },
+  undergraduate: { title: 'Undergraduate Programs —', highlight: 'Degree Structure & Majors' },
+  postgraduate: { title: 'Postgraduate Programs —', highlight: 'Masters & Ph.D. Research' },
+  internship: { title: 'Experiential Learning —', highlight: 'Mandatory Field Internship' },
+  'short-courses': { title: 'Vocational Training —', highlight: 'Short Courses & Certificates' },
+  portfolio: { title: 'Faculty Research —', highlight: 'Scholarly Publications & Springer Articles' },
+  centres: { title: 'Specialized Facilities —', highlight: 'Centres & Clinical Units' }
+};
+
+export const UAF_SPRINGER_PUBLICATION_URL =
+  'https://link.springer.com/article/10.1007/s11235-015-0076-8';
+
+export const FACULTY_SCIENCES_PUBLICATIONS_LIST: PublicationItem[] = [
+  {
+    id: 'pub-01',
+    srNo: 1,
+    type: 'journal',
+    title: 'An Optimized Deep Learning Architecture for Automated Crop Disease Classification',
+    authors: 'Prof. Dr. Abdul Khaliq, Dr. Fahd Rasul et al.',
+    journalOrConf: 'Springer Telecommunication Systems & Computing',
+    impactFactor: 'IF: 3.42',
+    date: 'March 2024',
+    doi: '10.1007/s11235-015-0076-8',
+    issnOnline: '1572-9451',
+    issnPrint: '1018-4864',
+    url: UAF_SPRINGER_PUBLICATION_URL,
+    department: 'Computer Science'
+  },
+  {
+    id: 'pub-02',
+    srNo: 2,
+    type: 'journal',
+    title: 'Energy-Efficient Wireless Sensor Network Routing Protocols in Precision Agriculture',
+    authors: 'Dr. Shakeel Ahmad, Dr. Imran Khan et al.',
+    journalOrConf: 'Springer Wireless Networks & Sensors',
+    impactFactor: 'IF: 2.85',
+    date: 'January 2024',
+    doi: '10.1007/s11235-015-0076-8',
+    issnOnline: '1572-9451',
+    issnPrint: '1018-4864',
+    url: UAF_SPRINGER_PUBLICATION_URL,
+    department: 'Computer Science'
+  },
+  {
+    id: 'pub-03',
+    srNo: 3,
+    type: 'journal',
+    title: 'Biofortification of Cereal Crops via Micro-Nutrient Priming Under Arid Conditions',
+    authors: 'Prof. Dr. Muhammad Farooq, Prof. Dr. Javaid Akhtar',
+    journalOrConf: 'Springer Journal of Plant Nutrition & Agronomy',
+    impactFactor: 'IF: 4.12',
+    date: 'December 2023',
+    doi: '10.1007/s11235-015-0076-8',
+    issnOnline: '1572-9451',
+    issnPrint: '1018-4864',
+    url: UAF_SPRINGER_PUBLICATION_URL,
+    department: 'Agronomy'
+  },
+  {
+    id: 'pub-04',
+    srNo: 4,
+    type: 'conference',
+    title: 'Multimodal Machine Learning for Satellite-Based Crop Yield Estimation',
+    authors: 'Faculty of Sciences Research Group',
+    journalOrConf: 'Springer Proceedings in Advanced Agricultural Informatics',
+    date: 'November 2023',
+    doi: '10.1007/s11235-015-0076-8',
+    url: UAF_SPRINGER_PUBLICATION_URL,
+    department: 'Computer Science'
+  }
 ];
 
-export function getDynamicDepartmentDetail(
-  sectionId: string,
-  facultyInfo: FacultyMeta
-): DepartmentDetailData | undefined {
-  // 1. Return curated detail if present in DEPARTMENT_DETAILS_MAP
-  if (DEPARTMENT_DETAILS_MAP[sectionId]) {
-    return DEPARTMENT_DETAILS_MAP[sectionId];
+// ─────────────────────────────────────────────────────────────────────────────
+// MEDICAL & HEALTH CENTRE SPECIALIZED CLINICAL & HEALTHCARE STAFF
+// ─────────────────────────────────────────────────────────────────────────────
+export const MEDICAL_HEALTH_CENTRE_STAFF: StaffMember[] = [
+  {
+    name: 'Dr. Muhammad Naeem Akhtar',
+    designation: 'Principal Medical Officer / Incharge Medical & Health Centre',
+    qualification: 'M.B.B.S (KEMU) • M.C.P.S (Family Medicine) • F.C.P.S (Community Medicine)',
+    specialization: 'Healthcare Administration, Primary Care Medicine, Clinical Epidemiology & Emergency Services',
+    researchAreas: 'Community Healthcare Delivery, Campus Epidemic Surveillance & Preventative Health',
+    address: 'Executive Office, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3120',
+    email: 'incharge.medical@uaf.edu.pk',
+    hecApprovedSupervisor: 'PMDC / PMC Certified',
+    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Dr. Farzana Kausar',
+    designation: 'Senior Medical Officer (Incharge Female Wing & MCH)',
+    qualification: 'M.B.B.S • D.G.O (Obstetrics & Gynecology) • M.C.P.S',
+    specialization: 'Maternal & Child Healthcare, Antenatal Diagnostics, Adolescent Medicine & Women Health',
+    researchAreas: 'Public Health Gynecology, Preventative Obstetrics & Maternal Nutrition',
+    address: 'Female OPD Wing, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3122',
+    email: 'farzana.kausar@uaf.edu.pk',
+    hecApprovedSupervisor: 'PMDC / PMC Certified',
+    image: 'https://images.unsplash.com/photo-1594824813637-43c3a4f32fb0?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Dr. Kashif Mehmood',
+    designation: 'Senior Medical Officer (Emergency Triage & Trauma Care)',
+    qualification: 'M.B.B.S • Dip. in Emergency Medicine (RCSEd) • ACLS / ATLS Certified',
+    specialization: 'Trauma Life Support, Acute Resuscitation, Critical Care Triage & Disaster Preparedness',
+    researchAreas: 'Pre-Hospital Emergency Response & Campus Triage Protocols',
+    address: '24/7 Emergency Wing, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3125',
+    email: 'kashif.mehmood@uaf.edu.pk',
+    hecApprovedSupervisor: 'PMDC / PMC Certified',
+    image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Dr. Sadia Noreen',
+    designation: 'Lady Medical Officer (Pediatrics & General Outpatient Clinic)',
+    qualification: 'M.B.B.S • D.C.H (Diploma in Child Health) • PALS Certified',
+    specialization: 'Pediatric Healthcare, Immunization Schedules, Infectious Diseases & Child Wellness',
+    researchAreas: 'Childhood Vaccination Programs & School/Campus Health Outreach',
+    address: 'General OPD Suite 4, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3124',
+    email: 'sadia.noreen@uaf.edu.pk',
+    hecApprovedSupervisor: 'PMDC / PMC Certified',
+    image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Dr. Muhammad Asim Raza',
+    designation: 'Medical Officer (Clinical Outpatient Services & Diabetology)',
+    qualification: 'M.B.B.S • M.R.C.G.P (Int.) • Cert. in Diabetology & Hypertension',
+    specialization: 'Cardiometabolic Management, Diabetes Care, Hypertension & Chronic Outpatient Illnesses',
+    researchAreas: 'Metabolic Syndrome Prevention & Faculty Wellness Programs',
+    address: 'Consultation Room 2, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3123',
+    email: 'asim.raza@uaf.edu.pk',
+    hecApprovedSupervisor: 'PMDC / PMC Certified',
+    image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Dr. Usman Ali',
+    designation: 'Senior Dental Surgeon (Incharge Dental Care Unit)',
+    qualification: 'B.D.S • R.D.S • Cert. in Advanced Conservative Dentistry & Endodontics',
+    specialization: 'Maxillofacial Diagnostics, Endodontic Therapy, Periodontics & Preventative Oral Hygiene',
+    researchAreas: 'Campus Oral Health Screening & Preventative Dentistry',
+    address: 'Dental Surgery Suite, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3127',
+    email: 'usman.dental@uaf.edu.pk',
+    hecApprovedSupervisor: 'PMDC / PMC Certified',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Dr. Ayesha Siddiqa',
+    designation: 'Radiologist & Ultrasonologist (Diagnostic Imaging Suite)',
+    qualification: 'M.B.B.S • D.M.R.D (Diagnostic Radiology) • Cert. Musculoskeletal Ultrasound',
+    specialization: 'High-Resolution Abdominal Ultrasonography, Doppler Sonography & Diagnostic Imaging',
+    researchAreas: 'Non-Invasive Diagnostic Sonography in Primary Care',
+    address: 'Ultrasound & Radiology Unit, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3126',
+    email: 'ayesha.radiology@uaf.edu.pk',
+    hecApprovedSupervisor: 'PMDC / PMC Certified',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Dr. Muhammad Imran Khan',
+    designation: 'Chief Pharmacist / Incharge Central Medical Pharmacy',
+    qualification: 'Pharm-D (UAF) • M.Phil (Pharmacy Practice) • R.Ph',
+    specialization: 'Hospital Drug Formulary Management, Pharmacovigilance, Cold Chain & Rational Drug Use',
+    researchAreas: 'Clinical Drug Safety, DRAP Compliance & Antibiotic Stewardship',
+    address: 'Hospital Central Pharmacy, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3128',
+    email: 'imran.pharmacist@uaf.edu.pk',
+    hecApprovedSupervisor: 'Pharmacy Council Certified',
+    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Dr. Tariq Javed',
+    designation: 'Senior Clinical Pathologist / Diagnostic Laboratory Incharge',
+    qualification: 'M.Sc • M.Phil (Medical Laboratory Technology) • Ph.D. Clinical Microbiology',
+    specialization: 'Clinical Biochemistry, Automated Hematology, Immunoassays & Molecular Diagnostics',
+    researchAreas: 'Laboratory Quality Assurance & Rapid Diagnostic Assays',
+    address: 'Pathology & Diagnostic Lab, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3129',
+    email: 'tariq.pathology@uaf.edu.pk',
+    hecApprovedSupervisor: 'HEC Approved Supervisor',
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80'
+  },
+  {
+    name: 'Ms. Shamim Akhtar',
+    designation: 'Nursing Superintendent / Incharge Nursing & Triage Staff',
+    qualification: 'B.Sc. Nursing • Post-RN • PNC Registered • Cert. Critical Care Nursing',
+    specialization: 'Triage Patient Assessment, Inpatient Ward Management, Sterilization & Emergency Nursing',
+    researchAreas: 'Hospital Infection Control Protocols & Emergency Nursing Practice',
+    address: 'Nursing Station, Medical & Health Centre, University of Agriculture, Faisalabad',
+    phone: '+92419200161 - Ext. 3130',
+    email: 'nursing.superintendent@uaf.edu.pk',
+    hecApprovedSupervisor: 'Pakistan Nursing Council (PNC)',
+    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80'
   }
+];
 
-  // 2. Otherwise search across all faculties in FACULTY_MENUS_MAP
+// Helper to resolve departments
+export function getDepartment(
+  sectionId: string,
+  facultyInfo?: FacultyMeta
+): DepartmentDetailData | undefined {
   let matchedDivision: DynamicDivisionMeta | undefined;
+  let matchedFacultyKey = 'fac-agri';
+
   for (const facKey of Object.keys(FACULTY_MENUS_MAP)) {
     const cfg = FACULTY_MENUS_MAP[facKey];
     matchedDivision =
       cfg.departments.find((d) => d.id === sectionId) ||
-      cfg.institutes.find((i) => i.id === sectionId);
-    if (matchedDivision) break;
+      cfg.institutes?.find((i) => i.id === sectionId) ||
+      cfg.centres?.find((c) => c.id === sectionId);
+    
+    if (!matchedDivision && cfg.departments) {
+      for (const d of cfg.departments) {
+        if (d.subDivisions) {
+          const subMatch = d.subDivisions.find((s) => s.id === sectionId);
+          if (subMatch) {
+            matchedDivision = subMatch;
+            break;
+          }
+        }
+      }
+    }
+    if (!matchedDivision && cfg.institutes) {
+      for (const inst of cfg.institutes) {
+        if (inst.subDivisions) {
+          const subMatch = inst.subDivisions.find((s) => s.id === sectionId);
+          if (subMatch) {
+            matchedDivision = subMatch;
+            break;
+          }
+        }
+      }
+    }
+    if (!matchedDivision && cfg.centres) {
+      for (const c of cfg.centres) {
+        if (c.subDivisions) {
+          const subMatch = c.subDivisions.find((s) => s.id === sectionId);
+          if (subMatch) {
+            matchedDivision = subMatch;
+            break;
+          }
+        }
+      }
+    }
+    if (matchedDivision) {
+      matchedFacultyKey = facKey;
+      break;
+    }
   }
 
-  if (!matchedDivision) return undefined;
+  if (!matchedDivision) {
+    matchedDivision = {
+      id: sectionId,
+      label: sectionId.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      fullName: `Department of ${sectionId.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}`,
+      focus: 'Academic Research, Modern Instruction & Extension'
+    };
+  }
+
+  const resolvedFaculty =
+    facultyInfo || FACULTY_DATA_MAP[matchedFacultyKey] || FACULTY_DATA_MAP['fac-agri'];
 
   const seed = sectionId.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   const focusParts = matchedDivision.focus.split(',').map((s) => s.trim());
 
-  const dynamicStaffList: StaffMember[] = Array.from({ length: 8 }).map((_, idx) => {
+  const defaultStaffList: StaffMember[] = Array.from({ length: 8 }).map((_, idx) => {
     const name = MALE_PROFESSOR_NAMES_POOL[(seed + idx) % MALE_PROFESSOR_NAMES_POOL.length];
     const designation =
       idx === 0
@@ -1528,8 +977,7 @@ export function getDynamicDepartmentDetail(
         : idx < 6
         ? 'Associate Professor'
         : 'Assistant Professor';
-    const qual =
-      idx % 2 === 0 ? 'Ph.D. (UAF) • Post-Doc' : 'Ph.D.';
+    const qual = idx % 2 === 0 ? 'Ph.D. (UAF) • Post-Doc' : 'Ph.D.';
     const spec = focusParts[idx % focusParts.length] || matchedDivision!.label;
     const emailPrefix = name
       .toLowerCase()
@@ -1545,7 +993,7 @@ export function getDynamicDepartmentDetail(
       qualification: qual,
       specialization: spec,
       researchAreas: matchedDivision!.focus,
-      address: `${matchedDivision!.fullName}, ${facultyInfo.fullName}, University of Agriculture, Faisalabad-Punjab-Pakistan, Postal Code: 38000`,
+      address: `${matchedDivision!.fullName}, ${resolvedFaculty.fullName}, University of Agriculture, Faisalabad`,
       phone: `+92419200161 - Ext. ${3101 + ((seed + idx) % 400)}`,
       email: `${emailPrefix}@uaf.edu.pk`,
       hecApprovedSupervisor: 'Yes',
@@ -1557,305 +1005,271 @@ export function getDynamicDepartmentDetail(
     id: sectionId,
     name: matchedDivision.fullName,
     shortLabel: matchedDivision.label,
-    overviewTitle: `${matchedDivision.fullName} - Overview`,
-    staffTitle: `${matchedDivision.fullName} - Faculty and Staff`,
+    overviewTitle: `${matchedDivision.fullName} — Academic Overview`,
+    staffTitle: `${matchedDivision.fullName} — Faculty and Staff`,
     buildingImage: '/uaf_historic_campus.jpg',
-    buildingCaption: `${matchedDivision.fullName}, ${facultyInfo.fullName}, University of Agriculture, Faisalabad`,
-    paragraphsTop: [
-      `The ${matchedDivision.fullName} is a premier academic and research division within the ${facultyInfo.fullName} at the University of Agriculture, Faisalabad. Established to advance higher education and scientific discovery, the department plays a pivotal role in training undergraduate, M.Phil./M.Sc. (Hons.), and Ph.D. scholars equipped with modern theoretical and laboratory competencies.`
-    ],
-    paragraphsWithImage: [
-      `Specializing in ${matchedDivision.focus}, the ${matchedDivision.fullName} maintains state-of-the-art analytical laboratories, dedicated experimental stations, and collaborative linkages with national and international research organizations. Faculty members actively lead research projects funded by HEC, PSF, PARB, and global partner universities.`
-    ],
-    paragraphsBottom: [
-      `Graduates of the ${matchedDivision.fullName} serve across leading public-sector research institutes, universities, multinational industries, and regulatory bodies in Pakistan and abroad. Through continuous curriculum modernization and industry-driven internships, the department upholds the century-old academic legacy of UAF.`
-    ],
-    societiesOrLabsTitle: 'Specialized Research Laboratories & Academic Units',
-    societiesOrLabs: [
-      `${focusParts[0] || matchedDivision.label} Research & Diagnostics Lab`,
-      `${focusParts[1] || 'Advanced Molecular'} & Analytical Instrumentation Unit`,
-      `${focusParts[2] || 'Postgraduate'} Experimental & Field Research Cell`,
-      `HEC Accredited Postgraduate Supervision & Seminar Library`
-    ],
-    facultySummaryBadge: 'Distinguished HEC-Approved Faculty & Researchers',
-    staffList: dynamicStaffList
+    buildingCaption: `${matchedDivision.fullName}, ${resolvedFaculty.fullName}, UAF`,
+    paragraphsTop: sectionId === 'ihs-overview' || sectionId === 'ihs-main'
+      ? [
+          'The Institute of Home Sciences (IHS) under the Faculty of Food, Nutrition and Home Sciences at the University of Agriculture, Faisalabad is a premier center of higher learning dedicated to empowering individuals, families, and communities through modern applied sciences, creative design, and socioeconomic development.'
+        ]
+      : sectionId === 'ihs-objectives'
+      ? [
+          'The primary objectives of the Institute of Home Sciences are to equip students with professional knowledge and entrepreneurial skills in textiles, human development, family economics, and interior design. Through rigorous academic coursework, community outreach programs, and industrial linkages, the Institute fosters female leadership and sustainable livelihoods.'
+        ]
+      : sectionId === 'ihs-director'
+      ? [
+          "The Director's Secretariat provides visionary academic and administrative leadership to the Institute of Home Sciences, guiding research initiatives, curricula modernizations, and state-of-the-art laboratory enhancements across all constituent departments."
+        ]
+      : sectionId === "soc-ibms-overview" || sectionId === "soc-ibms"
+      ? [
+          "Vision: To be Pakistan's lead institution in business education and research in the changing environment with global recognition. Mission: IBMS aims to produce efficient and responsible business leaders and researchers equipped with modern professional skills through participatory learning, entrepreneurship, and international linkages."
+        ]
+      : sectionId === "soc-ext-overview" || sectionId === "soc-iaeerd"
+      ? [
+          "Institute of Agri. Extension, Education and Rural Development was upgraded in 2012 by merging the Departments of Agricultural Extension, Agricultural Education and Agricultural Information Center. The Department of Agricultural Extension was established in 1962, offering undergraduate and postgraduate degree programs in Agricultural Extension, ADE, B.Ed, and doctoral research."
+        ]
+      : sectionId === "soc-iare-overview" || sectionId === "soc-iare"
+      ? [
+          "Institute of Agricultural and Resource Economics was established in mid-2012 by merging three departments: Agricultural Economics, Development Economics and Environmental and Resource Economics. The Institute offers degrees from B.Sc. (Hons) up to PhD in Economics and Resource Economics."
+        ]
+      : sectionId === "soc-ptsdc-overview" || sectionId === "soc-ptsdc"
+      ? [
+          "The University of Agriculture, Faisalabad through its Professional Training and Skill Development Centre (PTSDC) offers a structured 3-tier Mandatory Promotion Training (MPT) framework designed for Agriculture Officers at Grades 17, 18, and 19 covering Finance, Administration, Management, and E-Governance."
+        ]
+      : sectionId === "soc-soc-overview" || sectionId === "soc-sociology"
+      ? [
+          "Department of Rural Sociology at the University has been an integral part of the academic landscape since its inception. Sociology is the scientific study of human relationships and consequences, equipping students with research skills in community dynamics and social forces."
+        ]
+      : sectionId === 'centre-neurocognitive'
+      ? [
+          'The Neurocognitive Behavioural Sciences Research, Treatment & Rehabilitation Centre is a premier clinical research and therapeutic facility under the Faculty of Health and Pharmaceutical Sciences at UAF. Mandated to address urgent mental health challenges, neurodevelopmental disorders, and behavioral science frontiers, the centre bridges clinical neurosciences with cutting-edge psychological rehabilitation.'
+        ]
+      : sectionId === 'centre-medical-health'
+      ? [
+          'The Medical & Health Centre serves as the primary medical and healthcare hub of the University of Agriculture, Faisalabad, functioning under the clinical oversight of the Faculty of Health and Pharmaceutical Sciences. Providing 24/7 emergency medical assistance, outpatient consultations, and preventative health screenings, it ensures high-quality medical services for students, faculty, and the campus community.'
+        ]
+      : [
+          `The ${matchedDivision.fullName} is an academic and research pillar of the ${resolvedFaculty.fullName} at the University of Agriculture, Faisalabad. Dedicated to high-impact learning and scientific innovation, the department trains undergraduate, postgraduate, and doctoral scholars equipped with modern theoretical, computational, and experimental competencies.`
+        ],
+    paragraphsWithImage: sectionId === 'centre-neurocognitive'
+      ? [
+          'Equipped with computerized cognitive assessment suites, EEG neurofeedback stations, and dedicated clinical counseling suites, the centre provides specialized treatment for neurocognitive impairments, stress-related disorders, autism spectrum, and behavioral issues. It actively collaborates with international neurological associations and WHO mental health initiatives.'
+        ]
+      : sectionId === 'centre-medical-health'
+      ? [
+          'The centre is equipped with digital pathology labs, radiology/ultrasound units, minor surgical suites, an emergency triage ward, and an automated pharmacy dispensing essential DRAP-approved medicines. Specialized medical officers and clinical pharmacists deliver evidence-based clinical consultations.'
+        ]
+      : [
+          `Specializing in ${matchedDivision.focus}, the department operates modern analytical laboratories, experimental testbeds, and collaborative networks with leading national bodies (HEC, PARB, PSF) and international universities. Faculty members actively drive peer-reviewed research grants tackling modern scientific and agricultural challenges.`
+        ],
+    paragraphsBottom: sectionId === 'centre-neurocognitive'
+      ? [
+          "In addition to postgraduate training and multidisciplinary research, the centre provides compassionate community clinical services, rehabilitation therapy, and awareness campaigns, significantly advancing Pakistan's psychiatric and behavioral healthcare landscape."
+        ]
+      : sectionId === 'centre-medical-health'
+      ? [
+          'Committed to UN SDG#3, the Medical & Health Centre also spearheads campus-wide immunization drives, epidemic surveillance, blood donation camps, and lifestyle disease prevention seminars for the university and neighboring community.'
+        ]
+      : [
+          `Graduates of the department serve across major industries, research institutes, government agencies, and academia worldwide. Through continuous curriculum enhancements and practical industry internships, the department upholds UAF's century-old academic legacy of scientific excellence.`
+        ],
+    societiesOrLabsTitle: sectionId.startsWith('centre-') ? 'Specialized Clinical Units & Diagnostic Facilities' : 'Specialized Laboratories & Professional Units',
+    societiesOrLabs: sectionId === 'centre-neurocognitive'
+      ? [
+          'Neurocognitive Diagnostic & EEG Brain Mapping Unit',
+          'Clinical Child & Adolescent Behavioral Therapy Suite',
+          'Addiction Counseling & Cognitive Rehabilitation Cell',
+          'Neuro-Psychological Assessment & Biofeedback Lab'
+        ]
+      : sectionId === 'centre-medical-health'
+      ? [
+          '24/7 Emergency Triage & Trauma Care Wing',
+          'Automated Clinical Biochemistry & Hematology Diagnostic Lab',
+          'Ultrasonography, ECG & Digital X-Ray Imaging Suite',
+          'Vaccination, Maternal & Public Health Preventive Clinic'
+        ]
+      : [
+          `${focusParts[0] || matchedDivision.label} Research & Diagnostics Lab`,
+          `${focusParts[1] || 'Advanced Molecular'} & Analytical Instrumentation Unit`,
+          `${focusParts[2] || 'Postgraduate'} Experimental & Field Research Cell`,
+          `HEC Accredited Supervision & Seminar Library`
+        ],
+    facultySummaryBadge:
+      sectionId === 'centre-medical-health'
+        ? 'Qualified Medical Officers, Specialists & Healthcare Team'
+        : sectionId === 'centre-neurocognitive'
+        ? 'Clinical Specialist Appointments Under Process'
+        : 'Distinguished HEC-Approved Faculty & Researchers',
+    staffList:
+      sectionId === 'centre-medical-health'
+        ? MEDICAL_HEALTH_CENTRE_STAFF
+        : sectionId === 'centre-neurocognitive'
+        ? []
+        : defaultStaffList
   };
 }
 
-// Official Springer Publication link shared by user for journals and conferences:
-export const UAF_SPRINGER_PUBLICATION_URL = 'https://link.springer.com/article/10.1007/s11235-015-0076-8';
+// ─────────────────────────────────────────────────────────────────────────────
+// ANIMATED SLIDE ROW COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
 
-export interface PublicationItem {
-  id: string;
-  srNo: number;
-  date: string;
-  title: string;
-  authors: string;
-  journalOrConf: string;
-  type: 'journal' | 'conference';
-  department: string;
-  impactFactor?: string;
-  issnOnline?: string;
-  issnPrint?: string;
-  doi: string;
-  url: string;
-}
+export const AnimatedSlideRow: React.FC<{
+  direction: SlideDirection;
+  delayMs?: number;
+  className?: string;
+  children: React.ReactNode;
+}> = ({ direction, delayMs = 0, className = '', children }) => {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-export const FACULTY_SCIENCES_PUBLICATIONS_LIST: PublicationItem[] = [
-  {
-    id: 'pub-1',
-    srNo: 1,
-    date: '2024-08-15',
-    title: 'A QoS and energy-aware multi-path routing algorithm for wireless sensor networks in smart agriculture',
-    authors: 'Dr. Saqib Ali, M. Tariq, K. Javed et al.',
-    journalOrConf: 'Telecommunication Systems (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '2.314 IF (Q2)',
-    issnOnline: '1572-9451',
-    issnPrint: '1018-4864',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-2',
-    srNo: 2,
-    date: '2024-05-20',
-    title: 'Deep learning-based multi-temporal remote sensing for crop classification and yield prediction in Indus Basin',
-    authors: 'Dr. Saqib Ali, Dr. Asim Raza, Dr. Zulfiqar Habib',
-    journalOrConf: 'Computers and Electronics in Agriculture (Elsevier / Springer Linkage)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '7.700 IF (Q1)',
-    issnOnline: '1872-7107',
-    issnPrint: '0168-1699',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-3',
-    srNo: 3,
-    date: '2023-11-12',
-    title: 'Computer vision framework for automated disease detection in wheat crops using high-resolution drone imagery',
-    authors: 'Dr. Saqib Ali, S. Ahmad, M. Imran',
-    journalOrConf: 'Precision Agriculture (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '6.200 IF (Q1)',
-    issnOnline: '1573-1618',
-    issnPrint: '1385-2256',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-4',
-    srNo: 4,
-    date: '2023-09-04',
-    title: 'Edge AI IoT architecture for real-time canal water distribution telemetry and soil moisture optimization',
-    authors: 'Dr. Saqib Ali, K. Ashraf, R. Ahmad',
-    journalOrConf: 'Journal of Ambient Intelligence and Humanized Computing (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '3.662 IF (Q1)',
-    issnOnline: '1868-5145',
-    issnPrint: '1868-5137',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-5',
-    srNo: 5,
-    date: '2023-04-18',
-    title: 'Big data analytics for predictive modeling of extreme climate impacts on Pakistani staple crops',
-    authors: 'Prof. Dr. Muhammad Asghar, Dr. Saqib Ali, N. Abbas',
-    journalOrConf: 'Environmental Science and Pollution Research (Springer)',
-    type: 'journal',
-    department: 'Department of Biochemistry',
-    impactFactor: '4.223 IF (Q1)',
-    issnOnline: '1614-7499',
-    issnPrint: '0944-1344',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-6',
-    srNo: 6,
-    date: '2022-12-10',
-    title: 'A hybrid fuzzy-neural decision support system for variable rate pesticide spraying through unmanned aerial vehicles',
-    authors: 'Dr. Saqib Ali, M. Arfan, T. Sultan',
-    journalOrConf: 'Applied Intelligence (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '5.300 IF (Q1)',
-    issnOnline: '1573-7497',
-    issnPrint: '0924-669X',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-7',
-    srNo: 7,
-    date: '2022-07-25',
-    title: 'Semantic segmentation of crop leaves under complex field backgrounds using lightweight convolutional neural networks',
-    authors: 'Dr. Saqib Ali, Z. Ata, S. Khan',
-    journalOrConf: 'Multimedia Tools and Applications (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '3.600 IF (Q2)',
-    issnOnline: '1573-7721',
-    issnPrint: '1380-7501',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-8',
-    srNo: 8,
-    date: '2021-10-14',
-    title: 'Blockchain-enabled traceability framework for agricultural supply chain logistics and grain quality verification',
-    authors: 'Dr. Saqib Ali, H. Raza, M. Tariq',
-    journalOrConf: 'Cluster Computing (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '4.400 IF (Q2)',
-    issnOnline: '1573-7543',
-    issnPrint: '1386-7857',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-9',
-    srNo: 9,
-    date: '2021-03-30',
-    title: 'Scalable data clustering and spatial interpolation for regional soil fertility mapping in South Asia',
-    authors: 'Dr. Saqib Ali, A. Ghafoor, M. Munir',
-    journalOrConf: 'Information Systems Frontiers (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '5.261 IF (Q1)',
-    issnOnline: '1572-9419',
-    issnPrint: '1387-3326',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-10',
-    srNo: 10,
-    date: '2020-08-19',
-    title: 'High-throughput plant phenotyping pipeline using multispectral sensors and 3D point cloud reconstruction',
-    authors: 'Dr. Saqib Ali, T. Mahmood, K. Javed',
-    journalOrConf: 'Plant Methods / Springer Nature',
-    type: 'journal',
-    department: 'Department of Botany',
-    impactFactor: '4.800 IF (Q1)',
-    issnOnline: '1746-4811',
-    issnPrint: '1746-4811',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-11',
-    srNo: 11,
-    date: '2019-11-05',
-    title: 'Feature extraction and classification of weed species in maize fields using modified transfer learning architectures',
-    authors: 'Dr. Saqib Ali, S. Ahmad, M. Asif',
-    journalOrConf: 'Neural Computing and Applications (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '6.000 IF (Q1)',
-    issnOnline: '1433-3058',
-    issnPrint: '0941-0643',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'pub-12',
-    srNo: 12,
-    date: '2018-06-22',
-    title: 'Energy-efficient cluster-based routing protocols for heterogeneous sensor deployments in precision farming',
-    authors: 'Dr. Saqib Ali, M. Imran, Z. Habib',
-    journalOrConf: 'Wireless Networks (Springer)',
-    type: 'journal',
-    department: 'Department of Computer Science',
-    impactFactor: '3.000 IF (Q2)',
-    issnOnline: '1572-8196',
-    issnPrint: '1022-0038',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'conf-1',
-    srNo: 1,
-    date: '2023-04-27',
-    title: 'Crop type identification using multitemporal Sentinel-2 imagery and deep learning models',
-    authors: 'Dr. Saqib Ali, Dr. Asim Raza et al.',
-    journalOrConf: '4th BRI Sino-Pakistan Agricultural Forum - Pakistan',
-    type: 'conference',
-    department: 'Department of Computer Science',
-    issnOnline: '2311-2484',
-    issnPrint: '1018-7081',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'conf-2',
-    srNo: 2,
-    date: '2025-04-27',
-    title: 'Advancement of 3D model for segmenting the overlapping leaves in High throughput phenotyping',
-    authors: 'Dr. Saqib Ali, Dr. Zulfiqar Habib et al.',
-    journalOrConf: 'International Conference on Smart Agriculture & High-Throughput Phenotyping',
-    type: 'conference',
-    department: 'Department of Computer Science',
-    issnOnline: '2311-2484',
-    issnPrint: '1018-7081',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'conf-3',
-    srNo: 3,
-    date: '2024-04-27',
-    title: 'Unmanned Aircraft System Imagery for Phenotyping in Wheat, Soybean, and Cotton Breeding',
-    authors: 'Dr. Saqib Ali, Dr. Muhammad Ahsan, Prof. Dr. Tasleem Mustafa',
-    journalOrConf: 'Asian Precision Agriculture & Crop Breeding Symposium - UAF Faisalabad',
-    type: 'conference',
-    department: 'Department of Computer Science',
-    issnOnline: '2311-2484',
-    issnPrint: '1018-7081',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'conf-4',
-    srNo: 4,
-    date: '2024-04-27',
-    title: 'AI-enhanced crop growth monitoring with SAR backscatter for emerging technologies in Pakistani agriculture',
-    authors: 'Dr. Saqib Ali, Dr. Asim Raza et al.',
-    journalOrConf: 'IEEE International Geoscience & Remote Sensing Symposium (IGARSS Pakistan)',
-    type: 'conference',
-    department: 'Department of Computer Science',
-    issnOnline: '2151-1357',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
-  },
-  {
-    id: 'conf-5',
-    srNo: 5,
-    date: '2023-10-15',
-    title: 'Multimodal Deep Learning Architecture for Precision Agriculture and Automated Pest Recognition',
-    authors: 'Dr. Saqib Ali, Dr. Muhammad Ahsan, Dr. Zulfiqar Habib',
-    journalOrConf: 'International Conference on Emerging Trends in Computing & Agriculture',
-    type: 'conference',
-    department: 'Department of Computer Science',
-    issnOnline: '1865-0929',
-    doi: '10.1007/s11235-015-0076-8',
-    url: UAF_SPRINGER_PUBLICATION_URL
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const hiddenTransform =
+    direction === 'left'
+      ? '-translate-x-20 opacity-0'
+      : direction === 'right'
+      ? 'translate-x-20 opacity-0'
+      : direction === 'bottom'
+      ? 'translate-y-16 opacity-0'
+      : '-translate-y-16 opacity-0';
+
+  return (
+    <div
+      ref={rowRef}
+      style={{ transitionDelay: `${delayMs}ms` }}
+      className={`transition-all duration-700 ease-out ${
+        isVisible ? 'translate-x-0 translate-y-0 opacity-100' : hiddenTransform
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4-CARDS-PER-ROW FACULTY STAFF GRID (No Edit Buttons)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FacultyStaffRowsGrid: React.FC<{
+  staffList: StaffMember[];
+  onSelectMember: (member: StaffMember, portraitUrl: string, phoneNum: string) => void;
+}> = ({ staffList, onSelectMember }) => {
+  const rows: StaffMember[][] = [];
+  for (let i = 0; i < staffList.length; i += 4) {
+    rows.push(staffList.slice(i, i + 4));
   }
-];
+
+  const directions: SlideDirection[] = ['left', 'right', 'bottom', 'top'];
+
+  return (
+    <div className="space-y-8 overflow-hidden py-2">
+      {rows.map((rowMembers, rowIndex) => {
+        const dir = directions[rowIndex % directions.length];
+        return (
+          <AnimatedSlideRow
+            key={rowIndex}
+            direction={dir}
+            delayMs={rowIndex * 100}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {rowMembers.map((member, cardIdx) => {
+              const globalIdx = rowIndex * 4 + cardIdx;
+              const portraitUrl =
+                member.image || FACULTY_PORTRAIT_POOL[globalIdx % FACULTY_PORTRAIT_POOL.length];
+              const phoneNum = member.phone || `+92419200161 - Ext. ${2901 + globalIdx}`;
+
+              return (
+                <div
+                  key={member.name + cardIdx}
+                  onClick={() => onSelectMember(member, portraitUrl, phoneNum)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onSelectMember(member, portraitUrl, phoneNum);
+                    }
+                  }}
+                  className="bg-white rounded-2xl overflow-hidden border border-stone-200/90 shadow-xs hover:shadow-xl hover:border-[#163887]/40 transition-all duration-300 hover:-translate-y-1.5 flex flex-col min-h-[440px] group cursor-pointer"
+                >
+                  <div className="relative w-full h-72 sm:h-76 bg-stone-100 overflow-hidden p-2.5 pb-0">
+                    <div className="w-full h-full rounded-xl overflow-hidden bg-stone-200 relative">
+                      <img
+                        src={portraitUrl}
+                        alt={member.name}
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#102a6b]/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
+                        <span className="inline-flex items-center gap-1.5 bg-white/95 text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+                          <Eye className="w-3.5 h-3.5 text-[#c99738]" />
+                          <span>View Profile</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 pt-3 flex-1 flex flex-col justify-between space-y-2.5 bg-white text-left">
+                    <div className="space-y-1.5">
+                      <h4 className="font-bold text-base text-black group-hover:text-[#071b2d] transition-colors leading-snug">
+                        {member.name}
+                      </h4>
+
+                      <div className="space-y-1 text-xs sm:text-[13px] text-stone-600">
+                        <div className="flex items-center gap-2">
+                          <Tag className="w-3.5 h-3.5 text-[#3b5998] shrink-0" />
+                          <span className="font-medium text-stone-700">{member.designation}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5 text-[#3b5998] shrink-0" />
+                          <span>{phoneNum}</span>
+                        </div>
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <Mail className="w-3.5 h-3.5 text-[#3b5998] shrink-0" />
+                          <a href={`mailto:${member.email}`} className="text-stone-700 hover:text-blue-700 hover:underline truncate">
+                            {member.email}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    {member.specialization && (
+                      <div className="pt-2 border-t border-stone-100">
+                        <p className="text-[11.5px] text-stone-500 line-clamp-2 leading-relaxed">
+                          {member.specialization}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </AnimatedSlideRow>
+        );
+      })}
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PORTFOLIO & PUBLICATIONS SECTION
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const FacultySciencesPortfolioSection: React.FC<{
   facultyInfo: FacultyMeta;
   onSelectMember: (member: StaffMember, portraitUrl: string, phoneNum: string) => void;
-}> = ({ facultyInfo, onSelectMember }) => {
+}> = ({ onSelectMember }) => {
   const [activeTab, setActiveTab] = useState<'journals' | 'conferences' | 'faculty'>('journals');
   const [searchQuery, setSearchQuery] = useState('');
   const [deptFilter, setDeptFilter] = useState('All');
@@ -1876,53 +1290,43 @@ export const FacultySciencesPortfolioSection: React.FC<{
     return true;
   });
 
-  const csFacultyMembers = DEPARTMENT_DETAILS_MAP['sci-cs']?.staffList || [];
+  const csFacultyMembers = getDepartment('sci-cs')?.staffList || [];
 
   return (
-    <div className="space-y-7 animate-in fade-in duration-200">
-      {/* 1. Header Banner */}
-      <AnimatedSlideRow direction="top" className="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-stone-200 border-l-4 border-l-[#005a36] space-y-3">
+    <div className="space-y-6 animate-in fade-in duration-200 text-left">
+      <AnimatedSlideRow direction="top" className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 border-l-4 border-l-[#163887] space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#005a36] border border-emerald-200 text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-black border border-blue-200 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-[#c99738]" />
-            <span>Faculty of Sciences • Research & Portfolio</span>
+            <span>Research & Scholarly Portfolio</span>
           </div>
           <span className="text-xs font-semibold text-stone-500 bg-stone-100 px-3 py-1 rounded-full">
-            12+ Journals • 5+ Conferences • HEC Approved
+            HEC & Springer Indexed
           </span>
         </div>
 
         <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 leading-tight">
-          Scholarly Research, <span className="text-[#005a36]">Journals & Conferences Portfolio</span>
+          Scholarly Research, <span className="text-black">Journals & Publications</span>
         </h2>
-        <p className="text-stone-600 text-sm sm:text-base leading-relaxed max-w-4xl text-justify">
-          The Faculty of Sciences and Department of Computer Science foster cutting-edge peer-reviewed research across Artificial Intelligence, Big Data, Image Processing, and Precision Agriculture. Every journal and conference article links directly to the Springer publications repository.
+        <p className="text-stone-600 text-sm sm:base leading-relaxed">
+          Faculty members drive high-impact peer-reviewed research across Artificial Intelligence, Agronomy, Genomics, and Agricultural IoT. All indexed articles link directly to Springer repository.
         </p>
 
-        {/* Springer Link Info Notice Box */}
-        <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-emerald-50 border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm">
+        <div className="mt-3 p-3.5 rounded-xl bg-gradient-to-r from-amber-50 to-blue-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm">
           <div className="flex items-start gap-2.5">
-            <Globe className="w-5 h-5 text-[#c99738] shrink-0 mt-0.5" />
+            <Globe className="w-4 h-4 text-[#c99738] shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-stone-900">Active Springer Link: </span>
-              <a
-                href={UAF_SPRINGER_PUBLICATION_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#005a36] hover:text-[#c99738] underline font-semibold break-all"
-              >
+              <span className="font-bold text-stone-900">Direct Springer Publications Link: </span>
+              <a href={UAF_SPRINGER_PUBLICATION_URL} target="_blank" rel="noopener noreferrer" className="text-black hover:underline font-semibold break-all">
                 {UAF_SPRINGER_PUBLICATION_URL}
               </a>
-              <p className="text-[12px] text-stone-500 mt-0.5">
-                All publications below are linked to this Springer article. You can customize each link in code anytime.
-              </p>
             </div>
           </div>
           <a
             href={UAF_SPRINGER_PUBLICATION_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#005a36] hover:bg-[#00472a] text-white font-bold text-xs shrink-0 shadow-xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#163887] hover:bg-[#102a6b] text-white font-bold text-xs shrink-0 shadow-xs transition-colors"
           >
             <span>Open Springer</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -1930,68 +1334,55 @@ export const FacultySciencesPortfolioSection: React.FC<{
         </div>
       </AnimatedSlideRow>
 
-      {/* 2. Portfolio Tabs & Search Controls */}
-      <div className="bg-white rounded-2xl p-5 shadow-xs border border-stone-200 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          
-          {/* Main Tabs */}
-          <div className="flex items-center gap-2 bg-stone-100 p-1.5 rounded-xl border border-stone-200/80">
+      <div className="bg-white rounded-xl p-4 shadow-xs border border-stone-200 space-y-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-xl">
             <button
               onClick={() => setActiveTab('journals')}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                activeTab === 'journals'
-                  ? 'bg-[#005a36] text-white shadow-xs'
-                  : 'text-stone-700 hover:text-stone-900 hover:bg-white/60'
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                activeTab === 'journals' ? 'bg-[#163887] text-white shadow-xs' : 'text-stone-700 hover:bg-white/60'
               }`}
             >
-              Journal Articles ({FACULTY_SCIENCES_PUBLICATIONS_LIST.filter(p => p.type === 'journal').length})
+              Journal Articles
             </button>
-
             <button
               onClick={() => setActiveTab('conferences')}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                activeTab === 'conferences'
-                  ? 'bg-[#005a36] text-white shadow-xs'
-                  : 'text-stone-700 hover:text-stone-900 hover:bg-white/60'
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                activeTab === 'conferences' ? 'bg-[#163887] text-white shadow-xs' : 'text-stone-700 hover:bg-white/60'
               }`}
             >
-              Conferences ({FACULTY_SCIENCES_PUBLICATIONS_LIST.filter(p => p.type === 'conference').length})
+              Conferences
             </button>
-
             <button
               onClick={() => setActiveTab('faculty')}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                activeTab === 'faculty'
-                  ? 'bg-[#005a36] text-white shadow-xs'
-                  : 'text-stone-700 hover:text-stone-900 hover:bg-white/60'
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                activeTab === 'faculty' ? 'bg-[#163887] text-white shadow-xs' : 'text-stone-700 hover:bg-white/60'
               }`}
             >
-              Faculty Directory ({csFacultyMembers.length})
+              Faculty Directory
             </button>
           </div>
 
-          {/* Department Filter & Search */}
           {activeTab !== 'faculty' && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <select
                 value={deptFilter}
                 onChange={(e) => setDeptFilter(e.target.value)}
-                className="bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-xs font-semibold text-stone-700 focus:outline-none focus:ring-2 focus:ring-[#005a36]"
+                className="bg-stone-50 border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-stone-700"
               >
-                <option value="All">All Departments</option>
+                <option value="All">All Disciplines</option>
                 <option value="Computer Science">Computer Science</option>
-                <option value="Biochemistry">Biochemistry</option>
-                <option value="Botany">Botany</option>
+                <option value="Agronomy">Agronomy</option>
               </select>
 
-              <div className="relative w-48 sm:w-64">
-                <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+              <div className="relative w-48 sm:w-60">
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5" />
                 <input
                   type="text"
-                  placeholder="Search articles, DOI..."
+                  placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-stone-300 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#005a36]"
+                  className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-stone-300 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#163887]"
                 />
               </div>
             </div>
@@ -1999,113 +1390,43 @@ export const FacultySciencesPortfolioSection: React.FC<{
         </div>
       </div>
 
-      {/* 3. Tab Content: Journals / Conferences */}
-      {activeTab !== 'faculty' && (
-        <div className="space-y-4">
+      {activeTab !== 'faculty' ? (
+        <div className="space-y-3">
           {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl p-5 sm:p-6 border border-stone-200 shadow-xs hover:shadow-md hover:border-[#005a36]/40 transition-all space-y-3 group"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#005a36] font-mono text-[11px] font-bold border border-emerald-200">
-                    {item.type === 'journal' ? `J-${String(item.srNo).padStart(2, '0')}` : `C-${String(item.srNo).padStart(2, '0')}`}
-                  </span>
-                  <span className="text-xs font-bold text-stone-500 uppercase tracking-wide">
-                    {item.department}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {item.impactFactor && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[11px] font-bold border border-amber-200">
-                      {item.impactFactor}
-                    </span>
-                  )}
-                  <span className="text-xs text-stone-400 font-medium">
-                    {item.date}
-                  </span>
-                </div>
+            <div key={item.id} className="bg-white rounded-xl p-5 border border-stone-200 shadow-xs hover:border-[#163887]/40 transition-all space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-2">
+                <span className="px-2 py-0.5 rounded-full bg-blue-50 text-black font-mono text-[11px] font-bold border border-blue-200">
+                  {item.department}
+                </span>
+                <span className="text-xs text-stone-400 font-medium">{item.date}</span>
               </div>
-
-              {/* Title & Journal */}
-              <div className="space-y-1.5">
-                <h4 className="text-base sm:text-lg font-bold text-stone-900 group-hover:text-[#005a36] transition-colors leading-snug">
-                  {item.title}
-                </h4>
-                <p className="text-xs sm:text-sm text-stone-600 font-medium">
-                  {item.authors} • <span className="text-[#005a36] font-semibold">{item.journalOrConf}</span>
-                </p>
-              </div>
-
-              {/* Metadata row + Springer Link Button */}
-              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-stone-500 border-t border-stone-100">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span><strong>DOI:</strong> {item.doi}</span>
-                  {item.issnOnline && <span><strong>Online ISSN:</strong> {item.issnOnline}</span>}
-                  {item.issnPrint && <span><strong>Print ISSN:</strong> {item.issnPrint}</span>}
-                </div>
-
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#005a36] hover:bg-[#c99738] text-white font-bold text-xs transition-colors shrink-0 shadow-xs cursor-pointer"
-                >
-                  <span>{item.type === 'journal' ? 'Open Springer Article' : 'View Conference Link'}</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+              <h4 className="text-base font-bold text-stone-900 leading-snug">{item.title}</h4>
+              <p className="text-xs sm:text-sm text-stone-600">
+                {item.authors} • <span className="text-black font-semibold">{item.journalOrConf}</span>
+              </p>
+              <div className="pt-2 flex items-center justify-between gap-2 text-xs text-stone-500 border-t border-stone-100">
+                <span><strong>DOI:</strong> {item.doi}</span>
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-black hover:underline font-bold">
+                  <span>View Paper</span>
+                  <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
             </div>
           ))}
-
-          {filteredItems.length === 0 && (
-            <div className="text-center py-12 bg-white rounded-xl border border-stone-200 text-stone-500 text-sm">
-              No articles matching your search query. Try clearing the filter.
-            </div>
-          )}
         </div>
-      )}
-
-      {/* 4. Tab Content: Faculty Directory with individual profiles */}
-      {activeTab === 'faculty' && (
-        <div className="space-y-5">
-          <div className="border-b border-stone-200 pb-2">
-            <h3 className="text-lg font-bold text-stone-900">
-              Department of Computer Science & Sciences Faculty Directory
-            </h3>
-            <p className="text-xs text-stone-500">
-              Click any faculty card to view complete academic profile, research supervisor credentials, and publications.
-            </p>
-          </div>
-
-          <FacultyStaffRowsGrid
-            staffList={csFacultyMembers}
-            onSelectMember={onSelectMember}
-          />
-        </div>
+      ) : (
+        <FacultyStaffRowsGrid staffList={csFacultyMembers} onSelectMember={onSelectMember} />
       )}
     </div>
   );
 };
 
-export const DepartmentPortfolioSubView: React.FC<{
-  deptData: DepartmentDetailData;
-  facultyInfo: FacultyMeta;
-  onSelectMember: (member: StaffMember, portraitUrl: string, phoneNum: string) => void;
-}> = ({ facultyInfo, onSelectMember }) => {
-  return (
-    <FacultySciencesPortfolioSection
-      facultyInfo={facultyInfo}
-      onSelectMember={onSelectMember}
-    />
-  );
-};
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN FACULTY PORTAL PAGE COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
 
 interface FacultyPortalPageProps {
   currentFacultyId: string;
-  publishedPages?: any[];
   onNavigateHome: () => void;
   onSelectFaculty: (facultyId: string) => void;
   initialSection?: FacultySection;
@@ -2113,12 +1434,16 @@ interface FacultyPortalPageProps {
   onOpenAdvisor?: () => void;
   onOpenCalculator?: () => void;
   onOpenAppointment?: () => void;
-  onOpenAdminLogin?: () => void;
+  onOpenAuthModal?: () => void;
+  onNavigateAdmissions?: (category: 'undergraduate' | 'postgraduate' | 'international') => void;
+  publishedSiteHeader?: { elements?: any[] } | null;
+  publishedPageContent?: { elements?: any[] } | null;
+  publishedPages?: Record<string, { elements?: any[] }>;
+  initialDepartmentSubView?: DepartmentSubView;
 }
 
 export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
   currentFacultyId = 'fac-agri',
-  publishedPages = [],
   onNavigateHome,
   onSelectFaculty,
   initialSection = 'overview',
@@ -2126,51 +1451,73 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
   onOpenAdvisor = () => {},
   onOpenCalculator = () => {},
   onOpenAppointment = () => {},
-  onOpenAdminLogin = () => {}
+  onOpenAuthModal = () => {},
+  onNavigateAdmissions,
+  publishedSiteHeader = null,
+  publishedPageContent = null,
+  publishedPages = {},
+  initialDepartmentSubView = 'overview'
 }) => {
   const [activeSection, setActiveSection] = useState<FacultySection>(initialSection);
-  const [departmentSubView, setDepartmentSubView] = useState<DepartmentSubView>('overview');
-  const [openDropdown, setOpenDropdown] = useState<'education' | 'departments' | 'institutes' | null>(null);
+  const [departmentSubView, setDepartmentSubView] = useState<DepartmentSubView>(initialDepartmentSubView);
+  const [openDropdown, setOpenDropdown] = useState<'education' | 'departments' | 'institutes' | 'centres' | null>(null);
   const [hoveredDeptItem, setHoveredDeptItem] = useState<FacultySection | null>(null);
+  const [hoveredCentreItem, setHoveredCentreItem] = useState<FacultySection | null>(null);
+  const [hoveredInstItem, setHoveredInstItem] = useState<FacultySection | null>(null);
+  const [hoveredInstSubItem, setHoveredInstSubItem] = useState<FacultySection | null>(null);
+  const [hoveredDeptSubItem, setHoveredDeptSubItem] = useState<FacultySection | null>(null);
+  const [hoveredCentreSubItem, setHoveredCentreSubItem] = useState<FacultySection | null>(null);
+
   const [selectedStaffProfile, setSelectedStaffProfile] = useState<{
     member: StaffMember;
     portraitUrl: string;
     phoneNum: string;
   } | null>(null);
 
-  // Synchronize state when switching faculties or sections
   useEffect(() => {
     setActiveSection(initialSection);
-    setDepartmentSubView('overview');
+    setDepartmentSubView(initialDepartmentSubView);
     setOpenDropdown(null);
     setHoveredDeptItem(null);
+    setHoveredCentreItem(null);
+    setHoveredInstItem(null);
+    setHoveredInstSubItem(null);
+    setHoveredDeptSubItem(null);
+    setHoveredCentreSubItem(null);
     setSelectedStaffProfile(null);
-  }, [currentFacultyId, initialSection]);
+  }, [currentFacultyId, initialSection, initialDepartmentSubView]);
 
-  // Resolve current faculty details dynamically
-  const facultyInfo = FACULTY_DATA_MAP[currentFacultyId] || {
-    id: currentFacultyId,
-    name: currentFacultyId
-      .replace(/^fac-/, 'Faculty of ')
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, (c) => c.toUpperCase()),
-    shortName: 'Faculty',
-    fullName: currentFacultyId
-      .replace(/^fac-/, 'Faculty of ')
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, (c) => c.toUpperCase()),
-    tagline: 'A Legacy of Excellence in Education, Research and Innovation.',
-    deanName: 'Prof. Dr. Ghulam Murtaza',
-    deanTitle: 'Dean of the Faculty',
-    deanPhone: '+92 41 9200161-70',
-    deanEmail: 'dean@uaf.edu.pk',
-    deanOffice: 'Dean Secretariat, UAF Main Campus',
-    historyText:
-      'An esteemed seat of higher learning and research at the University of Agriculture Faisalabad, providing world-class academic programs, state-of-the-art laboratories, and impactful community outreach.',
-    departmentsCount: '5 Departments',
-    institutesCount: '1 Institute',
-    farmsCount: '2 Research Facilities'
-  };
+  const facultyInfo = FACULTY_DATA_MAP[currentFacultyId] || FACULTY_DATA_MAP['fac-agri'];
+  const currentFacultyConfig = FACULTY_MENUS_MAP[currentFacultyId] || FACULTY_MENUS_MAP['fac-agri'];
+  const activeDepartmentsList = currentFacultyConfig.departments || [];
+  const activeInstitutesList = currentFacultyConfig.institutes || [];
+  const activeCentresList = currentFacultyConfig.centres || [];
+  const hasEducationalPrograms = currentFacultyConfig.hasEducationalPrograms !== false;
+  const hasPortfolio = currentFacultyConfig.hasPortfolio === true;
+  const hasCentres = currentFacultyConfig.hasCentres === true || activeCentresList.length > 0;
+
+  // Main sections that are NOT specific department/institute subpages
+  const MAIN_FACULTY_SECTIONS = [
+    'overview',
+    'dean',
+    'undergraduate',
+    'postgraduate',
+    'internship',
+    'short-courses',
+    'portfolio',
+    'centres'
+  ];
+  const isDepartmentSection = !MAIN_FACULTY_SECTIONS.includes(activeSection);
+
+  const activePublishedTarget = isDepartmentSection
+    ? `faculty:${currentFacultyId}:unit:${activeSection}:${departmentSubView}`
+    : `faculty:${currentFacultyId}:${activeSection}`;
+  const activePublishedPageContent = publishedPages[activePublishedTarget]
+    || (activeSection === initialSection ? publishedPageContent : null);
+  const showPublishedPageContent = Boolean(activePublishedPageContent && !selectedStaffProfile);
+
+  // Department data resolved only when a department is actually selected
+  const activeDeptData = isDepartmentSection ? getDepartment(activeSection, facultyInfo) : undefined;
 
   const handleSelectSection = (section: FacultySection, subView: DepartmentSubView = 'overview') => {
     setActiveSection(section);
@@ -2178,37 +1525,39 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
     setSelectedStaffProfile(null);
     setOpenDropdown(null);
     setHoveredDeptItem(null);
+    setHoveredCentreItem(null);
+    setHoveredInstItem(null);
+    setHoveredInstSubItem(null);
+    setHoveredDeptSubItem(null);
+    setHoveredCentreSubItem(null);
   };
 
-  const currentFacultyConfig =
-    FACULTY_MENUS_MAP[currentFacultyId] || FACULTY_MENUS_MAP['fac-agri'];
-  const activeDepartmentsList = currentFacultyConfig.departments;
-  const activeInstitutesList = currentFacultyConfig.institutes;
-  const activeDeptData = getDynamicDepartmentDetail(activeSection, facultyInfo);
-  const activePublishedTarget = activeDeptData
-    ? `faculty:${currentFacultyId}:unit:${activeDeptData.id}:${departmentSubView}`
-    : `faculty:${currentFacultyId}:${activeSection}`;
-  const activePublication = publishedPages.find(page => page.targetPage === activePublishedTarget);
-
-  const heroTitleObj = activeDeptData
+  const heroTitleObj = isDepartmentSection && activeDeptData
     ? {
-        title: `${facultyInfo.shortName} Division —`,
-        highlight: activeDeptData.shortLabel
+        title: `${facultyInfo.shortName} • ${activeDeptData.name} —`,
+        highlight: departmentSubView === 'staff'
+          ? (activeDeptData.id === 'centre-medical-health' ? 'Medical Officers & Healthcare Staff' : 'Faculty and Staff')
+          : activeDeptData.shortLabel
       }
     : activeSection === 'overview'
     ? {
         title: `${facultyInfo.fullName} —`,
-        highlight: 'Overview & Academic Profile'
+        highlight: 'Overview'
       }
     : activeSection === 'dean'
     ? {
         title: `${facultyInfo.fullName} —`,
         highlight: "The Dean's Secretariat"
       }
+    : activeSection === 'centres'
+    ? {
+        title: `${facultyInfo.fullName} —`,
+        highlight: 'Centres & Specialized Units'
+      }
     : activeSection === 'undergraduate'
     ? {
         title: 'Undergraduate Programs —',
-        highlight: currentFacultyConfig.undergradDegree
+        highlight: currentFacultyConfig.undergradDegree || 'Degree Structure'
       }
     : activeSection === 'portfolio'
     ? {
@@ -2217,19 +1566,30 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
       }
     : SECTION_HERO_TITLES[activeSection] || {
         title: `${facultyInfo.fullName} —`,
-        highlight: 'Overview & Academic Profile'
+        highlight: 'Overview'
       };
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#f8f9fa] text-stone-900 font-sans flex flex-col">
       
-      {/* 0. Main University Home Page Navbar (Included directly inside FacultyPortalPage) */}
-      <Header
+      {/* 0. Main University Navbar */}
+      {publishedSiteHeader ? <PublishedSiteHeader
+        data={publishedSiteHeader}
+        onOpenSearch={onOpenSearch}
+        onOpenAdvisor={onOpenAdvisor}
+        onOpenCalculator={onOpenCalculator}
+        onOpenAuthModal={onOpenAuthModal}
+        onNavigateAdmissions={onNavigateAdmissions}
+        onSelectFaculty={(facId, section) => {
+          onSelectFaculty(facId);
+          if (section) handleSelectSection(section as FacultySection, 'overview');
+        }}
+        onNavigateHome={onNavigateHome}
+      /> : <Header
         onOpenSearch={onOpenSearch}
         onOpenAdvisor={onOpenAdvisor}
         onOpenCalculator={onOpenCalculator}
         onOpenAppointment={onOpenAppointment}
-        onOpenAdminLogin={onOpenAdminLogin}
         onSelectFaculty={(facId, section) => {
           onSelectFaculty(facId);
           if (section) {
@@ -2237,367 +1597,557 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
           }
         }}
         onNavigateHome={onNavigateHome}
-      />
+      />}
 
-      {/* 1. Panoramic Hero Banner (Directly below Header in Design 2) */}
-      <section className="relative w-full h-[320px] sm:h-[380px] md:h-[420px] overflow-hidden bg-stone-900 select-none">
-        <img
-          src="/uaf_facade_no_road.jpg"
-          alt="Faculty of Agriculture - University of Agriculture Faisalabad"
-          className="w-full h-full object-cover object-center"
-        />
+      {/* 1. FULL-WIDTH BACKGROUND HERO SECTION (Image as Full Background, Dynamic Text on top) */}
+      <section className="relative w-full min-h-[380px] sm:min-h-[440px] flex items-center bg-[#071b2d] border-b border-[#c99738]/40 overflow-hidden text-white select-none">
         
-        {/* UAF Navy & Dark Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#071b2d]/65 via-black/45 to-[#071b2d]/75" />
+        {/* Fullscreen Background Image with Gradient Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={
+              isDepartmentSection && activeDeptData?.buildingImage
+                ? activeDeptData.buildingImage
+                : '/uaf_facade_no_road.jpg'
+            }
+            alt="UAF Main Campus"
+            className="w-full h-full object-cover object-center scale-105 transition-all duration-700"
+          />
+          {/* Natural light-dark gradient overlay for bright daylight campus view and clear readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#071b2d]/55 via-[#071b2d]/35 to-[#071b2d]/15" />
+        </div>
 
-        {/* Static Title Over Hero Image */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pb-8 z-10 pointer-events-none">
-          <span className="text-amber-300 font-bold uppercase tracking-[0.2em] text-sm sm:text-base md:text-lg drop-shadow-md mb-2">
-            {facultyInfo.fullName}
-          </span>
+        {/* Foreground Content: Text dynamically updates when switching department/section */}
+        <div className="relative z-10 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 text-left">
+          <div className="max-w-3xl space-y-3.5 sm:space-y-4">
+            
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-amber-300 text-xs font-bold uppercase tracking-wider shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[#e8a62a] animate-pulse" />
+              <span>
+                {isDepartmentSection && activeDeptData
+                  ? `${facultyInfo.shortName} • ${activeDeptData.name}`
+                  : facultyInfo.fullName}
+              </span>
+            </div>
 
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white tracking-normal drop-shadow-md font-sans">
-            <span>{heroTitleObj.title} </span>
-            <span className="text-[#e8a62a]">{heroTitleObj.highlight}</span>
-          </h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-bold text-white tracking-tight leading-[1.2] font-serif-heading drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]">
+              <span>{heroTitleObj.title} </span>
+              <span className="text-[#e8a62a] italic font-medium">{heroTitleObj.highlight}</span>
+            </h1>
 
-          <p className="mt-2.5 text-xs sm:text-sm font-normal text-white/90 tracking-wide drop-shadow-md max-w-xl">
-            {facultyInfo.tagline}
-          </p>
+            <p className="text-white text-sm sm:text-base leading-relaxed max-w-2xl font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]">
+              {isDepartmentSection && activeDeptData
+                ? `Academic excellence, laboratory instruction, and high-impact scientific research under ${activeDeptData.name}.`
+                : facultyInfo.tagline}
+            </p>
+
+            {/* Quick Meta Badges */}
+            <div className="pt-2 flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs">
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/15 text-stone-200 font-medium">
+                <Building className="w-3.5 h-3.5 text-[#e8a62a]" />
+                <span>{facultyInfo.departmentsCount}</span>
+              </div>
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/15 text-stone-200 font-medium">
+                <BookOpen className="w-3.5 h-3.5 text-[#e8a62a]" />
+                <span>{facultyInfo.institutesCount}</span>
+              </div>
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/15 text-stone-200 font-medium">
+                <GraduationCap className="w-3.5 h-3.5 text-[#e8a62a]" />
+                <span>{facultyInfo.farmsCount}</span>
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      {/* 2. FLOATING ROUNDED PILL NAVIGATION BAR (Design 2 — UAF Official Navy Blue + Green Hover & Left-Side Submenus) */}
-      <div className="relative z-40 -mt-9 sm:-mt-11 max-w-[1140px] w-full mx-auto px-3 sm:px-6">
-        <div className="bg-[#071b2d] text-white rounded-3xl sm:rounded-full px-4 sm:px-8 py-3 sm:py-3.5 shadow-[0_18px_45px_rgba(7,27,45,0.45)] border-2 border-[#c99738]/70">
-          <nav className="flex items-center justify-center flex-wrap gap-1.5 sm:gap-3 md:gap-4 text-xs sm:text-[14px] font-bold">
+      {/* 2. FLOATING COMPACT PILL NAVIGATION BAR (Size fitted dynamically to menus, Home removed) */}
+      <div className="relative z-40 -mt-6 sm:-mt-7 flex justify-center px-3 sm:px-6">
+        <div className="inline-flex bg-[#071b2d] text-white rounded-2xl sm:rounded-full px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-[0_12px_32px_rgba(7,27,45,0.4)] border-2 border-[#c99738]/80 max-w-full">
+          <nav className="flex items-center justify-center flex-wrap gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-[13px] font-bold">
             
-            {/* Pill Item 1: Faculty Overview */}
+            {/* Faculty Overview */}
             <button
               type="button"
               onClick={() => handleSelectSection('overview')}
-              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all duration-200 cursor-pointer ${
+              className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full transition-all duration-200 cursor-pointer ${
                 activeSection === 'overview' && !selectedStaffProfile
-                  ? 'bg-[#005a36] text-white shadow-md ring-1 ring-emerald-400/50'
-                  : 'text-white hover:bg-[#005a36] hover:text-white'
+                  ? 'bg-[#163887] text-white shadow-md ring-1 ring-blue-400/50'
+                  : 'text-white hover:bg-[#163887]'
               }`}
             >
-              Faculty Overview
+              Overview
             </button>
 
-            {/* Pill Item 2: The Dean */}
+            {/* The Dean */}
             <button
               type="button"
               onClick={() => handleSelectSection('dean')}
-              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all duration-200 cursor-pointer ${
+              className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full transition-all duration-200 cursor-pointer ${
                 activeSection === 'dean' && !selectedStaffProfile
-                  ? 'bg-[#005a36] text-white shadow-md ring-1 ring-emerald-400/50'
-                  : 'text-white hover:bg-[#005a36] hover:text-white'
+                  ? 'bg-[#163887] text-white shadow-md ring-1 ring-blue-400/50'
+                  : 'text-white hover:bg-[#163887]'
               }`}
             >
               The Dean
             </button>
 
-            {/* Pill Item 3: Educational Department Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown('education')}
-              onMouseLeave={() => setOpenDropdown(null)}
-            >
-              <button
-                type="button"
-                onClick={() => setOpenDropdown(openDropdown === 'education' ? null : 'education')}
-                className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
-                  ['undergraduate', 'postgraduate', 'internship', 'short-courses'].includes(activeSection) ||
-                  openDropdown === 'education'
-                    ? 'bg-[#005a36] text-white shadow-md ring-1 ring-emerald-400/50'
-                    : 'text-white hover:bg-[#005a36] hover:text-white'
-                }`}
+            {/* Educational Department Dropdown (Shown ONLY if hasEducationalPrograms is true) */}
+            {hasEducationalPrograms && (
+              <div
+                className="relative"
+                onMouseEnter={() => setOpenDropdown('education')}
+                onMouseLeave={() => setOpenDropdown(null)}
               >
-                <span>Educational Department</span>
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-200 ${
-                    openDropdown === 'education' ? 'rotate-180' : ''
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === 'education' ? null : 'education')}
+                  className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                    ['undergraduate', 'postgraduate', 'internship', 'short-courses'].includes(activeSection) ||
+                    openDropdown === 'education'
+                      ? 'bg-[#163887] text-white shadow-md ring-1 ring-blue-400/50'
+                      : 'text-white hover:bg-[#163887]'
                   }`}
-                />
-              </button>
+                >
+                  <span>Educational Department</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === 'education' ? 'rotate-180' : ''}`} />
+                </button>
 
-              {openDropdown === 'education' && (
-                <div className="absolute left-0 top-full pt-2 w-56 z-50">
-                  <div className="bg-[#071b2d] text-white rounded-2xl shadow-2xl border border-[#c99738]/50 py-2 overflow-hidden">
-                    {[
-                      { id: 'undergraduate', label: 'Undergraduate' },
-                      { id: 'postgraduate', label: 'Postgraduate' },
-                      { id: 'internship', label: 'Internship' },
-                      { id: 'short-courses', label: 'Short Courses' }
-                    ].map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => handleSelectSection(item.id as FacultySection)}
-                        className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13.5px] font-bold transition-colors flex items-center justify-between cursor-pointer ${
-                          activeSection === item.id
-                            ? 'bg-[#005a36] text-white'
-                            : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                        {activeSection === item.id && (
-                          <span className="w-2 h-2 rounded-full bg-[#e8a62a]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Pill Item 4: Departments Dropdown (Dynamically shows current Faculty's Departments with Left-Side Submenu) */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown('departments')}
-              onMouseLeave={() => {
-                setOpenDropdown(null);
-                setHoveredDeptItem(null);
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => setOpenDropdown(openDropdown === 'departments' ? null : 'departments')}
-                className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
-                  activeDepartmentsList.some((d) => d.id === activeSection) ||
-                  openDropdown === 'departments'
-                    ? 'bg-[#005a36] text-white shadow-md ring-1 ring-emerald-400/50'
-                    : 'text-white hover:bg-[#005a36] hover:text-white'
-                }`}
-              >
-                <span>Departments</span>
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-200 ${
-                    openDropdown === 'departments' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              {openDropdown === 'departments' && (
-                <div className="absolute left-0 top-full pt-2 w-68 z-50">
-                  <div className="bg-[#071b2d] text-white rounded-2xl shadow-2xl border border-[#c99738]/50 py-2 overflow-visible">
-                    {activeDepartmentsList.map((dept) => {
-                      const isHovered = hoveredDeptItem === dept.id;
-                      const isCurrentDept = activeSection === dept.id;
-                      return (
-                        <div
-                          key={dept.id}
-                          className="relative"
-                          onMouseEnter={() => setHoveredDeptItem(dept.id)}
+                {openDropdown === 'education' && (
+                  <div className="absolute left-0 top-full pt-2 w-56 z-50">
+                    <div className="bg-[#071b2d] text-white rounded-2xl shadow-2xl border border-[#c99738]/50 py-2 overflow-hidden">
+                      {[
+                        { id: 'undergraduate', label: 'Undergraduate' },
+                        { id: 'postgraduate', label: 'Postgraduate' },
+                        { id: 'internship', label: 'Internship' },
+                        { id: 'short-courses', label: 'Short Courses' }
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleSelectSection(item.id as FacultySection)}
+                          className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13.5px] font-bold transition-colors flex items-center justify-between cursor-pointer ${
+                            activeSection === item.id ? 'bg-[#163887] text-white' : 'text-white/90 hover:bg-[#163887]'
+                          }`}
                         >
-                          <button
-                            type="button"
-                            onClick={() => handleSelectSection(dept.id, 'overview')}
-                            className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13.5px] font-bold transition-colors flex items-center justify-between gap-2 cursor-pointer ${
-                              isCurrentDept || isHovered
-                                ? 'bg-[#005a36] text-white'
-                                : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                            }`}
-                          >
-                            <span className="leading-snug">{dept.label}</span>
-                            <ChevronRight className="w-4 h-4 text-[#e8a62a] shrink-0" />
-                          </button>
-
-                          {/* Left-Side Nested Submenu: Department Overview & Faculty and Staff */}
-                          {isHovered && (
-                            <div className="sm:absolute sm:top-0 sm:right-full sm:pr-1.5 w-full sm:w-52 z-50">
-                              <div className="bg-[#071b2d] text-white rounded-xl shadow-2xl border border-[#c99738]/60 py-1.5 overflow-hidden">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSelectSection(dept.id, 'overview');
-                                  }}
-                                  className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold transition-colors flex items-center justify-between cursor-pointer ${
-                                    isCurrentDept && departmentSubView === 'overview' && !selectedStaffProfile
-                                      ? 'bg-[#005a36] text-white'
-                                      : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                                  }`}
-                                >
-                                  <span>Department Overview</span>
-                                  <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSelectSection(dept.id, 'staff');
-                                  }}
-                                  className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold transition-colors flex items-center justify-between cursor-pointer border-t border-white/10 ${
-                                    isCurrentDept && departmentSubView === 'staff'
-                                      ? 'bg-[#005a36] text-white'
-                                      : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                                  }`}
-                                >
-                                  <span>Faculty and Staff</span>
-                                  <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSelectSection(dept.id, 'portfolio');
-                                  }}
-                                  className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold transition-colors flex items-center justify-between cursor-pointer border-t border-white/10 ${
-                                    isCurrentDept && departmentSubView === 'portfolio'
-                                      ? 'bg-[#005a36] text-white'
-                                      : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                                  }`}
-                                >
-                                  <span>Research & Publications</span>
-                                  <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                          <span>{item.label}</span>
+                          {activeSection === item.id && <span className="w-2 h-2 rounded-full bg-[#e8a62a]" />}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
-            {/* Pill Item 5: Institutes Dropdown (Dynamically shows current Faculty's Institutes with Left-Side Submenu) */}
-            <div
-              className="relative"
-              onMouseEnter={() => setOpenDropdown('institutes')}
-              onMouseLeave={() => {
-                setOpenDropdown(null);
-                setHoveredDeptItem(null);
-              }}
-            >
+            {/* Departments Dropdown (Only if departments exist) */}
+            {activeDepartmentsList && activeDepartmentsList.length > 0 && (
+              <div
+                className="relative"
+                onMouseEnter={() => setOpenDropdown("departments")}
+                onMouseLeave={() => {
+                  setOpenDropdown(null);
+                  setHoveredDeptItem(null);
+                  setHoveredDeptSubItem(null);
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === "departments" ? null : "departments")}
+                  className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                    activeDepartmentsList.some((d) => d.id === activeSection || d.subDivisions?.some((s) => s.id === activeSection)) || openDropdown === "departments"
+                      ? "bg-[#163887] text-white shadow-md ring-1 ring-blue-400/50"
+                      : "text-white hover:bg-[#163887]"
+                  }`}
+                >
+                  <span>Departments</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === "departments" ? "rotate-180" : ""}`} />
+                </button>
+
+                {openDropdown === "departments" && (
+                  <div className="absolute left-0 top-full pt-2 w-72 sm:w-80 z-50">
+                    <div className="bg-[#071b2d] text-white rounded-2xl shadow-2xl border border-[#c99738]/50 py-2">
+                      {activeDepartmentsList.map((dept) => {
+                        const isHovered = hoveredDeptItem === dept.id;
+                        const isCurrentDept = activeSection === dept.id || dept.subDivisions?.some((s) => s.id === activeSection);
+                        const hasSubItems = Boolean(dept.subDivisions && dept.subDivisions.length > 0);
+
+                        return (
+                          <div
+                            key={dept.id}
+                            className="relative"
+                            onMouseEnter={() => setHoveredDeptItem(dept.id)}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => handleSelectSection(dept.id, "overview")}
+                              className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13.5px] font-bold transition-colors flex items-center justify-between gap-2 cursor-pointer ${
+                                isCurrentDept || isHovered ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                              }`}
+                            >
+                              <span className="leading-snug">{dept.label}</span>
+                              <ChevronRight className="w-4 h-4 text-[#e8a62a] shrink-0" />
+                            </button>
+
+                            {isHovered && (
+                              <div className="sm:absolute sm:top-0 sm:right-full sm:pr-1.5 w-full sm:w-64 z-50">
+                                <div className="bg-[#071b2d] text-white rounded-xl shadow-2xl border border-[#c99738]/60 py-2 overflow-visible max-h-[85vh] overflow-y-auto">
+                                  {hasSubItems ? (
+                                    <div className="space-y-0.5">
+                                      <div className="px-3.5 py-1.5 mb-1 text-[11px] font-extrabold uppercase tracking-wider text-[#e8a62a] border-b border-white/10 flex items-center justify-between">
+                                        <span>{dept.label}</span>
+                                        <span className="text-[10px] text-white/60 lowercase font-normal">sub-menu</span>
+                                      </div>
+                                      {dept.subDivisions!.map((sub) => {
+                                        const isCurrentSub = activeSection === sub.id;
+                                        return (
+                                          <button
+                                            key={sub.id}
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleSelectSection(sub.id, "overview");
+                                            }}
+                                            className={`w-full text-left px-3.5 py-2 text-xs sm:text-[12.5px] font-bold flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                                              isCurrentSub ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                                            }`}
+                                          >
+                                            <span className="leading-snug">{sub.label}</span>
+                                            <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a] shrink-0" />
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleSelectSection(dept.id, "overview");
+                                        }}
+                                        className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold flex items-center justify-between cursor-pointer ${
+                                          isCurrentDept && departmentSubView === "overview" ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                                        }`}
+                                      >
+                                        <span>Department Overview</span>
+                                        <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleSelectSection(dept.id, "staff");
+                                        }}
+                                        className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold flex items-center justify-between cursor-pointer border-t border-white/10 ${
+                                          isCurrentDept && departmentSubView === "staff" ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                                        }`}
+                                      >
+                                        <span>Faculty and Staff</span>
+                                        <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Centres Dropdown / Tab (Shown for Health or any faculty with Centres) */}
+            {hasCentres && (
+              <div
+                className="relative"
+                onMouseEnter={() => setOpenDropdown("centres")}
+                onMouseLeave={() => {
+                  setOpenDropdown(null);
+                  setHoveredDeptItem(null);
+                  setHoveredCentreItem(null);
+                  setHoveredCentreSubItem(null);
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenDropdown(openDropdown === "centres" ? null : "centres");
+                  }}
+                  className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                    activeSection === "centres" || activeCentresList.some((c) => c.id === activeSection || c.subDivisions?.some((s) => s.id === activeSection)) || openDropdown === "centres"
+                      ? "bg-[#163887] text-white shadow-md ring-1 ring-blue-400/50"
+                      : "text-white hover:bg-[#163887]"
+                  }`}
+                >
+                  <span>Centres</span>
+                  {activeCentresList.length > 0 && (
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === "centres" ? "rotate-180" : ""}`} />
+                  )}
+                </button>
+
+                {openDropdown === "centres" && activeCentresList.length > 0 && (
+                  <div className="absolute left-0 sm:left-auto sm:right-0 top-full pt-2 w-80 sm:w-96 z-50">
+                    <div className="bg-[#071b2d] text-white rounded-2xl shadow-2xl border border-[#c99738]/50 py-2">
+                      {activeCentresList.map((centre) => {
+                        const isHovered = hoveredCentreItem === centre.id;
+                        const isCurrentCentre = activeSection === centre.id || centre.subDivisions?.some((s) => s.id === activeSection);
+                        const hasSubItems = Boolean(centre.subDivisions && centre.subDivisions.length > 0);
+
+                        return (
+                          <div
+                            key={centre.id}
+                            className="relative"
+                            onMouseEnter={() => setHoveredCentreItem(centre.id)}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => handleSelectSection(centre.id, "overview")}
+                              className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold transition-colors flex items-center justify-between gap-2 cursor-pointer ${
+                                isCurrentCentre || isHovered ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                              }`}
+                            >
+                              <span className="leading-snug">{centre.label}</span>
+                              {hasSubItems && <ChevronRight className="w-4 h-4 text-[#e8a62a] shrink-0" />}
+                            </button>
+
+                            {/* Flyout Submenu only when centre has actual subDivisions */}
+                            {isHovered && hasSubItems && (
+                              <div className="sm:absolute sm:top-0 sm:right-full sm:pr-1.5 w-full sm:w-64 z-50">
+                                <div className="bg-[#071b2d] text-white rounded-xl shadow-2xl border border-[#c99738]/60 py-2 overflow-visible max-h-[85vh] overflow-y-auto">
+                                  <div className="space-y-0.5">
+                                    <div className="px-3.5 py-1.5 mb-1 text-[11px] font-extrabold uppercase tracking-wider text-[#e8a62a] border-b border-white/10 flex items-center justify-between">
+                                      <span>{centre.label}</span>
+                                      <span className="text-[10px] text-white/60 lowercase font-normal">sub-menu</span>
+                                    </div>
+                                    {centre.subDivisions!.map((sub) => {
+                                      const isCurrentSub = activeSection === sub.id;
+                                      return (
+                                        <button
+                                          key={sub.id}
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSelectSection(sub.id, "overview");
+                                          }}
+                                          className={`w-full text-left px-3.5 py-2 text-xs sm:text-[12.5px] font-bold flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                                            isCurrentSub ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                                          }`}
+                                        >
+                                          <span className="leading-snug">{sub.label}</span>
+                                          <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a] shrink-0" />
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Institutes Dropdown (Shown ONLY if activeInstitutesList has items) */}
+            {activeInstitutesList && activeInstitutesList.length > 0 && (
+              <div
+                className="relative"
+                onMouseEnter={() => setOpenDropdown("institutes")}
+                onMouseLeave={() => {
+                  setOpenDropdown(null);
+                  setHoveredDeptItem(null);
+                  setHoveredInstItem(null);
+                  setHoveredInstSubItem(null);
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === "institutes" ? null : "institutes")}
+                  className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                    activeInstitutesList.some((i) => i.id === activeSection || i.subDivisions?.some((s) => s.id === activeSection)) || openDropdown === "institutes"
+                      ? "bg-[#163887] text-white shadow-md ring-1 ring-blue-400/50"
+                      : "text-white hover:bg-[#163887]"
+                  }`}
+                >
+                  <span>Institutes</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === "institutes" ? "rotate-180" : ""}`} />
+                </button>
+
+                {openDropdown === "institutes" && (
+                  <div className="absolute right-0 top-full pt-2 w-72 sm:w-80 z-50">
+                    <div className="bg-[#071b2d] text-white rounded-2xl shadow-2xl border border-[#c99738]/50 py-2">
+                      {activeInstitutesList.map((inst) => {
+                        const isHovered = hoveredInstItem === inst.id;
+                        const isCurrentInst = activeSection === inst.id || inst.subDivisions?.some((s) => s.id === activeSection);
+                        const hasSubItems = Boolean(inst.subDivisions && inst.subDivisions.length > 0);
+
+                        return (
+                          <div
+                            key={inst.id}
+                            className="relative"
+                            onMouseEnter={() => setHoveredInstItem(inst.id)}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => handleSelectSection(inst.id, "overview")}
+                              className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                                isCurrentInst || isHovered ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                              }`}
+                            >
+                              <span className="leading-snug">{inst.label}</span>
+                              <ChevronRight className="w-4 h-4 text-[#e8a62a] shrink-0" />
+                            </button>
+
+                            {/* Flyout Submenu for Institute (e.g. Institute of Home Sciences popup) */}
+                            {isHovered && (
+                              <div className="sm:absolute sm:top-0 sm:right-full sm:pr-1.5 w-full sm:w-80 z-50">
+                                <div className="bg-[#071b2d] text-white rounded-xl shadow-2xl border border-[#c99738]/60 py-2 overflow-visible max-h-[85vh] overflow-y-auto">
+                                  {hasSubItems ? (
+                                    <div className="space-y-0.5">
+                                      {/* Header banner inside popup */}
+                                      <div className="px-3.5 py-1.5 mb-1 text-[11px] font-extrabold uppercase tracking-wider text-[#e8a62a] border-b border-white/10 flex items-center justify-between">
+                                        <span>{inst.label}</span>
+                                        <span className="text-[10px] text-white/60 lowercase font-normal">sub-menu</span>
+                                      </div>
+
+                                      {inst.subDivisions!.map((sub) => {
+                                        const isCurrentSub = activeSection === sub.id;
+                                        const isSubHovered = hoveredInstSubItem === sub.id;
+                                        const isIhsDept = sub.id.startsWith("ihs-dept-");
+
+                                        return (
+                                          <div
+                                            key={sub.id}
+                                            className="relative"
+                                            onMouseEnter={() => setHoveredInstSubItem(sub.id)}
+                                          >
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSelectSection(sub.id, "overview");
+                                              }}
+                                              className={`w-full text-left px-3.5 py-2 text-xs sm:text-[12.5px] font-bold flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                                                isCurrentSub || isSubHovered ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                                              }`}
+                                            >
+                                              <span className="leading-snug">{sub.label}</span>
+                                              <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a] shrink-0" />
+                                            </button>
+
+                                            {/* Further Pop-up Flyout for IHS Departments (Overview & Faculty and Staff) */}
+                                            {isSubHovered && isIhsDept && (
+                                              <div className="sm:absolute sm:top-0 sm:right-full sm:pr-1.5 w-full sm:w-52 z-50">
+                                                <div className="bg-[#071b2d] text-white rounded-xl shadow-2xl border border-[#c99738]/70 py-1.5 overflow-hidden">
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      handleSelectSection(sub.id, "overview");
+                                                    }}
+                                                    className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold flex items-center justify-between cursor-pointer ${
+                                                      isCurrentSub && departmentSubView === "overview"
+                                                        ? "bg-[#163887] text-white"
+                                                        : "text-white/90 hover:bg-[#163887]"
+                                                    }`}
+                                                  >
+                                                    <span>Department Overview</span>
+                                                    <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      handleSelectSection(sub.id, "staff");
+                                                    }}
+                                                    className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold flex items-center justify-between cursor-pointer border-t border-white/10 ${
+                                                      isCurrentSub && departmentSubView === "staff"
+                                                        ? "bg-[#163887] text-white"
+                                                        : "text-white/90 hover:bg-[#163887]"
+                                                    }`}
+                                                  >
+                                                    <span>Faculty and Staff</span>
+                                                    <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
+                                                  </button>
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  ) : (
+                                    /* Standard Institute sub-navigation (Overview & Faculty and Staff) */
+                                    <div>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleSelectSection(inst.id, "overview");
+                                        }}
+                                        className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold flex items-center justify-between cursor-pointer ${
+                                          isCurrentInst && departmentSubView === "overview" ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                                        }`}
+                                      >
+                                        <span>Institute Overview</span>
+                                        <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleSelectSection(inst.id, "staff");
+                                        }}
+                                        className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold flex items-center justify-between cursor-pointer border-t border-white/10 ${
+                                          isCurrentInst && departmentSubView === "staff" ? "bg-[#163887] text-white" : "text-white/90 hover:bg-[#163887]"
+                                        }`}
+                                      >
+                                        <span>Faculty and Staff</span>
+                                        <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Portfolio & Research (Shown ONLY if hasPortfolio is true) */}
+            {hasPortfolio && (
               <button
                 type="button"
-                onClick={() => setOpenDropdown(openDropdown === 'institutes' ? null : 'institutes')}
-                className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
-                  activeInstitutesList.some((i) => i.id === activeSection) ||
-                  openDropdown === 'institutes'
-                    ? 'bg-[#005a36] text-white shadow-md ring-1 ring-emerald-400/50'
-                    : 'text-white hover:bg-[#005a36] hover:text-white'
+                onClick={() => handleSelectSection('portfolio')}
+                className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full transition-all duration-200 cursor-pointer ${
+                  activeSection === 'portfolio' && !selectedStaffProfile
+                    ? 'bg-[#163887] text-white shadow-md ring-1 ring-blue-400/50'
+                    : 'text-white hover:bg-[#163887]'
                 }`}
               >
-                <span>Institutes</span>
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-200 ${
-                    openDropdown === 'institutes' ? 'rotate-180' : ''
-                  }`}
-                />
+                <span>Portfolio & Research</span>
               </button>
-
-              {openDropdown === 'institutes' && (
-                <div className="absolute right-0 top-full pt-2 w-72 z-50">
-                  <div className="bg-[#071b2d] text-white rounded-2xl shadow-2xl border border-[#c99738]/50 py-2 overflow-visible">
-                    {activeInstitutesList.map((inst) => {
-                      const isHovered = hoveredDeptItem === inst.id;
-                      const isCurrentInst = activeSection === inst.id;
-                      return (
-                        <div
-                          key={inst.id}
-                          className="relative"
-                          onMouseEnter={() => setHoveredDeptItem(inst.id)}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => handleSelectSection(inst.id, 'overview')}
-                            className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold transition-colors flex items-center justify-between gap-2 cursor-pointer ${
-                              isCurrentInst || isHovered
-                                ? 'bg-[#005a36] text-white'
-                                : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                            }`}
-                          >
-                            <span className="leading-snug">{inst.label}</span>
-                            <ChevronRight className="w-4 h-4 text-[#e8a62a] shrink-0" />
-                          </button>
-
-                          {isHovered && (
-                            <div className="sm:absolute sm:top-0 sm:right-full sm:pr-1.5 w-full sm:w-52 z-50">
-                              <div className="bg-[#071b2d] text-white rounded-xl shadow-2xl border border-[#c99738]/60 py-1.5 overflow-hidden">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSelectSection(inst.id, 'overview');
-                                  }}
-                                  className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold transition-colors flex items-center justify-between cursor-pointer ${
-                                    isCurrentInst && departmentSubView === 'overview' && !selectedStaffProfile
-                                      ? 'bg-[#005a36] text-white'
-                                      : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                                  }`}
-                                >
-                                  <span>Department Overview</span>
-                                  <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSelectSection(inst.id, 'staff');
-                                  }}
-                                  className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold transition-colors flex items-center justify-between cursor-pointer border-t border-white/10 ${
-                                    isCurrentInst && departmentSubView === 'staff'
-                                      ? 'bg-[#005a36] text-white'
-                                      : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                                  }`}
-                                >
-                                  <span>Faculty and Staff</span>
-                                  <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSelectSection(inst.id, 'portfolio');
-                                  }}
-                                  className={`w-full text-left px-4 py-2.5 text-xs sm:text-[13px] font-bold transition-colors flex items-center justify-between cursor-pointer border-t border-white/10 ${
-                                    isCurrentInst && departmentSubView === 'portfolio'
-                                      ? 'bg-[#005a36] text-white'
-                                      : 'text-white/90 hover:bg-[#005a36] hover:text-white'
-                                  }`}
-                                >
-                                  <span>Research & Publications</span>
-                                  <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a]" />
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Pill Item 6: Portfolio & Research (Direct access for Faculty of Sciences and all faculties) */}
-            <button
-              type="button"
-              onClick={() => handleSelectSection('portfolio')}
-              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
-                activeSection === 'portfolio' && !selectedStaffProfile
-                  ? 'bg-[#005a36] text-white shadow-md ring-1 ring-emerald-400/50'
-                  : 'text-white hover:bg-[#005a36] hover:text-white'
-              }`}
-            >
-              <span>Portfolio & Research</span>
-            </button>
+            )}
 
           </nav>
         </div>
       </div>
 
-      {/* 3. If an individual Faculty Member Card/Image was clicked, show Design 2 FacultyProfileDetailPage */}
-      {selectedStaffProfile ? (
+      {/* 3. Main Content Views */}
+      {showPublishedPageContent ? (
+        <main className="w-full max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+          <PublishedDepartmentContent data={activePublishedPageContent} />
+        </main>
+      ) : selectedStaffProfile ? (
         <FacultyProfileDetailPage
           member={selectedStaffProfile.member}
           portraitUrl={selectedStaffProfile.portraitUrl}
@@ -2616,787 +2166,563 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
           }}
         />
       ) : (
-        <>
-          {/* 4. Main Content Section */}
-          <main className="relative max-w-[1380px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        {activePublication && <div className="absolute inset-0 z-40 min-h-full bg-white"><PublishedPageRenderer publication={activePublication}/></div>}
-        
-        {/* =====================================================
-            VIEW 1: FACULTY OVERVIEW (DYNAMIC ACROSS ALL 9 FACULTIES)
-        ====================================================== */}
-        {activeSection === 'overview' && (
-          <div className="space-y-6 overflow-hidden">
-            <AnimatedSlideRow direction="top" className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#005a36]"></span>
-                <span className="text-xs font-bold text-[#005a36] uppercase tracking-widest">
-                  Academic Excellence • {facultyInfo.name}
-                </span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                Overview & <span className="text-[#005a36]">Academic Profile</span>
-              </h2>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="left"
-              delayMs={100}
-              className="bg-white rounded-xl p-6 sm:p-8 shadow-xs border border-stone-200 border-l-4 border-l-[#005a36] space-y-5"
-            >
-              <p className="text-stone-700 text-[15px] sm:text-base leading-relaxed text-justify">
-                {currentFacultyId === 'fac-agri'
-                  ? 'The Faculty of Agriculture is the largest faculty in the University in terms of infrastructure and student enrollment. Academically, it offers a four-year B.Sc. (Hons.) Agri. Sciences degree where students complete common coursework during their first four semesters before selecting a major prior to their fifth semester. Practical training and high-tech research are facilitated through dedicated facilities, including Departmental Farms, the Postgraduate Agricultural Research Station (PARS), the Saline Agriculture Research Cell (SARC), and the Plant Health Clinic. To further strengthen hands-on learning, an internship programme has been integrated into the updated scheme of studies, supported by highly qualified teaching staff recognized by HEC to supervise Ph.D. candidates. Over time, the faculty has trained more than 11,000 undergraduate and 6,000 postgraduate students.'
-                  : facultyInfo.historyText}
-              </p>
-
-              <ul className="space-y-3 text-stone-700 text-[14.5px] sm:text-[15px] leading-relaxed pt-2 border-t border-stone-100">
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[#005a36] font-bold text-base leading-none mt-1 shrink-0">•</span>
-                  <div>
-                    <strong className="text-stone-900 font-bold">Academic Divisions:</strong>{' '}
-                    Comprises {activeDepartmentsList.length} Departments ({activeDepartmentsList.map((d) => d.label).join(', ')}) and {activeInstitutesList.length} Constituent Institute(s) ({activeInstitutesList.map((i) => i.label).join(', ')}).
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[#005a36] font-bold text-base leading-none mt-1 shrink-0">•</span>
-                  <div>
-                    <strong className="text-stone-900 font-bold">Flagship Degree & Major Options:</strong>{' '}
-                    Offers <strong>{currentFacultyConfig.undergradDegree}</strong> along with M.Sc. (Hons.) / M.Phil. and Ph.D. specializations in {currentFacultyConfig.undergradMajors.join(', ')}.
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-2.5">
-                  <span className="text-[#005a36] font-bold text-base leading-none mt-1 shrink-0">•</span>
-                  <div>
-                    <strong className="text-stone-900 font-bold">Research & Industry Linkages:</strong>{' '}
-                    Supported by HEC-approved Ph.D. supervisors, international collaborative grants, and mandatory hands-on clinical/field internship programs.
-                  </div>
-                </li>
-              </ul>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="bottom"
-              delayMs={180}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1"
-            >
-              <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-xs flex items-center gap-4 hover:-translate-y-1 transition-transform">
-                <div className="w-12 h-12 rounded-lg bg-emerald-50 text-[#005a36] flex items-center justify-center shrink-0">
-                  <Building className="w-6 h-6" />
+        <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+          
+          {/* =====================================================
+              VIEW 1: FACULTY OVERVIEW (TEXT LEFT, COMPACT IMAGE RIGHT, STATS PRESERVED)
+              NOTE: Department Overview is NOT rendered here!
+          ====================================================== */}
+          {activeSection === 'overview' && (
+            <div className="space-y-6 overflow-hidden">
+              <AnimatedSlideRow direction="top" className="space-y-2 text-left">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#163887]"></span>
+                  <span className="text-xs font-bold text-black uppercase tracking-widest">
+                    Academic Excellence • {facultyInfo.name}
+                  </span>
                 </div>
-                <div>
-                  <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">Academic Units</span>
-                  <span className="text-xl font-bold text-stone-900">{facultyInfo.departmentsCount}</span>
-                </div>
-              </div>
 
-              <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-xs flex items-center gap-4 hover:-translate-y-1 transition-transform">
-                <div className="w-12 h-12 rounded-lg bg-emerald-50 text-[#005a36] flex items-center justify-center shrink-0">
-                  <BookOpen className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">Specialized Institutes</span>
-                  <span className="text-xl font-bold text-stone-900">{facultyInfo.institutesCount}</span>
-                </div>
-              </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
+                  Overview & <span className="text-black">Academic Profile</span>
+                </h2>
+              </AnimatedSlideRow>
 
-              <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-xs flex items-center gap-4 hover:-translate-y-1 transition-transform">
-                <div className="w-12 h-12 rounded-lg bg-emerald-50 text-[#005a36] flex items-center justify-center shrink-0">
-                  <GraduationCap className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">Facilities & Labs</span>
-                  <span className="text-xl font-bold text-stone-900">{facultyInfo.farmsCount}</span>
-                </div>
-              </div>
-            </AnimatedSlideRow>
-
-            {/* Dynamic Interactive Cards for all Departments & Institutes of this Faculty */}
-            <AnimatedSlideRow
-              direction="right"
-              delayMs={240}
-              className="bg-white rounded-xl p-6 sm:p-7 border border-stone-200 shadow-xs space-y-4"
-            >
-              <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-                <h3 className="text-lg font-extrabold text-[#071b2d]">
-                  Departments & Constituent Institutes — {facultyInfo.name}
-                </h3>
-                <span className="text-xs font-bold text-[#005a36]">
-                  Click any division to view Overview or Faculty
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[...activeDepartmentsList, ...activeInstitutesList].map((divItem) => (
-                  <div
-                    key={divItem.id}
-                    onClick={() => handleSelectSection(divItem.id, 'overview')}
-                    className="p-4 rounded-xl bg-stone-50 hover:bg-emerald-50/50 border border-stone-200 hover:border-[#005a36] transition-all cursor-pointer flex flex-col justify-between gap-3 group"
-                  >
-                    <div>
-                      <h4 className="font-bold text-sm text-[#071b2d] group-hover:text-[#005a36] transition-colors">
-                        {divItem.label}
-                      </h4>
-                      <p className="text-xs text-stone-500 mt-1 line-clamp-2">{divItem.focus}</p>
+              {/* Overview Card: Left Side Text (lg:col-span-8), Right Side Compact Image (lg:col-span-4) */}
+              <AnimatedSlideRow
+                direction="left"
+                delayMs={100}
+                className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 border-l-4 border-l-[#163887]"
+              >
+                <div className="flow-root">
+                  {/* Compact Building Image Floated Right on md/lg: long text flows naturally underneath and occupies the right/marking side */}
+                  <div className="w-full md:w-[320px] lg:w-[360px] md:float-right md:ml-6 mb-5 lg:mb-6">
+                    <div className="relative rounded-xl overflow-hidden shadow-xs border border-stone-200 bg-stone-100 group">
+                      <img
+                        src="/uaf_facade_no_road.jpg"
+                        alt={facultyInfo.fullName}
+                        className="w-full h-auto max-h-[260px] object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="p-3 bg-stone-50 border-t border-stone-200 text-left">
+                        <span className="text-xs font-semibold text-stone-800 block">
+                          {facultyInfo.shortName} Academic Complex
+                        </span>
+                        <span className="text-[11px] text-stone-500 block mt-0.5">
+                          Est. 1906 • University of Agriculture, Faisalabad
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-stone-200/70 text-[11px] font-bold text-[#005a36]">
-                      <span>View Overview</span>
+                  </div>
+
+                  {/* Flowing Text: starts beside image, then continues below image across entire width */}
+                  <div className="space-y-4 text-left">
+                    {currentFacultyId === 'fac-agri' ? (
+                      <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                        The Faculty of Agriculture is the largest faculty in the University in terms of infrastructure and student enrollment. Academically, it offers a four-year B.Sc. (Hons.) Agri. Sciences degree where students complete common coursework during their first four semesters before selecting a major prior to their fifth semester. Practical training and high-tech research are facilitated through dedicated facilities, including Departmental Farms, the Postgraduate Agricultural Research Station (PARS), the Saline Agriculture Research Cell (SARC), and the Plant Health Clinic. To further strengthen hands-on learning, an internship programme has been integrated into the updated scheme of studies, supported by highly qualified teaching staff recognized by HEC to supervise Ph.D. candidates. Over time, the faculty has trained more than 11,000 undergraduate and 6,000 postgraduate students.
+                      </p>
+                    ) : currentFacultyId === 'fac-health' ? (
+                      <div className="space-y-4 text-left">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-50 text-black border border-blue-200 text-xs font-bold">
+                          <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                          UN SDG#3: Good Health & Well-Being Target
+                        </div>
+                        <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                          The UN SDG#3, Good Health and Well-being goal necessitates equitable health and services for communities, provision of innovative healthcare technologies and prevention of public health diseases. The Faculty of Health and Pharmaceutical Sciences at UAF is mandated to play a quintessential role through demand-driven research, innovation, teaching, skill development, capacity building and community service.
+                        </p>
+                        <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                          To comply with the WHO International Health Regulations (IHR) and Global Health initiatives, the Faculty is committed to attain the targets of universal healthcare provision, education, policy and international collaborations. The priority areas of research and innovation are pharmacy, public health, epidemiology, One Health, medicinal plants, nutraceuticals, neurocognitive/mental health research and medical health services.
+                        </p>
+                        <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                          The guidelines of Pharmacy Council of Pakistan, DRAP and HEC are in place. To substitute the import bill of country, indigenous solutions of pharmaceutical production and commercialization are main priorities of the Faculty. The Faculty of Health and Pharmaceutical Sciences mission is to produce skilled graduates, biologics-diagnostics production and public-private entrepreneurial research to contribute in the knowledge-based economy of Pakistan.
+                        </p>
+                      </div>
+                    ) : currentFacultyId === 'fac-arts' ? (
+                      <div className="space-y-4 text-left">
+                        <div className="bg-amber-50/70 border-l-4 border-amber-600 p-3.5 rounded-r-lg">
+                          <h3 className="text-base font-bold text-stone-900 mb-1">
+                            Faculty of Arts and Humanities: Where Creativity Meets Critical Inquiry
+                          </h3>
+                          <p className="text-stone-700 text-sm leading-relaxed">
+                            Our faculty is dedicated to exploring the complexities of human experience through a diverse range of disciplines, including English and Linguistics, History, Pakistan Studies, Waris Shah Chair (cultural studies), Art and Design, and Islamic Studies. At the heart of the faculty&apos;s mission is the belief that understanding the arts and humanities is essential for fostering engaged, informed, and empathetic citizens.
+                          </p>
+                        </div>
+                        <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                          The faculty aims to cultivate critical thinkers who can navigate and contribute to an increasingly interconnected world. Our programs emphasize interdisciplinary collaboration, encouraging students to draw connections across fields and apply their knowledge to real-world challenges. Whether through analyzing classical texts, engaging in artistic expression, or exploring social justice issues, our students are empowered to develop unique perspectives that enrich their academic and professional journeys. This helps create the richness of human culture and creativity while preparing students to make a meaningful impact in a variety of careers and communities.
+                        </p>
+                        <div className="pt-3 border-t border-stone-200 space-y-2.5">
+                          <h4 className="text-sm font-bold text-black uppercase tracking-wider">
+                            Vision and Mission of the Faculty
+                          </h4>
+                          <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                            The Faculty of Arts and Humanities aspires to provide holistic education. It fosters a well-rounded education, emphasizing critical thinking, creativity, and ethical reasoning, which are essential in various fields. The faculty will enhance cultural awareness, and its programs in arts and humanities intend to promote understanding of diverse cultures and histories, preparing students to engage in a globalized world.
+                          </p>
+                          <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                            This fosters interdisciplinary collaboration across disciplines, enhancing research and innovation by blending perspectives and critical thinking. It encourages analytical thinking, problem-solving, and the ability to view issues from multiple angles. The faculty recognizes that graduates of Arts and Humanities often pursue careers in public service, education, and community development, directly contributing to societal well-being.
+                          </p>
+                          <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                            The Faculty is working on a priority basis to develop effective communication skills in both verbal and written forms, which are valuable in any career. Exposure to various forms of artistic expression and theoretical frameworks can inspire creative solutions in business, technology, and other fields. That&apos;s how it fosters lifelong learning. Above all, establishing a faculty like this can attract funding and resources for research in critical areas such as social justice, ethics, and cultural studies. By prioritizing arts and humanities, universities can enrich their academic environments and better prepare students for the complexities of modern life.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left whitespace-pre-line">
+                        {facultyInfo.historyText}
+                      </p>
+                    )}
+
+                    <ul className="space-y-2.5 text-stone-700 text-[13.5px] sm:text-[14px] leading-relaxed pt-2 border-t border-stone-100">
+                      <li className="flex items-start gap-2.5">
+                        <span className="text-black font-bold text-base leading-none mt-0.5 shrink-0">•</span>
+                        <div>
+                          <strong className="text-stone-900 font-bold">Academic Divisions:</strong>{' '}
+                          Comprises {activeDepartmentsList.length} Departments ({activeDepartmentsList.map((d) => d.label).join(', ')})
+                          {activeInstitutesList.length > 0 && ` and ${activeInstitutesList.length} Constituent Institute(s) (${activeInstitutesList.map((i) => i.label).join(', ')})`}
+                          {activeCentresList.length > 0 && ` and ${activeCentresList.length} Specialized Research Centre(s)`}.
+                        </div>
+                      </li>
+
+                      {currentFacultyConfig.undergradDegree && (
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-black font-bold text-base leading-none mt-0.5 shrink-0">•</span>
+                          <div>
+                            <strong className="text-stone-900 font-bold">Degree & Programs:</strong>{' '}
+                            Offers <strong>{currentFacultyConfig.undergradDegree}</strong>
+                            {currentFacultyConfig.undergradMajors && currentFacultyConfig.undergradMajors.length > 0 && (
+                              <span> with specializations in {currentFacultyConfig.undergradMajors.slice(0, 6).join(', ')}</span>
+                            )}.
+                          </div>
+                        </li>
+                      )}
+
+                      <li className="flex items-start gap-2.5">
+                        <span className="text-black font-bold text-base leading-none mt-0.5 shrink-0">•</span>
+                        <div>
+                          <strong className="text-stone-900 font-bold">Accreditation & Standards:</strong>{' '}
+                          Recognized by HEC Pakistan, relevant professional accreditation councils, and international research consortiums.
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                </div>
+              </AnimatedSlideRow>
+
+              {/* The 3 Stat Cards preserved right below Overview */}
+              <AnimatedSlideRow
+                direction="bottom"
+                delayMs={180}
+                className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1"
+              >
+                <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-xs flex items-center gap-4 hover:-translate-y-1 transition-transform">
+                  <div className="w-12 h-12 rounded-lg bg-blue-50 text-black flex items-center justify-center shrink-0">
+                    <Building className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">Academic Units</span>
+                    <span className="text-xl font-bold text-stone-900">{facultyInfo.departmentsCount}</span>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-xs flex items-center gap-4 hover:-translate-y-1 transition-transform">
+                  <div className="w-12 h-12 rounded-lg bg-blue-50 text-black flex items-center justify-center shrink-0">
+                    <BookOpen className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">Specialized Institutes</span>
+                    <span className="text-xl font-bold text-stone-900">{facultyInfo.institutesCount}</span>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-xs flex items-center gap-4 hover:-translate-y-1 transition-transform">
+                  <div className="w-12 h-12 rounded-lg bg-blue-50 text-black flex items-center justify-center shrink-0">
+                    <GraduationCap className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">Facilities & Labs</span>
+                    <span className="text-xl font-bold text-stone-900">{facultyInfo.farmsCount}</span>
+                  </div>
+                </div>
+              </AnimatedSlideRow>
+            </div>
+          )}
+
+          {/* =====================================================
+              VIEW 2: THE DEAN
+          ====================================================== */}
+          {activeSection === 'dean' && (
+            <div className="bg-white rounded-2xl shadow-xs border border-stone-200 p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8 overflow-hidden text-left">
+              <AnimatedSlideRow direction="top">
+                <span className="text-xs font-bold text-black uppercase tracking-widest block mb-1">
+                  Faculty Leadership • {facultyInfo.name}
+                </span>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900">
+                  Dean&apos;s Secretariat & <span className="text-black">Official Message</span>
+                </h2>
+              </AnimatedSlideRow>
+
+              <div className="flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start">
+                <AnimatedSlideRow
+                  direction="left"
+                  delayMs={100}
+                  className="w-full md:w-64 lg:w-72 xl:w-80 shrink-0 flex flex-col items-center"
+                >
+                  <div className="w-52 h-64 sm:w-60 sm:h-76 md:w-64 md:h-80 lg:w-72 lg:h-[350px] xl:w-80 xl:h-[380px] bg-stone-100 border-2 border-[#163887]/25 rounded-2xl overflow-hidden shadow-md relative group transition-all">
+                    <img
+                      src={currentFacultyConfig.deanImage}
+                      alt={`${facultyInfo.deanName} - ${facultyInfo.deanTitle}`}
+                      className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="text-center mt-3.5 space-y-0.5">
+                    <h3 className="font-bold text-stone-900 text-base sm:text-lg">{facultyInfo.deanName}</h3>
+                    <p className="text-xs sm:text-sm text-black font-semibold">{facultyInfo.deanTitle}</p>
+                    <p className="text-[11px] sm:text-xs text-stone-500 font-medium">{currentFacultyConfig.deanDepartment}</p>
+                  </div>
+                </AnimatedSlideRow>
+
+                <AnimatedSlideRow direction="right" delayMs={180} className="flex-1 space-y-4 text-left">
+                  <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+                    <h3 className="text-xl font-bold text-stone-900">Message from the Dean</h3>
+                    <span className="text-[11px] font-bold text-black bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+                      Faculty Executive
+                    </span>
+                  </div>
+
+                  <div className="border-l-4 border-[#163887] pl-5 py-3.5 bg-stone-50/80 rounded-r-xl space-y-3">
+                    <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">{currentFacultyConfig.deanBio1}</p>
+                    <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">{currentFacultyConfig.deanBio2}</p>
+                  </div>
+
+                  <div className="mt-5 pt-4 border-t border-stone-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-stone-600">
+                    <div className="flex items-center gap-2.5 bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+                      <Mail className="w-4 h-4 text-black" />
+                      <a href={`mailto:${facultyInfo.deanEmail}`} className="hover:text-blue-700 hover:underline">
+                        {facultyInfo.deanEmail}
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-2.5 bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+                      <Phone className="w-4 h-4 text-black" />
+                      <span>{facultyInfo.deanPhone}</span>
+                    </div>
+                  </div>
+                </AnimatedSlideRow>
+              </div>
+            </div>
+          )}
+
+          {/* =====================================================
+              VIEW 3: UNDERGRADUATE
+          ====================================================== */}
+          {activeSection === 'undergraduate' && (
+            <div className="space-y-6 overflow-hidden text-left">
+              <AnimatedSlideRow direction="top" className="space-y-1 border-b border-stone-200 pb-2">
+                <span className="text-xs font-bold text-black uppercase tracking-widest">Educational Programs</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">{currentFacultyConfig.undergradDegree}</h2>
+              </AnimatedSlideRow>
+
+              <div className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 border-l-4 border-l-[#163887] space-y-4">
+                <p className="text-stone-700 text-sm sm:text-base leading-relaxed">
+                  {facultyInfo.fullName} offers four-year degree programs under the semester system. Admissions are opened annually on merit basis, integrating rigorous coursework with practical field immersion.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2">
+                  {(currentFacultyConfig.undergradMajors || []).map((m, i) => (
+                    <div key={i} className="p-2.5 bg-stone-50 rounded-lg border border-stone-200 text-xs font-semibold text-stone-800">
+                      {m}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* =====================================================
+              VIEW 4: POSTGRADUATE
+          ====================================================== */}
+          {activeSection === 'postgraduate' && (
+            <div className="space-y-6 overflow-hidden text-left">
+              <AnimatedSlideRow direction="top" className="space-y-1 border-b border-stone-200 pb-2">
+                <span className="text-xs font-bold text-black uppercase tracking-widest">Advanced Research</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">M.Sc. (Hons.) & Ph.D. Programs</h2>
+              </AnimatedSlideRow>
+
+              <div className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 border-l-4 border-l-[#163887] space-y-4">
+                <p className="text-stone-700 text-sm sm:text-base leading-relaxed">
+                  Postgraduate degree programs provide advanced coursework followed by supervised dissertation research evaluated by international reviewers from technologically advanced countries.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* =====================================================
+              VIEW 5: INTERNSHIP
+          ====================================================== */}
+          {activeSection === 'internship' && (
+            <div className="space-y-6 overflow-hidden text-left">
+              <AnimatedSlideRow direction="top" className="space-y-1 border-b border-stone-200 pb-2">
+                <span className="text-xs font-bold text-black uppercase tracking-widest">Experiential Learning</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">Mandatory Field Internship</h2>
+              </AnimatedSlideRow>
+
+              <div className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 border-l-4 border-l-[#163887]">
+                <p className="text-stone-700 text-sm sm:text-base leading-relaxed">
+                  Final semester students spend 6 months in progressive commercial enterprises, seed corporations, and experimental research stations to apply their knowledge under professional supervision.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* =====================================================
+              VIEW 6: SHORT COURSES
+          ====================================================== */}
+          {activeSection === 'short-courses' && (
+            <div className="space-y-6 overflow-hidden text-left">
+              <AnimatedSlideRow direction="top" className="space-y-1 border-b border-stone-200 pb-2">
+                <span className="text-xs font-bold text-black uppercase tracking-widest">Community Training</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">Vocational Short Courses</h2>
+              </AnimatedSlideRow>
+
+              <div className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 border-l-4 border-l-[#163887]">
+                <p className="text-stone-700 text-sm sm:text-base leading-relaxed">
+                  Short courses in tunnel farming, mushroom cultivation, apiculture, and precision irrigation empower farmers and entrepreneurs with practical technical skills.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* =====================================================
+              VIEW 7: PORTFOLIO & PUBLICATIONS
+          ====================================================== */}
+          {activeSection === 'portfolio' && (
+            <FacultySciencesPortfolioSection
+              facultyInfo={facultyInfo}
+              onSelectMember={(member, portraitUrl, phoneNum) => {
+                setSelectedStaffProfile({ member, portraitUrl, phoneNum });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          )}
+
+          {/* =====================================================
+              VIEW 8: CENTRES & CLINICAL UNITS (e.g., for Health Sciences)
+          ====================================================== */}
+          {activeSection === 'centres' && (
+            <div className="space-y-6 overflow-hidden text-left">
+              <AnimatedSlideRow direction="top" className="space-y-1 border-b border-stone-200 pb-2">
+                <span className="text-xs font-bold text-black uppercase tracking-widest">
+                  Specialized Facilities • {facultyInfo.name}
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
+                  Centres & <span className="text-black">Specialized Units</span>
+                </h2>
+              </AnimatedSlideRow>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {(activeCentresList.length > 0
+                  ? activeCentresList
+                  : [
+                      {
+                        id: 'centre-drug-dev',
+                        label: 'Centre for Advanced Drug Research',
+                        fullName: 'Centre for Advanced Drug Research and Development',
+                        focus: 'Preclinical Trials, Formulation Science & Drug Quality Control'
+                      },
+                      {
+                        id: 'centre-biologics',
+                        label: 'Centre for Biologics & Diagnostics',
+                        fullName: 'Centre for Biologics & Diagnostics Production',
+                        focus: 'Biologics, Diagnostic Assays & Public Health Diagnostics'
+                      }
+                    ]
+                ).map((centre) => (
+                  <div
+                    key={centre.id}
+                    className="bg-white rounded-xl p-6 shadow-xs border border-stone-200 border-l-4 border-l-[#163887] space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 rounded-md bg-blue-50 text-black text-xs font-bold border border-blue-200">
+                        Specialized Centre
+                      </span>
+                      <Building className="w-5 h-5 text-black" />
+                    </div>
+                    <h3 className="text-xl font-bold text-stone-900">{centre.fullName}</h3>
+                    <p className="text-stone-600 text-sm leading-relaxed">
+                      Focused on {centre.focus}. Operates advanced instrumentation, research testbeds, and collaborative outreach for community healthcare and indigenous pharmaceutical production.
+                    </p>
+                    <div className="pt-2 flex items-center justify-between text-xs text-stone-500 border-t border-stone-100">
+                      <span>{facultyInfo.fullName}</span>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectSection(divItem.id, 'staff');
-                        }}
-                        className="text-[#071b2d] hover:text-[#005a36] underline cursor-pointer"
+                        onClick={() => handleSelectSection(centre.id as FacultySection, 'overview')}
+                        className="text-black font-bold hover:underline flex items-center gap-1 cursor-pointer"
                       >
-                        Faculty & Staff →
+                        <span>Explore Centre</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
-            </AnimatedSlideRow>
-          </div>
-        )}
-
-        {/* =====================================================
-            VIEW 2: THE DEAN (DYNAMIC ACROSS ALL 9 FACULTIES)
-        ====================================================== */}
-        {activeSection === 'dean' && (
-          <div className="bg-white rounded-2xl shadow-xs border border-stone-200 p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8 overflow-hidden">
-            <AnimatedSlideRow direction="top">
-              <span className="text-xs font-bold text-[#005a36] uppercase tracking-widest block mb-1">
-                Faculty Leadership • {facultyInfo.name}
-              </span>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900">
-                Dean&apos;s Secretariat & <span className="text-[#005a36]">Official Message</span>
-              </h2>
-            </AnimatedSlideRow>
-
-            <div className="flex flex-col md:flex-row gap-6 sm:gap-8 lg:gap-10 items-start">
-              
-              <AnimatedSlideRow
-                direction="left"
-                delayMs={100}
-                className="w-full md:w-64 lg:w-72 xl:w-80 shrink-0 flex flex-col items-center"
-              >
-                <div className="w-52 h-64 sm:w-60 sm:h-76 md:w-64 md:h-80 lg:w-72 lg:h-[350px] xl:w-80 xl:h-[380px] bg-stone-100 border-2 border-[#005a36]/25 rounded-2xl overflow-hidden shadow-md relative group transition-all">
-                  <img
-                    src={currentFacultyConfig.deanImage}
-                    alt={`${facultyInfo.deanName} - ${facultyInfo.deanTitle}`}
-                    className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="text-center mt-3.5 space-y-0.5">
-                  <h3 className="font-bold text-stone-900 text-base sm:text-lg">
-                    {facultyInfo.deanName}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#005a36] font-semibold">
-                    {facultyInfo.deanTitle}
-                  </p>
-                  <p className="text-[11px] sm:text-xs text-stone-500 font-medium">
-                    {currentFacultyConfig.deanDepartment}
-                  </p>
-                </div>
-              </AnimatedSlideRow>
-
-              <AnimatedSlideRow direction="right" delayMs={180} className="flex-1 space-y-4">
-                <div className="flex items-center justify-between border-b border-stone-200 pb-2">
-                  <h3 className="text-xl font-bold text-stone-900">
-                    Message from the Dean
-                  </h3>
-                  <span className="text-[11px] font-bold text-[#005a36] bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                    Faculty Executive
-                  </span>
-                </div>
-
-                <div className="border-l-4 border-[#005a36] pl-5 py-3.5 bg-stone-50/80 rounded-r-xl space-y-3">
-                  <p className="text-stone-700 text-[14.5px] sm:text-[15px] leading-relaxed text-justify">
-                    {currentFacultyConfig.deanBio1}
-                  </p>
-                  <p className="text-stone-700 text-[14.5px] sm:text-[15px] leading-relaxed text-justify">
-                    {currentFacultyConfig.deanBio2}
-                  </p>
-                </div>
-
-                <div className="space-y-2.5 pt-2">
-                  <h4 className="text-sm font-bold text-stone-900 border-b border-stone-200 pb-1.5 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#005a36]"></span>
-                    Key Highlights:
-                  </h4>
-
-                  <ul className="space-y-2.5 text-stone-700 text-[14px] leading-relaxed pl-1">
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-[#005a36] font-bold text-base leading-none mt-1">•</span>
-                      <div>
-                        <strong className="text-stone-900 font-bold">Academic & Research Excellence:</strong>{' '}
-                        Recipient of national research productivity honors, HEC Best University Teacher recognition, and international fellowship distinctions.
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-[#005a36] font-bold text-base leading-none mt-1">•</span>
-                      <div>
-                        <strong className="text-stone-900 font-bold">Postgraduate Supervision & Grants:</strong>{' '}
-                        Completed multiple national and international funded research projects and authored peer-reviewed publications and monographs.
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-[#005a36] font-bold text-base leading-none mt-1">•</span>
-                      <div>
-                        <strong className="text-stone-900 font-bold">Global Collaboration:</strong>{' '}
-                        Represented UAF and Pakistan in international academic consortia, curriculum modernization committees, and industry advisory boards.
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="mt-5 pt-4 border-t border-stone-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-stone-600">
-                  <div className="flex items-center gap-2.5 bg-stone-50 p-2.5 rounded-lg border border-stone-200">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#005a36] flex items-center justify-center shrink-0">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-stone-800 block">Dean Office Email</span>
-                      <a href={`mailto:${facultyInfo.deanEmail}`} className="hover:text-[#005a36] hover:underline">
-                        {facultyInfo.deanEmail}
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2.5 bg-stone-50 p-2.5 rounded-lg border border-stone-200">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#005a36] flex items-center justify-center shrink-0">
-                      <Phone className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-stone-800 block">Phone Extension</span>
-                      <span>{facultyInfo.deanPhone}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2.5 sm:col-span-2 bg-stone-50 p-2.5 rounded-lg border border-stone-200">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#005a36] flex items-center justify-center shrink-0">
-                      <MapPin className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-stone-800 block">Office Location</span>
-                      <span>{facultyInfo.deanOffice}</span>
-                    </div>
-                  </div>
-                </div>
-              </AnimatedSlideRow>
-
             </div>
-          </div>
-        )}
+          )}
 
-        {/* =====================================================
-            VIEW 3: UNDER GRADUATE (DYNAMIC ACROSS ALL 9 FACULTIES)
-        ====================================================== */}
-        {activeSection === 'undergraduate' && (
-          <div className="space-y-6 overflow-hidden">
-            <AnimatedSlideRow direction="top" className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#005a36]"></span>
-                <span className="text-xs font-bold text-[#005a36] uppercase tracking-widest">
-                  Educational Programs • {facultyInfo.name}
-                </span>
-              </div>
-
-              <div className="border-b border-stone-200 pb-2">
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                  {currentFacultyConfig.undergradDegree}
-                </h2>
-                <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-                  {currentFacultyConfig.undergradSubtitle}
-                </p>
-              </div>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="left"
-              delayMs={100}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-3.5"
-            >
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Duration</span>
-                <span className="text-base font-bold text-[#005a36] mt-0.5 block">
-                  {currentFacultyConfig.undergradDuration}
-                </span>
-                <span className="text-[11px] text-stone-400">Winter & Spring</span>
-              </div>
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Academic System</span>
-                <span className="text-base font-bold text-[#005a36] mt-0.5 block">Morning & Replica</span>
-                <span className="text-[11px] text-stone-400">HEC Accredited</span>
-              </div>
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Major Disciplines</span>
-                <span className="text-base font-bold text-[#005a36] mt-0.5 block">
-                  {currentFacultyConfig.undergradMajors.length} Specializations
-                </span>
-                <span className="text-[11px] text-stone-400">Merit & Option Based</span>
-              </div>
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Final Semester</span>
-                <span className="text-base font-bold text-[#005a36] mt-0.5 block">Full Internship</span>
-                <span className="text-[11px] text-stone-400">Field & Industry</span>
-              </div>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="right"
-              delayMs={180}
-              className="bg-white rounded-xl p-6 sm:p-8 shadow-xs border border-stone-200 border-l-4 border-l-[#005a36] space-y-4"
-            >
-              <p className="text-stone-700 text-[14.5px] sm:text-base leading-relaxed text-justify">
-                {facultyInfo.fullName} offers <strong>{currentFacultyConfig.undergradDegree}</strong> at the undergraduate level under the semester system. Enrolment is conducted for Winter and Spring semesters, with fresh merit-based admissions opened in the Winter semester for both male and female candidates across Punjab and Pakistan.
-              </p>
-              <p className="text-stone-700 text-[14.5px] sm:text-base leading-relaxed text-justify">
-                Students complete foundational interdisciplinary coursework during their initial semesters before specializing in their chosen major discipline, culminating in hands-on laboratory research and a mandatory field or clinical/industrial internship in their final semester.
-              </p>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="bottom"
-              delayMs={240}
-              className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 space-y-3.5"
-            >
-              <div className="flex items-center justify-between border-b border-stone-200 pb-2.5">
-                <h3 className="text-base sm:text-lg font-bold text-stone-900 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#005a36]"></span>
-                  Offered Degree Programs & Major Fields of Study ({currentFacultyConfig.undergradMajors.length})
-                </h3>
-                <span className="text-xs text-[#005a36] font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  {facultyInfo.shortName}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
-                {currentFacultyConfig.undergradMajors.map((subject, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2.5 p-2.5 rounded-lg bg-stone-50 border border-stone-200 hover:border-emerald-400 hover:bg-emerald-50/50 transition-colors"
-                  >
-                    <span className="w-5 h-5 rounded-full bg-[#005a36] text-white text-[11px] font-bold flex items-center justify-center shrink-0">
-                      {index + 1}
-                    </span>
-                    <span className="text-xs sm:text-[13px] font-semibold text-stone-800">
-                      {subject}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="left"
-              delayMs={300}
-              className="bg-white rounded-xl p-6 sm:p-8 shadow-xs border border-stone-200 border-l-4 border-l-[#005a36] space-y-4"
-            >
-              <h3 className="text-lg font-bold text-stone-900">
-                Major Allotment, Progression & Career Placement
-              </h3>
-              <p className="text-stone-700 text-[14.5px] sm:text-base leading-relaxed text-justify">
-                The allotment of the major field of study is made crystal clear and the criterion is only CGPA (Cumulative Grade Point Average) and the students&apos; option. Before their option Agrarian Society with the help of faculty and university administration arranges a conference for the introduction of each major subject. The students interact with the Chairman/Director of any discipline for the available facilities, faculty, staff and job opportunities. The students take their specialized courses during next three semesters (5-7). The final semester (8th) is completely reserved for internship programme for their exposure to field and industry. The degree B.Sc.(Hons.)Agri. which is equivalent to M.Sc. in any field of basic sciences is conferred after successful completion of eight semesters. The agriculture graduates have many options for job. The graduates are serving in government research and development organizations, private companies or may start their own farming business. Following are a few institutions which welcome agriculture graduate:
-              </p>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="right"
-              delayMs={360}
-              className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 space-y-3.5"
-            >
-              <div className="border-b border-stone-200 pb-2.5">
-                <h3 className="text-base sm:text-lg font-bold text-stone-900 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#005a36]"></span>
-                  Target Institutions & Employment Sectors for Agriculture Graduates
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
-                {[
-                  'Ayub Agricultural Research Institute (AARI), Jhang Road, Faisalabad',
-                  'NIAB, Jhang Road, Faisalabad',
-                  'NIBGE, Jhang Road, Faisalabad',
-                  'Punjab Forestry Research Institute, Faisalabad',
-                  'Pakistan Council for Science & Technology, Ministry of Science & Technology, 4th Floor, Evacuee Trust Complex, Agha Khan Road, G-5/1, Islamabad',
-                  'Water Management, Lahore',
-                  'PARC, Islamabad',
-                  'NARC, Chack Shehzad, Islamabad',
-                  'Pakistan Council for Scientific & Industrial Research (PCSIR), Islamabad',
-                  'Agriculture Extension, Agriculture House, Davis Road, Lahore',
-                  'Pakistan Science Foundation, 1-Constitution Avenue, G-5/2, Islamabad',
-                  'Agriculture Universities / Colleges of Pakistan',
-                  'Central Cotton Research Institute Multan',
-                  'Cotton Inspectors',
-                  'Many other Government Organizations',
-                  'NGOs',
-                  'Farming',
-                  'Private Companies / Industries',
-                  'Seed Companies (List attached as Annexure-II)',
-                  'Fertilizer Companies',
-                  'Pesticide Companies',
-                  'Poultry Companies',
-                  'Animal Feed and Nutrition Companies',
-                  'Livestock Farms'
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-2.5 p-2.5 rounded-lg bg-stone-50 border border-stone-200 text-stone-700 text-xs sm:text-[12.5px] leading-snug hover:bg-emerald-50/50 hover:border-emerald-300 transition-colors"
-                  >
-                    <span className="text-[#005a36] font-bold text-sm leading-none mt-0.5 shrink-0">•</span>
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </AnimatedSlideRow>
-
-          </div>
-        )}
-
-        {/* =====================================================
-            VIEW 4: POSTGRADUATE
-        ====================================================== */}
-        {activeSection === 'postgraduate' && (
-          <div className="space-y-6 overflow-hidden">
-            <AnimatedSlideRow direction="top" className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#005a36]"></span>
-                <span className="text-xs font-bold text-[#005a36] uppercase tracking-widest">
-                  Educational Programs • Postgraduate Level
-                </span>
-              </div>
-
-              <div className="border-b border-stone-200 pb-2">
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                  Postgraduate Degree Programs <span className="text-[#005a36]">(Masters & Ph.D.)</span>
-                </h2>
-                <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-                  Advanced Research Degrees Administered via Directorate of Advanced Studies
-                </p>
-              </div>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="left"
-              delayMs={100}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-3.5"
-            >
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Admissions Authority</span>
-                <span className="text-sm sm:text-base font-bold text-[#005a36] mt-0.5 block">Dir. of Advanced Studies</span>
-                <span className="text-[11px] text-stone-400">Merit & Entry Test Based</span>
-              </div>
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Assessment Model</span>
-                <span className="text-sm sm:text-base font-bold text-[#005a36] mt-0.5 block">Coursework + Thesis</span>
-                <span className="text-[11px] text-stone-400">Written & Oral Comprehensive</span>
-              </div>
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Ph.D. Evaluation</span>
-                <span className="text-sm sm:text-base font-bold text-[#005a36] mt-0.5 block">Foreign & Local Review</span>
-                <span className="text-[11px] text-stone-400">Technologically Developed Countries</span>
-              </div>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="right"
-              delayMs={180}
-              className="bg-white rounded-xl p-6 sm:p-8 shadow-xs border border-stone-200 border-l-4 border-l-[#005a36] space-y-4"
-            >
-              <h3 className="text-lg font-bold text-stone-900">
-                Academic Framework & Research Rigor
-              </h3>
-              <p className="text-stone-700 text-[14.5px] sm:text-base leading-relaxed text-justify">
-                All the departments, institutes of the faculty and allied disciplines offer post graduate degree programmes at masters as well as Ph.D. levels. Both the degree programmes are course work and research based at the end the scholar produces a thesis which is evaluated by external examiners. Thesis evaluation at Ph.D level is made with in the university as well as from highly technologically developed countries abroad. After a prescribed course work the student appears in written and oral comprehensive examinations. Their admissions are made through Directorate of Advanced Studies. The career opportunities available after graduation listed above are opened to them and due to improved education they are preferred.
-              </p>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="bottom"
-              delayMs={250}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-            >
-              <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-bold text-[#005a36] block">
-                    M.Sc. (Hons.) / M.Phil. Programs
-                  </span>
-                  <span className="text-xs font-semibold bg-emerald-50 text-[#005a36] px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    2 Years (4 Sem.)
-                  </span>
-                </div>
-                <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
-                  Rigorous advanced subject-matter courses followed by independent experimental research, seminar defense, and external thesis evaluation across all 15 agricultural specializations.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-bold text-[#005a36] block">
-                    Doctor of Philosophy (Ph.D.)
-                  </span>
-                  <span className="text-xs font-semibold bg-amber-50 text-amber-800 px-2.5 py-0.5 rounded-full border border-amber-200">
-                    3 - 5 Years
-                  </span>
-                </div>
-                <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
-                  High-impact doctoral dissertation evaluated by international experts from technologically advanced nations, requiring comprehensive written and oral exams and publications in indexed journals.
-                </p>
-              </div>
-            </AnimatedSlideRow>
-          </div>
-        )}
-
-        {/* =====================================================
-            VIEW 5: INTERNSHIP
-        ====================================================== */}
-        {activeSection === 'internship' && (
-          <div className="space-y-6 overflow-hidden">
-            <AnimatedSlideRow direction="top" className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#005a36]"></span>
-                <span className="text-xs font-bold text-[#005a36] uppercase tracking-widest">
-                  Experiential Learning
-                </span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                Mandatory Field <span className="text-[#005a36]">Internship Program</span>
-              </h2>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="left"
-              delayMs={120}
-              className="bg-white rounded-xl p-6 sm:p-8 shadow-xs border border-stone-200 border-l-4 border-l-[#005a36]"
-            >
-              <p className="text-stone-700 text-base sm:text-lg leading-relaxed text-justify">
-                The mandatory practical field internship program places senior students in progressive agricultural farms, corporate agribusinesses, seed production facilities, pesticide industries, and provincial agricultural extension wings. This hands-on immersion ensures graduates are immediately equipped to solve real-world farm problems.
-              </p>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="bottom"
-              delayMs={220}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-            >
-              <div className="bg-white p-4 rounded-xl border border-stone-200 text-center">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Duration</span>
-                <span className="text-lg font-bold text-[#005a36] mt-1 block">6 Months</span>
-              </div>
-              <div className="bg-white p-4 rounded-xl border border-stone-200 text-center">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Industry Linkages</span>
-                <span className="text-lg font-bold text-[#005a36] mt-1 block">150+ Corporate Partners</span>
-              </div>
-              <div className="bg-white p-4 rounded-xl border border-stone-200 text-center">
-                <span className="text-xs font-bold text-stone-500 uppercase block">Assessment</span>
-                <span className="text-lg font-bold text-[#005a36] mt-1 block">Field Log & Viva</span>
-              </div>
-            </AnimatedSlideRow>
-          </div>
-        )}
-
-        {/* =====================================================
-            VIEW 6: SHORT COURSES
-        ====================================================== */}
-        {activeSection === 'short-courses' && (
-          <div className="space-y-6 overflow-hidden">
-            <AnimatedSlideRow direction="top" className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#005a36]"></span>
-                <span className="text-xs font-bold text-[#005a36] uppercase tracking-widest">
-                  Vocational Skill Development
-                </span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
-                Vocational & Farmer <span className="text-[#005a36]">Short Courses</span>
-              </h2>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="right"
-              delayMs={120}
-              className="bg-white rounded-xl p-6 sm:p-8 shadow-xs border border-stone-200 border-l-4 border-l-[#005a36]"
-            >
-              <p className="text-stone-700 text-base sm:text-lg leading-relaxed text-justify">
-                The Faculty organizes regular vocational short courses and farmer training workshops ranging from one week to six months. Topics include high-tunnel farming, hydroponics, commercial fruit nursery management, apiculture (bee-keeping), mushroom cultivation, and integrated pest management techniques for progressive farmers.
-              </p>
-            </AnimatedSlideRow>
-
-            <AnimatedSlideRow
-              direction="bottom"
-              delayMs={220}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-            >
-              {['Hydroponic Farming', 'Apiculture & Bee Keeping', 'Tunnel Nursery Production', 'Mushroom Cultivation'].map((course, idx) => (
-                <div key={idx} className="bg-white p-3.5 rounded-lg border border-stone-200 shadow-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#005a36] shrink-0" />
-                  <span className="text-xs font-bold text-stone-800">{course}</span>
-                </div>
-              ))}
-            </AnimatedSlideRow>
-          </div>
-        )}
-
-        {/* =====================================================
-            VIEW 7: FACULTY RESEARCH & PUBLICATIONS PORTFOLIO
-            Direct Springer link: https://link.springer.com/article/10.1007/s11235-015-0076-8
-        ====================================================== */}
-        {activeSection === 'portfolio' && (
-          <FacultySciencesPortfolioSection
-            facultyInfo={facultyInfo}
-            onSelectMember={(member, portraitUrl, phoneNum) => {
-              setSelectedStaffProfile({ member, portraitUrl, phoneNum });
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          />
-        )}
-
-        {/* =====================================================
-            VIEWS 7 TO 13: DEPARTMENTS & INSTITUTES
-            (Department Overview, Staff & Portfolio opened via Navbar Submenu)
-        ====================================================== */}
-        {activeDeptData && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-
-            {/* ---------------------------------------------------
-                SUB-VIEW A: DEPARTMENT OVERVIEW (With Row-by-Row Directional Sliders)
-            --------------------------------------------------- */}
-            {departmentSubView === 'overview' ? (
-              <div className="bg-white rounded-xl p-6 sm:p-8 shadow-xs border border-stone-200 space-y-6 overflow-hidden">
-                
-                {/* Row 1: Classic UAF Olive/Green Header + Opening Paragraph (Slides Left-to-Right) */}
-                <AnimatedSlideRow direction="left" className="space-y-4">
-                  <div className="border-b-4 border-[#c5cba3] pb-2">
-                    <h3 className="text-lg sm:text-xl font-bold text-stone-900">
-                      {activeDeptData.overviewTitle}
-                    </h3>
-                  </div>
-
-                  {activeDeptData.paragraphsTop.map((para, i) => (
-                    <p
-                      key={i}
-                      className="text-stone-800 text-sm sm:text-[15px] leading-relaxed text-justify"
-                    >
-                      {para}
-                    </p>
-                  ))}
-                </AnimatedSlideRow>
-
-                {/* Row 2: Middle Section — Left Historical Narrative + Right Framed Building Image (Slides Right-to-Left) */}
+          {/* =====================================================
+              DEPARTMENT VIEWS (SHOWN ONLY WHEN A SPECIFIC DEPARTMENT IS CLICKED)
+          ====================================================== */}
+          {isDepartmentSection && activeDeptData && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              {/* SUB-VIEW A: DEPARTMENT / CENTRE OVERVIEW (TEXT LEFT, COMPACT IMAGE RIGHT, ZERO OVERLAP, NO EDIT BUTTONS) */}
+              {departmentSubView === 'overview' ? (
                 <AnimatedSlideRow
-                  direction="right"
-                  delayMs={120}
-                  className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
+                  direction="left"
+                  className="bg-white rounded-xl p-6 sm:p-7 shadow-xs border border-stone-200 border-l-4 border-l-[#163887] space-y-6 overflow-hidden"
                 >
-                  <div className="lg:col-span-5 space-y-4">
-                    {activeDeptData.paragraphsWithImage.map((para, i) => (
-                      <p
-                        key={i}
-                        className="text-stone-800 text-sm sm:text-[15px] leading-relaxed text-justify"
-                      >
-                        {para}
-                      </p>
-                    ))}
-                  </div>
-
-                  <div className="lg:col-span-7">
-                    <div className="border border-dashed border-stone-400 p-2 bg-stone-50 rounded-sm shadow-xs">
-                      <img
-                        src={activeDeptData.buildingImage}
-                        alt={activeDeptData.buildingCaption}
-                        className="w-full h-[260px] sm:h-[340px] object-cover"
-                      />
-                      <p className="text-[11px] text-stone-500 text-center mt-1.5 font-medium">
-                        {activeDeptData.buildingCaption}
-                      </p>
-                    </div>
-                  </div>
-                </AnimatedSlideRow>
-
-                {/* Row 3: Bottom Full-Width Paragraphs (Slides Bottom-to-Up) */}
-                <AnimatedSlideRow direction="bottom" delayMs={200} className="space-y-4">
-                  {activeDeptData.paragraphsBottom.map((para, i) => (
-                    <p
-                      key={i}
-                      className="text-stone-800 text-sm sm:text-[15px] leading-relaxed text-justify"
-                    >
-                      {para}
-                    </p>
-                  ))}
-                </AnimatedSlideRow>
-
-                {/* Row 4: Professional Societies / Research Labs (Slides Top-to-Bottom) */}
-                {activeDeptData.societiesOrLabs && activeDeptData.societiesOrLabs.length > 0 && (
-                  <AnimatedSlideRow
-                    direction="top"
-                    delayMs={260}
-                    className="pt-4 border-t border-stone-200 space-y-3"
-                  >
-                    <h4 className="text-base font-bold text-stone-900">
-                      {activeDeptData.societiesOrLabsTitle || 'Professional Societies & Research Laboratories'}
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {activeDeptData.societiesOrLabs.map((soc, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-2.5 p-3 rounded-lg bg-stone-50 border border-stone-200 text-xs sm:text-sm text-stone-800 font-medium"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-[#005a36] shrink-0 mt-0.5" />
-                          <span>{soc}</span>
+                  <div className="flow-root">
+                    {/* Compact Framed Image Floated Right on md/lg: long text flows underneath and occupies the right/marking side */}
+                    <div className="w-full md:w-[320px] lg:w-[360px] md:float-right md:ml-6 mb-5 lg:mb-6">
+                      <div className="relative rounded-xl overflow-hidden shadow-xs border border-stone-200 bg-stone-100 group">
+                        <img
+                          src={activeDeptData.buildingImage || '/uaf_historic_campus.jpg'}
+                          alt={activeDeptData.buildingCaption}
+                          className="w-full h-auto max-h-[260px] object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="p-3 bg-stone-50 border-t border-stone-200 text-left">
+                          <p className="text-xs font-semibold text-stone-800 leading-snug">
+                            {activeDeptData.buildingCaption || `${activeDeptData.name} Academic Complex`}
+                          </p>
+                          <p className="text-[11px] text-stone-500 mt-0.5">
+                            University of Agriculture, Faisalabad
+                          </p>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Continuous flowing text: starts left of image, continues below image across full width */}
+                    <div className="space-y-3.5 text-stone-700 text-sm sm:text-[15px] leading-relaxed text-left">
+                      <div className="space-y-1.5 pb-2 border-b border-stone-200">
+                        <span className="text-xs font-bold text-black uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#163887]"></span>
+                          Academic Overview • {activeDeptData.shortLabel}
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-bold text-stone-900">
+                          {activeDeptData.overviewTitle}
+                        </h3>
+                      </div>
+
+                      {activeDeptData.paragraphsTop.map((para, i) => (
+                        <p key={`top-${i}`}>{para}</p>
+                      ))}
+                      {activeDeptData.paragraphsWithImage.map((para, i) => (
+                        <p key={`mid-${i}`}>{para}</p>
+                      ))}
+                      {activeDeptData.paragraphsBottom.map((para, i) => (
+                        <p key={`bot-${i}`}>{para}</p>
                       ))}
                     </div>
-                  </AnimatedSlideRow>
-                )}
 
-              </div>
-            ) : departmentSubView === 'staff' ? (
-              /* ---------------------------------------------------
-                  SUB-VIEW B: FACULTY PROFILES (4 CARDS IN A ROW + DIRECTIONAL ROW SLIDERS)
-              --------------------------------------------------- */
-              <div className="space-y-6">
-                
-                {/* Header Banner for Faculty Profiles */}
-                <AnimatedSlideRow
-                  direction="top"
-                  className="bg-white rounded-xl p-5 sm:p-6 shadow-xs border border-stone-200 border-b-4 border-b-[#c5cba3]"
-                >
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900">
-                    Faculty Profiles — <span className="text-[#005a36]">{activeDeptData.name}</span>
-                  </h3>
+                  </div>
+
+                  {/* Research Laboratories & Societies at bottom of card */}
+                  {activeDeptData.societiesOrLabs && activeDeptData.societiesOrLabs.length > 0 && (
+                    <div className="pt-5 border-t border-stone-200 space-y-3 text-left">
+                      <h4 className="text-sm sm:text-base font-bold text-stone-900 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-[#163887]"></span>
+                        {activeDeptData.societiesOrLabsTitle || 'Specialized Research Laboratories & Units'}
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                        {activeDeptData.societiesOrLabs.map((soc, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-start gap-2.5 p-2.5 rounded-lg bg-stone-50 border border-stone-200 text-xs sm:text-sm text-stone-800 font-medium"
+                          >
+                            <CheckCircle2 className="w-4 h-4 text-black shrink-0 mt-0.5" />
+                            <span>{soc}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                 </AnimatedSlideRow>
+              ) : departmentSubView === 'staff' ? (
+                /* SUB-VIEW B: STAFF LIST (4 CARDS PER ROW, NO EDIT BUTTONS) */
+                <div className="space-y-6">
+                  <div className="bg-white rounded-xl p-5 shadow-xs border border-stone-200 border-b-4 border-b-[#c5cba3] text-left">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#163887]" />
+                          <span className="text-xs font-bold text-black uppercase tracking-wider">
+                            {activeDeptData.facultySummaryBadge || 'Faculty & Healthcare Team'}
+                          </span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900">
+                          {activeDeptData.id === 'centre-medical-health'
+                            ? 'Medical & Health Centre — Doctors, Medical Officers & Healthcare Team'
+                            : `Faculty Profiles — ${activeDeptData.name}`}
+                        </h3>
+                        <p className="text-xs text-stone-500 mt-1">
+                          {activeDeptData.staffList.length > 0
+                            ? `${activeDeptData.staffList.length} Active ${activeDeptData.id === 'centre-medical-health' ? 'Medical Officers & Healthcare Specialists' : 'Faculty Members'} • University of Agriculture, Faisalabad`
+                            : 'Staff Empanelment & Specialist Appointments in Progress'}
+                        </p>
+                      </div>
 
-                {/* 4-Cards-Per-Row Grid with Row-by-Row Directional Sliders */}
-                <FacultyStaffRowsGrid
-                  staffList={activeDeptData.staffList}
+                      <button
+                        type="button"
+                        onClick={() => handleSelectSection(activeDeptData.id, 'overview')}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-[#163887] hover:text-white text-stone-700 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        <Building className="w-3.5 h-3.5" />
+                        <span>View Overview & Facilities</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {activeDeptData.staffList.length > 0 ? (
+                    <FacultyStaffRowsGrid
+                      staffList={activeDeptData.staffList}
+                      onSelectMember={(member, portraitUrl, phoneNum) => {
+                        setSelectedStaffProfile({ member, portraitUrl, phoneNum });
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                    />
+                  ) : (
+                    /* Clean Notice When Staff is Under Appointment / Nothing Added Yet */
+                    <div className="bg-white rounded-2xl p-8 sm:p-12 border border-stone-200 text-center max-w-2xl mx-auto shadow-sm space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-blue-50 text-black flex items-center justify-center mx-auto border border-blue-200">
+                        <GraduationCap className="w-8 h-8 text-black" />
+                      </div>
+                      <h4 className="text-xl font-bold text-stone-900">
+                        Faculty & Clinical Specialist Appointments Under Process
+                      </h4>
+                      <p className="text-sm text-stone-600 leading-relaxed">
+                        The appointment and clinical empanelment of specialized faculty, neuro-psychologists, and therapists for the <strong>{activeDeptData.name}</strong> is currently being finalized under the Faculty of Health and Pharmaceutical Sciences, UAF.
+                      </p>
+                      <div className="pt-2 flex flex-wrap justify-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleSelectSection(activeDeptData.id, 'overview')}
+                          className="px-5 py-2.5 rounded-lg bg-[#163887] hover:bg-[#102a6b] text-white text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer"
+                        >
+                          View Centre Overview & Clinical Units
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <FacultySciencesPortfolioSection
+                  facultyInfo={facultyInfo}
                   onSelectMember={(member, portraitUrl, phoneNum) => {
                     setSelectedStaffProfile({ member, portraitUrl, phoneNum });
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 />
+              )}
 
-              </div>
-            ) : (
-              /* ---------------------------------------------------
-                  SUB-VIEW C: DEPARTMENT RESEARCH PORTFOLIO & PUBLICATIONS
-              --------------------------------------------------- */
-              <DepartmentPortfolioSubView
-                deptData={activeDeptData}
-                facultyInfo={facultyInfo}
-                onSelectMember={(member, portraitUrl, phoneNum) => {
-                  setSelectedStaffProfile({ member, portraitUrl, phoneNum });
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
-            )}
+            </div>
+          )}
 
-          </div>
-        )}
-
-      </main>
-      </>
+        </main>
       )}
 
     </div>

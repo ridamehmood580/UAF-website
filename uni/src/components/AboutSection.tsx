@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Landmark } from 'lucide-react';
 
@@ -41,8 +43,8 @@ export const AboutSection: React.FC<AboutSectionProps> = () => {
             }`}
           >
             {/* Main Top Heading (Increased Size) */}
-            <div className="inline-flex items-center gap-3 text-[#0f766e] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[1.8px] uppercase leading-tight">
-              <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block shrink-0"></span>
+            <div className="inline-flex items-center gap-3 text-[#1e3a7a] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[1.8px] uppercase leading-tight">
+              <span className="w-10 h-[3.5px] bg-[ #e8a62a] inline-block shrink-0"></span>
               <span>Established 1906 · Faisalabad, Pakistan</span>
             </div>
 
@@ -64,7 +66,7 @@ export const AboutSection: React.FC<AboutSectionProps> = () => {
             {/* Quick Heritage Callout */}
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <div className="inline-flex items-center gap-3 bg-white px-4 py-3 rounded-lg border border-[#ddd6c9] shadow-2xs transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
-                <Landmark className="w-5 h-5 text-[#0f766e]" />
+                <Landmark className="w-5 h-5 text-black" />
                 <span className="text-xs sm:text-sm font-bold text-[#102a43]">
                   HEC Top Ranked Agricultural Institution
                 </span>
@@ -78,13 +80,13 @@ export const AboutSection: React.FC<AboutSectionProps> = () => {
             {/* Stat 1 */}
             <div
               style={{ transitionDelay: '100ms' }}
-              className={`bg-white p-8 rounded-xl border border-[#ddd6c9] shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-xl hover:border-[#0f766e] cursor-pointer space-y-2 ${
+              className={`bg-white p-8 rounded-xl border border-[#ddd6c9] shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-xl hover:border-[#1d4e89] cursor-pointer space-y-2 ${
                 isVisible
                   ? 'opacity-100 translate-y-0'
                   : 'opacity-0 translate-y-20'
               }`}
             >
-              <span className="font-serif-heading text-4xl sm:text-5xl font-bold text-[#0f766e] block">
+              <span className="font-serif-heading text-4xl sm:text-5xl font-bold text-black block">
                 1906
               </span>
               <span className="text-sm font-bold text-[#18212b] block">
@@ -98,7 +100,7 @@ export const AboutSection: React.FC<AboutSectionProps> = () => {
             {/* Stat 2 */}
             <div
               style={{ transitionDelay: '220ms' }}
-              className={`bg-white p-8 rounded-xl border border-[#ddd6c9] shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-xl hover:border-[#0f766e] cursor-pointer space-y-2 ${
+              className={`bg-white p-8 rounded-xl border border-[#ddd6c9] shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-xl hover:border-[#1d4e89] cursor-pointer space-y-2 ${
                 isVisible
                   ? 'opacity-100 translate-y-0'
                   : 'opacity-0 translate-y-20'
@@ -118,7 +120,7 @@ export const AboutSection: React.FC<AboutSectionProps> = () => {
             {/* Stat 3 */}
             <div
               style={{ transitionDelay: '340ms' }}
-              className={`bg-white p-8 rounded-xl border border-[#ddd6c9] shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-xl hover:border-[#0f766e] cursor-pointer space-y-2 ${
+              className={`bg-white p-8 rounded-xl border border-[#ddd6c9] shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-xl hover:border-[#1d4e89] cursor-pointer space-y-2 ${
                 isVisible
                   ? 'opacity-100 translate-y-0'
                   : 'opacity-0 translate-y-20'
@@ -138,13 +140,13 @@ export const AboutSection: React.FC<AboutSectionProps> = () => {
             {/* Stat 4 */}
             <div
               style={{ transitionDelay: '460ms' }}
-              className={`bg-white p-8 rounded-xl border border-[#ddd6c9] shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-xl hover:border-[#0f766e] cursor-pointer space-y-2 ${
+              className={`bg-white p-8 rounded-xl border border-[#ddd6c9] shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-xl hover:border-[#1d4e89] cursor-pointer space-y-2 ${
                 isVisible
                   ? 'opacity-100 translate-y-0'
                   : 'opacity-0 translate-y-20'
               }`}
             >
-              <span className="font-serif-heading text-4xl sm:text-5xl font-bold text-[#0f766e] block">
+              <span className="font-serif-heading text-4xl sm:text-5xl font-bold text-black block">
                 33.5K
               </span>
               <span className="text-sm font-bold text-[#18212b] block">

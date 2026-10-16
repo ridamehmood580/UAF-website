@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   X,
@@ -19,7 +21,7 @@ const triggerConfetti = () => {
     el.style.top = `${50 + (Math.random() - 0.5) * 20}%`;
     el.style.width = '7px';
     el.style.height = '7px';
-    el.style.backgroundColor = ['#e8a62a', '#005a36', '#102a43', '#10b981', '#f59e0b'][Math.floor(Math.random() * 5)];
+    el.style.backgroundColor = ['#e8a62a', '#163887', '#102a43', '#10b981', '#f59e0b'][Math.floor(Math.random() * 5)];
     el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
     el.style.transition = 'all 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
     el.style.pointerEvents = 'none';
@@ -67,7 +69,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
               <Calendar className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[11px] font-bold text-[#0f766e] uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-black uppercase tracking-wider">
                 Executive Secretariat • UAF
               </span>
               <h3 className="font-serif-heading text-xl sm:text-2xl font-bold text-stone-900">
@@ -88,7 +90,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
 
         {submitted ? (
           <div className="text-center py-6 space-y-4">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-inner">
+            <div className="w-16 h-16 bg-blue-100 text-black rounded-full flex items-center justify-center mx-auto shadow-inner">
               <CheckCircle2 className="w-9 h-9" />
             </div>
 
@@ -112,7 +114,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
               </div>
               <div className="flex justify-between border-b border-stone-200 pb-1.5">
                 <span className="text-stone-500">Requested Date & Time:</span>
-                <span className="font-bold text-[#0f766e]">{formData.preferredDate} ({formData.preferredTime})</span>
+                <span className="font-bold text-black">{formData.preferredDate} ({formData.preferredTime})</span>
               </div>
               <div className="flex justify-between border-b border-stone-200 pb-1.5">
                 <span className="text-stone-500">Designation / Category:</span>
@@ -137,7 +139,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div className="bg-[#f5f8fa] p-3 rounded-2xl border border-[#e5eaee] text-stone-700 space-y-1">
               <span className="font-bold text-[#102a43] flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#0f766e]" />
+                <ShieldCheck className="w-4 h-4 text-black" />
                 <span>Protocol & Visiting Schedule Notice</span>
               </span>
               <p className="text-[11px] text-stone-500">
@@ -154,7 +156,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
                   placeholder="e.g. Dr. Tariq Mahmood"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 />
               </div>
 
@@ -166,7 +168,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
                   placeholder="33100-xxxxxxx-x"
                   value={formData.cnic}
                   onChange={(e) => setFormData({ ...formData, cnic: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 />
               </div>
             </div>
@@ -180,7 +182,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
                   placeholder="yourname@domain.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 />
               </div>
 
@@ -192,7 +194,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
                   placeholder="+92 3xx xxxxxxx"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 />
               </div>
             </div>
@@ -203,7 +205,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 >
                   <option value="Prospective Student / Parent">Prospective Student / Parent</option>
                   <option value="Faculty / Academic Researcher">Faculty / Academic Researcher</option>
@@ -220,7 +222,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
                   required
                   value={formData.preferredDate}
                   onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
                 />
               </div>
             </div>
@@ -233,7 +235,7 @@ export const ScheduleAppointmentModal: React.FC<ScheduleAppointmentModalProps> =
                 placeholder="Briefly state the topic of discussion, academic consultation, or research collaboration..."
                 value={formData.purpose}
                 onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]"
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
               />
             </div>
 

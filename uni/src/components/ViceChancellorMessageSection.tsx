@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, ArrowRight } from 'lucide-react';
 
@@ -62,9 +64,9 @@ export const ViceChancellorMessageSection: React.FC<ViceChancellorMessageSection
             {/* Schedule Appointment trigger under image */}
             <button
               onClick={onOpenAppointmentModal}
-              className="mt-4.5 w-full py-3 px-4 text-xs sm:text-[13px] font-semibold text-[#46505a] hover:text-[#0f766e] bg-[#f5f8fa] hover:bg-[#dff5f1] border border-[#e5eaee] hover:border-[#0f766e]/30 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
+              className="mt-4.5 w-full py-3 px-4 text-xs sm:text-[13px] font-semibold text-[#46505a] hover:text-blue-700 bg-[#f5f8fa] hover:bg-[#e8eef9] border border-[#e5eaee] hover:border-[#1d4e89]/30 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
             >
-              <Calendar className="w-4 h-4 text-[#0f766e]" />
+              <Calendar className="w-4 h-4 text-black" />
               <span>Schedule a personal appointment with Vice Chancellor</span>
             </button>
           </div>
@@ -78,7 +80,7 @@ export const ViceChancellorMessageSection: React.FC<ViceChancellorMessageSection
             }`}
           >
             {/* Main Top Heading (Increased Size) */}
-            <div className="inline-flex items-center gap-3 text-[#0f766e] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
+            <div className="inline-flex items-center gap-3 text-[#1e3a7a] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
               <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block"></span>
               <span>Leadership Address</span>
             </div>
@@ -117,7 +119,7 @@ export const ViceChancellorMessageSection: React.FC<ViceChancellorMessageSection
             <div className="pt-4 flex flex-wrap items-center justify-between gap-4 border-t border-[#e5eaee]">
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="inline-flex items-center gap-2 px-6 py-3 border-1.5 border-[#0f766e] text-[#0f766e] hover:bg-[#0f766e] hover:text-white font-bold text-xs sm:text-[13px] rounded transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-2 px-6 py-3 border-1.5 border-[#1d4e89] text-black hover:bg-[#1d4e89] hover:text-white font-bold text-xs sm:text-[13px] rounded transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
               >
                 <span>{isExpanded ? 'Read less' : 'Read more'}</span>
                 <ArrowRight className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />

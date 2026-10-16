@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
@@ -82,7 +84,7 @@ export const ResearchInnovationSection: React.FC<ResearchInnovationSectionProps>
         >
           <div className="space-y-2">
             {/* Main Top Heading (Increased Size) */}
-            <div className="inline-flex items-center gap-3 text-[#0f766e] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
+            <div className="inline-flex items-center gap-3 text-[#1e3a7a] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
               <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block"></span>
               <span>Research & Innovation</span>
             </div>
@@ -105,7 +107,7 @@ export const ResearchInnovationSection: React.FC<ResearchInnovationSectionProps>
               key={item.id}
               onClick={onOpenAdvisor}
               style={{ transitionDelay: `${idx * 130}ms` }}
-              className={`bg-white p-7 rounded-2xl border border-[#e5eaee] shadow-sm hover:shadow-2xl hover:border-[#0f766e]/50 transition-all duration-700 ease-out flex flex-col justify-between group cursor-pointer hover:-translate-y-2.5 ${
+              className={`bg-white p-7 rounded-2xl border border-[#e5eaee] shadow-sm hover:shadow-2xl hover:border-[#1d4e89]/50 transition-all duration-700 ease-out flex flex-col justify-between group cursor-pointer hover:-translate-y-2.5 ${
                 isVisible
                   ? 'opacity-100 translate-x-0'
                   : 'opacity-0 translate-x-20'
@@ -113,15 +115,15 @@ export const ResearchInnovationSection: React.FC<ResearchInnovationSectionProps>
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="w-14 h-14 rounded-2xl bg-[#dff5f1] text-[#0f766e] group-hover:bg-[#0f766e] group-hover:text-white flex items-center justify-center transition-all duration-300 shadow-xs group-hover:scale-105">
+                  <div className="w-14 h-14 rounded-2xl bg-[#e8eef9] text-black group-hover:bg-[#1d4e89] group-hover:text-white flex items-center justify-center transition-all duration-300 shadow-xs group-hover:scale-105">
                     {item.icon}
                   </div>
-                  <span className="text-[11px] font-bold text-[#0f766e] bg-[#f5f8fa] px-2.5 py-1 rounded-full border border-[#e5eaee]">
+                  <span className="text-[11px] font-bold text-black bg-[#f5f8fa] px-2.5 py-1 rounded-full border border-[#e5eaee]">
                     {item.stat}
                   </span>
                 </div>
 
-                <h3 className="font-serif-heading font-bold text-xl text-[#18212b] group-hover:text-[#0f766e] transition-colors">
+                <h3 className="font-serif-heading font-bold text-xl text-[#18212b] group-hover:text-blue-700 transition-colors">
                   {item.title}
                 </h3>
 
@@ -131,7 +133,7 @@ export const ResearchInnovationSection: React.FC<ResearchInnovationSectionProps>
               </div>
 
               <div className="pt-5 mt-6 border-t border-[#e5eaee] flex items-center justify-between">
-                <span className="text-xs font-bold text-[#0f766e] group-hover:text-[#071b2d] flex items-center gap-1.5">
+                <span className="text-xs font-bold text-black group-hover:text-[#071b2d] flex items-center gap-1.5">
                   <span>Explore Research</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#e8a62a] group-hover:translate-x-1.5 transition-transform" />
                 </span>
@@ -148,7 +150,7 @@ export const ResearchInnovationSection: React.FC<ResearchInnovationSectionProps>
               : 'opacity-0 translate-y-16'
           }`}
         >
-          <div className="mt-12 bg-gradient-to-r from-[#071b2d] via-[#102a43] to-[#0f766e] rounded-2xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border border-white/10 transition-transform duration-300 hover:-translate-y-1">
+          <div className="mt-12 bg-gradient-to-r from-[#071b2d] via-[#102a43] to-[#1d4e89] rounded-2xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border border-white/10 transition-transform duration-300 hover:-translate-y-1">
             <div className="space-y-1.5 text-center md:text-left">
               <span className="text-xs font-bold text-[#e8a62a] uppercase tracking-widest">
                 Office of Research, Innovation & Commercialization (ORIC)

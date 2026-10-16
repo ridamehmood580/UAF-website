@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   Laptop,
@@ -36,15 +38,15 @@ export const StudentResourcesSection: React.FC = () => {
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
-      case 'Laptop': return <Laptop className="w-5 h-5 text-emerald-700" />;
-      case 'BookOpen': return <BookOpen className="w-5 h-5 text-emerald-700" />;
+      case 'Laptop': return <Laptop className="w-5 h-5 text-black" />;
+      case 'BookOpen': return <BookOpen className="w-5 h-5 text-black" />;
       case 'Home': return <Home className="w-5 h-5 text-amber-600" />;
-      case 'DollarSign': return <DollarSign className="w-5 h-5 text-emerald-700" />;
+      case 'DollarSign': return <DollarSign className="w-5 h-5 text-black" />;
       case 'Bus': return <Bus className="w-5 h-5 text-amber-600" />;
-      case 'Briefcase': return <Briefcase className="w-5 h-5 text-emerald-700" />;
+      case 'Briefcase': return <Briefcase className="w-5 h-5 text-black" />;
       case 'Activity': return <Activity className="w-5 h-5 text-red-600" />;
       case 'Trophy': return <Trophy className="w-5 h-5 text-amber-600" />;
-      default: return <Sparkles className="w-5 h-5 text-emerald-700" />;
+      default: return <Sparkles className="w-5 h-5 text-black" />;
     }
   };
 
@@ -59,7 +61,7 @@ export const StudentResourcesSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-black text-xs font-bold uppercase tracking-wider mb-2">
               <Home className="w-3.5 h-3.5" />
               <span>Campus Life & Student Services</span>
             </div>
@@ -90,7 +92,7 @@ export const StudentResourcesSection: React.FC = () => {
               onClick={() => setSelectedCategory(cat)}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-[#005a36] text-white shadow-xs'
+                  ? 'bg-[#163887] text-white shadow-xs'
                   : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
               }`}
             >
@@ -104,7 +106,7 @@ export const StudentResourcesSection: React.FC = () => {
           {filteredResources.map((res) => (
             <div
               key={res.id}
-              className="bg-stone-50 rounded-2xl border border-stone-200 hover:border-emerald-700/60 p-5 flex flex-col justify-between hover:shadow-md transition-all group"
+              className="bg-stone-50 rounded-2xl border border-stone-200 hover:border-blue-700/60 p-5 flex flex-col justify-between hover:shadow-md transition-all group"
             >
               <div className="space-y-3.5">
                 {/* Header Icon & Category */}
@@ -118,7 +120,7 @@ export const StudentResourcesSection: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-serif-heading text-base font-bold text-stone-900 group-hover:text-emerald-800 transition-colors">
+                  <h3 className="font-serif-heading text-base font-bold text-stone-900 group-hover:text-blue-700 transition-colors">
                     {res.title}
                   </h3>
                   <p className="text-xs text-stone-600 mt-1 line-clamp-3 leading-relaxed">
@@ -130,7 +132,7 @@ export const StudentResourcesSection: React.FC = () => {
                 <div className="space-y-1.5 pt-2 border-t border-stone-200/60 text-[11px] text-stone-700">
                   {res.features.slice(0, 3).map((feat, idx) => (
                     <div key={idx} className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                      <CheckCircle2 className="w-3 h-3 text-black shrink-0" />
                       <span className="truncate">{feat}</span>
                     </div>
                   ))}
@@ -153,7 +155,7 @@ export const StudentResourcesSection: React.FC = () => {
               <div className="pt-4 mt-3 border-t border-stone-200/80">
                 <button
                   onClick={() => setActiveModalResource(res)}
-                  className="w-full py-2 px-3 bg-white hover:bg-[#005a36] text-stone-800 hover:text-white rounded-xl text-xs font-bold border border-stone-200 hover:border-emerald-800 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                  className="w-full py-2 px-3 bg-white hover:bg-[#163887] text-stone-800 hover:text-white rounded-xl text-xs font-bold border border-stone-200 hover:border-blue-800 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
                 >
                   <span>{res.quickActionTitle}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -164,7 +166,7 @@ export const StudentResourcesSection: React.FC = () => {
         </div>
 
         {/* Student Welfare & Scholarships Banner */}
-        <div className="mt-12 rounded-3xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-stone-900 text-white p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mt-12 rounded-3xl bg-gradient-to-r from-blue-900 via-blue-800 to-stone-900 text-white p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 text-stone-950 text-xs font-extrabold uppercase">
               ★ Financial Aid Desk
@@ -204,11 +206,11 @@ export const StudentResourcesSection: React.FC = () => {
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-stone-200 p-6 space-y-5">
             <div className="flex items-start justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
                   {getIcon(activeModalResource.iconName)}
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold text-emerald-800 uppercase">
+                  <span className="text-[11px] font-bold text-black uppercase">
                     {activeModalResource.category}
                   </span>
                   <h3 className="font-serif-heading text-lg font-bold text-stone-900">
@@ -235,14 +237,14 @@ export const StudentResourcesSection: React.FC = () => {
               <div className="space-y-1.5">
                 {activeModalResource.features.map((feat, i) => (
                   <div key={i} className="flex items-center gap-2 text-stone-700">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-black shrink-0" />
                     <span>{feat}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs text-stone-600 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+            <div className="grid grid-cols-2 gap-2 text-xs text-stone-600 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
               <div>
                 <span className="font-bold text-stone-800 block">Location:</span>
                 <span>{activeModalResource.location}</span>
@@ -259,7 +261,7 @@ export const StudentResourcesSection: React.FC = () => {
                   alert(`Accessing ${activeModalResource.title} Portal. Connecting with UAF Central Server...`);
                   setActiveModalResource(null);
                 }}
-                className="flex-1 py-2.5 bg-[#005a36] hover:bg-emerald-900 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                className="flex-1 py-2.5 bg-[#163887] hover:bg-blue-900 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer"
               >
                 <ExternalLink className="w-4 h-4" />
                 <span>Launch Portal ({activeModalResource.urlPlaceholder})</span>
@@ -317,31 +319,31 @@ export const StudentResourcesSection: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-stone-200 text-stone-700">
                     <tr>
-                      <td className="p-2.5 font-bold text-emerald-800">Route 1</td>
+                      <td className="p-2.5 font-bold text-black">Route 1</td>
                       <td className="p-2.5">Madina Town, Susan Road, Kohinoor City, Jail Road</td>
                       <td className="p-2.5">07:15 AM</td>
                       <td className="p-2.5">4 Buses</td>
                     </tr>
                     <tr>
-                      <td className="p-2.5 font-bold text-emerald-800">Route 2</td>
+                      <td className="p-2.5 font-bold text-black">Route 2</td>
                       <td className="p-2.5">Ghulam Muhammad Abad, Narwala Road, D-Ground</td>
                       <td className="p-2.5">07:20 AM</td>
                       <td className="p-2.5">3 Buses</td>
                     </tr>
                     <tr>
-                      <td className="p-2.5 font-bold text-emerald-800">Route 3</td>
+                      <td className="p-2.5 font-bold text-black">Route 3</td>
                       <td className="p-2.5">Samanabad, Novelty Bridge, Satiana Road, Gate #4</td>
                       <td className="p-2.5">07:10 AM</td>
                       <td className="p-2.5">4 Buses</td>
                     </tr>
                     <tr>
-                      <td className="p-2.5 font-bold text-emerald-800">Route 4</td>
+                      <td className="p-2.5 font-bold text-black">Route 4</td>
                       <td className="p-2.5">Jaranwala Intercity Shuttle & Khurrianwala Interchange</td>
                       <td className="p-2.5">06:45 AM</td>
                       <td className="p-2.5">2 Buses</td>
                     </tr>
                     <tr>
-                      <td className="p-2.5 font-bold text-emerald-800">Route 5</td>
+                      <td className="p-2.5 font-bold text-black">Route 5</td>
                       <td className="p-2.5">Samundri & Gojra Regional Student Express</td>
                       <td className="p-2.5">06:30 AM</td>
                       <td className="p-2.5">2 Buses</td>
@@ -354,7 +356,7 @@ export const StudentResourcesSection: React.FC = () => {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setShowTransportModal(false)}
-                className="py-2 px-5 bg-[#005a36] text-white rounded-xl text-xs font-bold hover:bg-emerald-900 cursor-pointer"
+                className="py-2 px-5 bg-[#163887] text-white rounded-xl text-xs font-bold hover:bg-blue-900 cursor-pointer"
               >
                 Close Schedule
               </button>

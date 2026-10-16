@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   X,
@@ -111,7 +113,7 @@ export const UAFVirtualAdvisorModal: React.FC<UAFVirtualAdvisorModalProps> = ({
         {/* Header */}
         <div className="bg-[#071b2d] text-white p-4 sm:p-5 flex items-center justify-between border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#0f766e] text-white flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 rounded-full bg-[#1d4e89] text-white flex items-center justify-center shadow-md">
               <Sparkles className="w-5 h-5 text-[#e8a62a]" />
             </div>
             <div>
@@ -119,7 +121,7 @@ export const UAFVirtualAdvisorModal: React.FC<UAFVirtualAdvisorModalProps> = ({
                 Ask UAF Virtual Guide
               </h3>
               <span className="text-[11px] text-[#e8a62a] font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                <span className="w-2 h-2 rounded-full bg-blue-400 inline-block animate-pulse"></span>
                 Official Knowledge Base 2026
               </span>
             </div>
@@ -142,7 +144,7 @@ export const UAFVirtualAdvisorModal: React.FC<UAFVirtualAdvisorModalProps> = ({
               className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.sender === 'ai' && (
-                <div className="w-8 h-8 rounded-full bg-[#0f766e] text-white flex items-center justify-center shrink-0 text-xs shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-[#1d4e89] text-white flex items-center justify-center shrink-0 text-xs shadow-xs">
                   <Bot className="w-4 h-4 text-[#e8a62a]" />
                 </div>
               )}
@@ -192,7 +194,7 @@ export const UAFVirtualAdvisorModal: React.FC<UAFVirtualAdvisorModalProps> = ({
             <button
               key={i}
               onClick={() => handleSendMessage(topic.prompt)}
-              className="shrink-0 px-3 py-1.5 rounded-full bg-[#f5f8fa] hover:bg-[#dff5f1] text-[#0f766e] text-[11px] font-semibold border border-[#e5eaee] hover:border-[#0f766e]/30 transition-all cursor-pointer whitespace-nowrap"
+              className="shrink-0 px-3 py-1.5 rounded-full bg-[#f5f8fa] hover:bg-[#e8eef9] text-black text-[11px] font-semibold border border-[#e5eaee] hover:border-[#1d4e89]/30 transition-all cursor-pointer whitespace-nowrap"
             >
               {topic.label}
             </button>
@@ -212,11 +214,11 @@ export const UAFVirtualAdvisorModal: React.FC<UAFVirtualAdvisorModalProps> = ({
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Type your inquiry (e.g. DVM merit, hostel, scholarship)..."
-            className="flex-1 px-4 py-2.5 bg-[#f5f8fa] border border-[#e5eaee] rounded-xl text-xs sm:text-sm text-[#18212b] focus:outline-none focus:ring-2 focus:ring-[#0f766e]"
+            className="flex-1 px-4 py-2.5 bg-[#f5f8fa] border border-[#e5eaee] rounded-xl text-xs sm:text-sm text-[#18212b] focus:outline-none focus:ring-2 focus:ring-[#1d4e89]"
           />
           <button
             type="submit"
-            className="w-10 h-10 rounded-xl bg-[#0f766e] hover:bg-[#102a43] text-white flex items-center justify-center transition-colors cursor-pointer shadow-md shrink-0"
+            className="w-10 h-10 rounded-xl bg-[#1d4e89] hover:bg-[#102a43] text-white flex items-center justify-center transition-colors cursor-pointer shadow-md shrink-0"
           >
             <Send className="w-4 h-4 text-[#e8a62a]" />
           </button>

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   Bell,
@@ -73,7 +75,7 @@ export const Marquee2026Ticker: React.FC<Marquee2026TickerProps> = ({ onOpenCalc
             <Bell className="w-3.5 h-3.5" />
             <span>2026 ALERTS</span>
           </span>
-          <span className="hidden sm:inline-block text-[11px] font-semibold text-emerald-300">
+          <span className="hidden sm:inline-block text-[11px] font-semibold text-blue-300">
             Session 2026-27 Updates
           </span>
         </div>
@@ -96,7 +98,7 @@ export const Marquee2026Ticker: React.FC<Marquee2026TickerProps> = ({ onOpenCalc
                   className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase ${
                     item.isHot
                       ? 'bg-rose-900/70 text-rose-200 border border-rose-700/60'
-                      : 'bg-[#0f766e]/70 text-emerald-200 border border-emerald-600/50'
+                      : 'bg-[#1d4e89]/70 text-blue-200 border border-blue-600/50'
                   }`}
                 >
                   {item.badge}

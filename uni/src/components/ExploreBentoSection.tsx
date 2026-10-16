@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import {
   GraduationCap,
@@ -48,7 +50,7 @@ export const ExploreBentoSection: React.FC<ExploreBentoSectionProps> = ({
           }`}
         >
           {/* Main Top Heading (Increased Size) */}
-          <div className="inline-flex items-center justify-center gap-3 text-[#0f766e] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
+          <div className="inline-flex items-center justify-center gap-3 text-[#1e3a7a] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
             <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block"></span>
             <span>Explore Your Future</span>
             <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block"></span>
@@ -111,7 +113,7 @@ export const ExploreBentoSection: React.FC<ExploreBentoSectionProps> = ({
             <div
               className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
               style={{
-                backgroundImage: `linear-gradient(to top, rgba(7,27,45,0.92) 0%, rgba(7,27,45,0.3) 60%, rgba(7,27,45,0.1) 100%), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=700&q=80')`
+                backgroundImage: `linear-gradient(to top, rgba(7,27,45,0.92) 0%, rgba(7,27,45,0.3) 60%, rgba(7,27,45,0.1) 100%), url('/uaf_main_gate_sunset.jpg')`
               }}
             />
             <div className="relative z-10 p-7 space-y-2 transition-transform duration-500 group-hover:-translate-y-1.5">

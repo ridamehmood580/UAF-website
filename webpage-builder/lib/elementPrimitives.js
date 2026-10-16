@@ -125,7 +125,7 @@ export function createPrimitiveElement(type) {
         style: {
           ...commonStyle,
           bgColor: 'transparent',
-          textColor: '#16a34a',
+          textColor: '#163887',
           paddingTop: CommonPadding('hyperlink'),
           paddingBottom: CommonPadding('hyperlink'),
           paddingLeft: 0,
@@ -187,9 +187,9 @@ export function createPrimitiveElement(type) {
         iconName: 'ArrowRight', // ArrowRight, Download, Send, Check, Phone, Mail, Link, None
         style: {
           ...commonStyle,
-          bgColor: '#16a34a',
+          bgColor: '#163887',
           textColor: '#ffffff',
-          borderColor: '#15803d',
+          borderColor: '#102a6b',
           borderWidth: 0,
           borderRadius: 10,
           shadow: 'sm',
@@ -327,7 +327,7 @@ export const DEFAULT_PAGE_TEMPLATES = {
         id: "el-nav",
         type: "container",
         layoutMode: "horizontal",
-        style: { bgColor: "#14532d", textColor: "#ffffff", paddingTop: 16, paddingBottom: 16, paddingLeft: 24, paddingRight: 24, borderRadius: 0 }
+        style: { bgColor: "#071b2d", textColor: "#ffffff", paddingTop: 16, paddingBottom: 16, paddingLeft: 24, paddingRight: 24, borderRadius: 0 }
       },
       {
         id: "el-nav-title",
@@ -351,7 +351,7 @@ export const DEFAULT_PAGE_TEMPLATES = {
         tag: "h1",
         fontSize: 32,
         fontWeight: "bold",
-        style: { bgColor: "transparent", textColor: "#14532d", paddingTop: 0, paddingBottom: 8, paddingLeft: 0, paddingRight: 0 }
+        style: { bgColor: "transparent", textColor: "#071b2d", paddingTop: 0, paddingBottom: 8, paddingLeft: 0, paddingRight: 0 }
       },
       {
         id: "el-hero-desc",
@@ -367,7 +367,7 @@ export const DEFAULT_PAGE_TEMPLATES = {
         type: "button",
         label: "Explore Degree Programs 2026",
         iconName: "ArrowRight",
-        style: { bgColor: "#16a34a", textColor: "#ffffff", borderRadius: 12, paddingTop: 12, paddingBottom: 12, paddingLeft: 24, paddingRight: 24 }
+        style: { bgColor: "#163887", textColor: "#ffffff", borderRadius: 12, paddingTop: 12, paddingBottom: 12, paddingLeft: 24, paddingRight: 24 }
       },
       {
         id: "el-list-req",

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Search,
@@ -92,7 +94,7 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
       <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[80vh] shadow-2xl border border-stone-200 flex flex-col overflow-hidden">
         {/* Search Input Bar */}
         <div className="p-4 border-b border-stone-200 flex items-center gap-3 bg-stone-50">
-          <Search className="w-5 h-5 text-emerald-800 shrink-0" />
+          <Search className="w-5 h-5 text-black shrink-0" />
           <input
             type="text"
             autoFocus
@@ -124,7 +126,7 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
               {/* Programs */}
               {searchResults.programs.length > 0 && (
                 <div className="space-y-2">
-                  <span className="font-bold text-emerald-800 uppercase tracking-wider text-[10px] flex items-center gap-1.5">
+                  <span className="font-bold text-black uppercase tracking-wider text-[10px] flex items-center gap-1.5">
                     <GraduationCap className="w-3.5 h-3.5" />
                     <span>Academic Programs ({searchResults.programs.length})</span>
                   </span>
@@ -136,17 +138,17 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
                           onClose();
                           onSelectProgram(prog.id);
                         }}
-                        className="w-full text-left p-2.5 rounded-xl hover:bg-emerald-50 text-stone-800 flex items-center justify-between group transition-colors cursor-pointer"
+                        className="w-full text-left p-2.5 rounded-xl hover:bg-blue-50 text-stone-800 flex items-center justify-between group transition-colors cursor-pointer"
                       >
                         <div>
-                          <p className="font-bold text-stone-900 group-hover:text-emerald-800">
+                          <p className="font-bold text-stone-900 group-hover:text-blue-700">
                             {prog.title}
                           </p>
                           <span className="text-[11px] text-stone-500">
                             {prog.facultyName} • {prog.degreeLevel} • {prog.duration}
                           </span>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-emerald-800 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-blue-700 transition-transform group-hover:translate-x-1" />
                       </button>
                     ))}
                   </div>
@@ -204,7 +206,7 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
                           </span>
                           <span className="text-[10px] text-stone-400">{not.date}</span>
                         </div>
-                        <span className="text-[10px] text-emerald-700 font-mono">
+                        <span className="text-[10px] text-black font-mono">
                           Ref: {not.referenceNumber}
                         </span>
                       </a>

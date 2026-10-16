@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef, useState, useEffect } from 'react';
 import {
   ArrowLeft,
@@ -85,7 +87,7 @@ END:VCALENDAR`;
         >
           <div className="space-y-2">
             {/* Main Top Heading (Increased Size) */}
-            <div className="inline-flex items-center gap-3 text-[#0f766e] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
+            <div className="inline-flex items-center gap-3 text-[#1e3a7a]  text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
               <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block" />
               <span>Life & Celebrations at UAF</span>
             </div>
@@ -104,14 +106,14 @@ END:VCALENDAR`;
           <div className="flex items-center gap-3 self-end md:self-auto">
             <button
               onClick={() => scrollSlider('left')}
-              className="w-11 h-11 rounded-full border border-[#cbd5e1] hover:border-[#0f766e] hover:bg-[#0f766e] hover:text-white text-stone-700 bg-white flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+              className="w-11 h-11 rounded-full border border-[#cbd5e1] hover:border-[#1d4e89] hover:bg-[#1d4e89] hover:text-white text-stone-700 bg-white flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
               aria-label="Scroll left"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <button
               onClick={() => scrollSlider('right')}
-              className="w-11 h-11 rounded-full border border-[#cbd5e1] hover:border-[#0f766e] hover:bg-[#0f766e] hover:text-white text-stone-700 bg-white flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+              className="w-11 h-11 rounded-full border border-[#cbd5e1] hover:border-[#1d4e89] hover:bg-[#1d4e89] hover:text-white text-stone-700 bg-white flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
               aria-label="Scroll right"
             >
               <ArrowRight className="w-5 h-5" />
@@ -129,7 +131,7 @@ END:VCALENDAR`;
               key={evt.id}
               onClick={() => handleCardClick(evt.id)}
               style={{ transitionDelay: `${idx * 120}ms` }}
-              className={`min-w-[300px] sm:min-w-[340px] max-w-[350px] snap-start bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl border border-[#e5eaee] hover:border-[#0f766e]/40 transition-all duration-700 ease-out flex flex-col group shrink-0 cursor-pointer hover:-translate-y-2.5 ${
+              className={`min-w-[300px] sm:min-w-[340px] max-w-[350px] snap-start bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl border border-[#e5eaee] hover:border-[#1d4e89]/40 transition-all duration-700 ease-out flex flex-col group shrink-0 cursor-pointer hover:-translate-y-2.5 ${
                 isVisible
                   ? 'opacity-100 translate-x-0'
                   : 'opacity-0 -translate-x-20'
@@ -142,7 +144,7 @@ END:VCALENDAR`;
                   alt={evt.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <span className="absolute top-3.5 left-3.5 px-3 py-1 bg-[#dff5f1] text-[#0f766e] text-[11px] font-bold tracking-wide uppercase rounded-md shadow-xs">
+                <span className="absolute top-3.5 left-3.5 px-3 py-1 bg-[#e8eef9] text-black text-[11px] font-bold tracking-wide uppercase rounded-md shadow-xs">
                   {evt.category}
                 </span>
               </div>
@@ -151,11 +153,11 @@ END:VCALENDAR`;
               <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2.5">
                   <div className="flex items-center gap-2 text-xs text-[#8b95a1] font-semibold">
-                    <Clock className="w-3.5 h-3.5 text-[#0f766e]" />
+                    <Clock className="w-3.5 h-3.5 text-black" />
                     <span>{evt.date}</span>
                   </div>
 
-                  <h3 className="font-serif-heading font-bold text-lg text-[#18212b] group-hover:text-[#0f766e] transition-colors leading-snug line-clamp-2">
+                  <h3 className="font-serif-heading font-bold text-lg text-[#18212b] group-hover:text-blue-700 transition-colors leading-snug line-clamp-2">
                     {evt.title}
                   </h3>
 
@@ -171,7 +173,7 @@ END:VCALENDAR`;
                       e.stopPropagation();
                       handleCardClick(evt.id);
                     }}
-                    className="text-xs font-bold text-[#0f766e] hover:text-[#102a43] flex items-center gap-1.5 cursor-pointer group-hover:translate-x-1.5 transition-transform"
+                    className="text-xs font-bold text-black hover:text-[#102a43] flex items-center gap-1.5 cursor-pointer group-hover:translate-x-1.5 transition-transform"
                   >
                     <span>Read more</span>
                     <ArrowRight className="w-3.5 h-3.5 text-[#e8a62a]" />
@@ -183,7 +185,7 @@ END:VCALENDAR`;
                       e.stopPropagation();
                       handleDownloadICS(evt);
                     }}
-                    className="p-1.5 text-stone-400 hover:text-[#0f766e] transition-colors cursor-pointer"
+                    className="p-1.5 text-stone-400 hover:text-blue-700 transition-colors cursor-pointer"
                     title="Add to Calendar"
                   >
                     <Calendar className="w-4 h-4" />

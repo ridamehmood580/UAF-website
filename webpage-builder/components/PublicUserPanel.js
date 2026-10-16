@@ -1,13 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import PrimitiveRenderer from './PrimitiveRenderer';
+import PageDesignPreview from './PageDesignPreview';
 import { ArrowLeft, Upload, CheckCircle, Globe, Layers } from 'lucide-react';
 
 export default function PublicUserPanel({ pageData, setPageData, onSwitchToAdmin }) {
   const [toastMessage, setToastMessage] = useState(null);
-  const allowPageScroll = pageData.meta?.allowPageScroll !== false;
-  const pageContentHeight = Math.max(900, ...(pageData.elements || []).map(el => (el.y || 0) + (el.height || 100) + 48));
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -64,7 +62,7 @@ export default function PublicUserPanel({ pageData, setPageData, onSwitchToAdmin
       </div>
 
       {/* Dynamic Converted Webpage UI Rendered from JSON */}
-      <div className="flex-1 min-h-0 w-full max-w-6xl mx-auto p-6" style={{ overflowY: allowPageScroll ? 'auto' : 'hidden' }}>
+      <div className="flex-1 min-h-0 w-full" style={{ overflowY: pageData.meta?.allowPageScroll === false ? 'hidden' : 'auto' }}>
         {!pageData.elements || pageData.elements.length === 0 ? (
           <div className="max-w-md mx-auto my-20 p-12 bg-white rounded-2xl shadow-xl border border-slate-200 text-center space-y-4">
             <Layers className="w-12 h-12 text-slate-300 mx-auto" />
@@ -80,13 +78,7 @@ export default function PublicUserPanel({ pageData, setPageData, onSwitchToAdmin
             </button>
           </div>
         ) : (
-          <div className="relative bg-white shadow-sm" style={{ width: 1200, maxWidth: '100%', height: allowPageScroll ? pageContentHeight : 900, minHeight: 900, margin: '0 auto', overflow: allowPageScroll ? 'visible' : 'hidden' }}>
-            {pageData.elements.map(el => (
-              <div key={el.id} style={{ position: 'absolute', left: el.x || 0, top: el.y || 0, width: el.width || 260, minHeight: el.height || 80 }}>
-                <PrimitiveRenderer el={el} isEditing={false} />
-              </div>
-            ))}
-          </div>
+          <PageDesignPreview page={pageData} fullPage />
         )}
       </div>
 

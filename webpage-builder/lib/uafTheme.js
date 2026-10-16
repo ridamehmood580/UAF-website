@@ -3,7 +3,7 @@
 //
 //  • STYLE_LOCK = true  → colors, fonts, font sizes, corner styles and shadows
 //    are decided by this file. Page editors can only choose from the approved
-//    "looks" below (e.g. "Section title", "Primary button", "Soft green panel").
+//    "looks" below (e.g. "Section title", "Primary button", "Soft blue panel").
 //  • STYLE_LOCK = false → the old free-style editing comes back (color pickers,
 //    font menus, sliders). Use this only for admin / design work.
 //
@@ -16,14 +16,14 @@ export const STYLE_LOCK = false;
 
 // Colors copied from the main UAF website (src/index.css + components)
 export const UAF = {
-  navBar: '#111c24',   // top header bar
+  navBar: '#163887',   // UAF main navigation blue
   navyDark: '#071b2d', // dark sections, main headings
   navy: '#102a43',
-  green: '#005a36',    // primary brand green (buttons, accents)
-  teal: '#0f766e',     // small labels / eyebrow text
-  tealLight: '#dff5f1',
+  green: '#163887',    // Saved look key retained for compatibility; UAF brand blue
+  teal: '#1d4e89',     // Small labels / eyebrow text
+  tealLight: '#e8eef9',
   gold: '#e8a62a',     // highlight / call-to-action
-  emerald: '#34d399',
+  emerald: '#60a5fa',
   cream: '#f7f5f0',
   light: '#f5f8fa',
   white: '#ffffff',
@@ -52,7 +52,7 @@ export const TEXT_STYLES = {
   small:      { label: 'Small note',      group: 'Body text',           tag: 'p',  fontSize: 13, fontWeight: 'normal', font: 'body', color: UAF.text, lineHeight: 1.6 },
   label:      { label: 'Small label (CAPS)', group: 'Body text',        tag: 'p',  fontSize: 12, fontWeight: 'bold', font: 'body', color: UAF.teal, lineHeight: 1.4, letterSpacing: '0.16em', textTransform: 'uppercase' },
   stat:       { label: 'Big number',      group: 'Body text',           tag: 'p',  fontSize: 44, fontWeight: 'bold', font: 'heading', color: UAF.green, lineHeight: 1.1 },
-  // For dark backgrounds (navy, green, photos)
+  // For dark backgrounds (navy, blue, photos)
   hero:       { label: 'Hero title',      group: 'On dark background',  tag: 'h1', fontSize: 52, fontWeight: 'bold', font: 'heading', color: UAF.white, lineHeight: 1.15 },
   pageTitleLight: { label: 'Page title',  group: 'On dark background',  tag: 'h1', fontSize: 40, fontWeight: 'bold', font: 'heading', color: UAF.white, lineHeight: 1.2 },
   titleLight: { label: 'Section title',   group: 'On dark background',  tag: 'h2', fontSize: 32, fontWeight: 'bold', font: 'heading', color: UAF.white, lineHeight: 1.25 },
@@ -73,10 +73,11 @@ const LEGACY_TAG_LOOK = { h1: 'pageTitle', h2: 'title', h3: 'subtitle', h4: 'sub
 // ── Background / panel looks (the "container" shape) ────────────────────────
 export const SURFACES = {
   white:   { label: 'White',               bg: UAF.white, text: UAF.dark },
+  utility: { hidden: true, label: 'UAF utility bar', bg: UAF.white, text: '#1e3a7a', border: '#ed9d09', borderWidth: 2, radius: 16 },
   light:   { label: 'Light grey',          bg: UAF.light, text: UAF.dark },
   cream:   { label: 'Cream',               bg: UAF.cream, text: UAF.dark },
-  tint:    { label: 'Soft green',          bg: UAF.tealLight, text: UAF.dark },
-  green:   { label: 'UAF green',           bg: UAF.green, text: UAF.white },
+  tint:    { label: 'Soft blue',            bg: UAF.tealLight, text: UAF.dark },
+  green:   { label: 'UAF blue',             bg: UAF.green, text: UAF.white },
   navy:    { label: 'Dark navy',           bg: UAF.navyDark, text: UAF.white },
   gold:    { label: 'Gold',                bg: UAF.gold, text: UAF.navyDark },
   overlay: { label: 'Dark photo overlay',  bg: 'rgba(7,27,45,0.74)', text: UAF.white },
@@ -86,9 +87,9 @@ export const SURFACES = {
 
 // ── Button looks ─────────────────────────────────────────────────────────────
 export const BUTTONS = {
-  primary:      { label: 'Primary (green)',          bg: UAF.green, text: UAF.white },
+  primary:      { label: 'Primary (blue)',           bg: UAF.green, text: UAF.white },
   gold:         { label: 'Highlight (gold)',         bg: UAF.gold, text: UAF.navyDark },
-  outline:      { label: 'Outline (green)',          bg: 'transparent', text: UAF.green, border: UAF.green },
+  outline:      { label: 'Outline (blue)',           bg: 'transparent', text: UAF.green, border: UAF.green },
   outlineLight: { label: 'Outline (for dark areas)', bg: 'transparent', text: UAF.white, border: UAF.white },
   dark:         { label: 'Dark navy',                bg: UAF.navy, text: UAF.white }
 };
@@ -105,7 +106,7 @@ export const DIVIDERS = {
 };
 
 export const LINKS = {
-  default: { label: 'Green link', color: UAF.green },
+  default: { label: 'Blue link', color: UAF.green },
   light:   { label: 'White link', color: UAF.white },
   gold:    { label: 'Gold link',  color: UAF.gold }
 };
@@ -168,7 +169,7 @@ export function themeElement(el) {
       const S = SURFACES[look];
       out = {
         ...el, look,
-        style: { ...keepLayout, bgColor: S.bg, textColor: S.text, borderColor: S.border || 'transparent', borderWidth: S.border ? 1 : 0, borderRadius: S.radius || 0, shadow: S.shadow || 'none', ...noPad }
+        style: { ...keepLayout, bgColor: S.bg, textColor: S.text, borderColor: S.border || 'transparent', borderWidth: S.borderWidth ?? (S.border ? 1 : 0), borderRadius: S.radius ?? 0, shadow: S.shadow || 'none', ...noPad }
       };
       break;
     }

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
 import {
   Bell,
@@ -109,7 +111,7 @@ Helpline: +92 41 9200161`;
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search notices by keyword, date, or reference number (e.g. Admissions, Date Sheet, PEEF)..."
-                className="w-full pl-10 pr-10 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white"
+                className="w-full pl-10 pr-10 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:bg-white"
               />
               {searchQuery && (
                 <button
@@ -152,7 +154,7 @@ Helpline: +92 41 9200161`;
               className={`bg-white rounded-2xl p-5 border transition-all hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 ${
                 notice.isUrgent
                   ? 'border-amber-400/80 bg-gradient-to-r from-amber-50/40 via-white to-white'
-                  : 'border-stone-200 hover:border-emerald-700/50'
+                  : 'border-stone-200 hover:border-blue-700/50'
               }`}
             >
               {/* Notice Metadata & Content */}
@@ -170,7 +172,7 @@ Helpline: +92 41 9200161`;
                   )}
 
                   {notice.isNew && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-black">
                       NEW
                     </span>
                   )}
@@ -182,7 +184,7 @@ Helpline: +92 41 9200161`;
 
                 <h3
                   onClick={() => setPreviewNotice(notice)}
-                  className="font-serif-heading text-base sm:text-lg font-bold text-stone-900 hover:text-emerald-800 cursor-pointer transition-colors leading-snug"
+                  className="font-serif-heading text-base sm:text-lg font-bold text-stone-900 hover:text-blue-700 cursor-pointer transition-colors leading-snug"
                 >
                   {notice.title}
                 </h3>
@@ -215,8 +217,8 @@ Helpline: +92 41 9200161`;
                   onClick={() => handleDownloadNotice(notice)}
                   className={`py-2 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer ${
                     downloadSuccess === notice.id
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-[#005a36] hover:bg-emerald-900 text-white'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-[#163887] hover:bg-blue-900 text-white'
                   }`}
                 >
                   {downloadSuccess === notice.id ? (
@@ -241,21 +243,21 @@ Helpline: +92 41 9200161`;
           <div className="bg-white p-4 rounded-xl border border-stone-200 text-xs space-y-1">
             <span className="font-bold text-stone-900 block">Controller of Examinations</span>
             <p className="text-stone-500">Date sheets, result gazettes, and degree verifications.</p>
-            <a href="#notices" className="text-emerald-800 font-semibold hover:underline inline-block pt-1">
+            <a href="#notices" className="text-black font-semibold hover:underline inline-block pt-1">
               View Exam Notifications →
             </a>
           </div>
           <div className="bg-white p-4 rounded-xl border border-stone-200 text-xs space-y-1">
             <span className="font-bold text-stone-900 block">Registrar Secretariat</span>
             <p className="text-stone-500">Academic calendars, holiday circulars, and statutes.</p>
-            <a href="#notices" className="text-emerald-800 font-semibold hover:underline inline-block pt-1">
+            <a href="#notices" className="text-black font-semibold hover:underline inline-block pt-1">
               View Registrar Notices →
             </a>
           </div>
           <div className="bg-white p-4 rounded-xl border border-stone-200 text-xs space-y-1">
             <span className="font-bold text-stone-900 block">Treasurer Office & Fee Portal</span>
             <p className="text-stone-500">Fee challan generators, installment rules, and refund forms.</p>
-            <a href="#notices" className="text-emerald-800 font-semibold hover:underline inline-block pt-1">
+            <a href="#notices" className="text-black font-semibold hover:underline inline-block pt-1">
               View Fee Instructions →
             </a>
           </div>
@@ -268,7 +270,7 @@ Helpline: +92 41 9200161`;
           <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-stone-200 p-6 space-y-5">
             <div className="flex items-start justify-between border-b border-stone-100 pb-3">
               <div>
-                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                <span className="text-xs font-bold text-black uppercase tracking-wider">
                   Official UAF Circular Preview
                 </span>
                 <h3 className="font-serif-heading text-lg font-bold text-stone-900 mt-1">
@@ -303,7 +305,7 @@ Helpline: +92 41 9200161`;
             <div className="pt-2 flex gap-3">
               <button
                 onClick={() => handleDownloadNotice(previewNotice)}
-                className="flex-1 py-2.5 bg-[#005a36] hover:bg-emerald-900 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-2.5 bg-[#163887] hover:bg-blue-900 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 <span>Download Official Copy ({previewNotice.fileSize})</span>

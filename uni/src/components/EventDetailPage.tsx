@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   ArrowLeft,
@@ -182,8 +184,8 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
               </div>
 
               <div className="bg-[#f8fafc] rounded-2xl p-4 border border-stone-200/80 flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                  <Clock className="w-5 h-5 text-emerald-600" />
+                <div className="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                  <Clock className="w-5 h-5 text-black" />
                 </div>
                 <div>
                   <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Timing</div>
@@ -192,8 +194,8 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
               </div>
 
               <div className="bg-[#f8fafc] rounded-2xl p-4 border border-stone-200/80 flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-[#005a36]/10 flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-[#005a36]" />
+                <div className="w-11 h-11 rounded-xl bg-[#163887]/10 flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5 text-black" />
                 </div>
                 <div>
                   <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Venue</div>
@@ -216,7 +218,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
               </p>
 
               {event.details && (
-                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm font-medium leading-relaxed">
+                <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-black text-sm font-medium leading-relaxed">
                   {event.details}
                 </div>
               )}
@@ -234,7 +236,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
                       key={index}
                       className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/60"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-[#005a36] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-black shrink-0 mt-0.5" />
                       <span className="text-xs sm:text-sm font-medium text-stone-700 leading-snug">
                         {highlight}
                       </span>
@@ -251,7 +253,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
               <button
                 type="button"
                 onClick={onNavigateHome}
-                className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl border-2 border-[#e8a62a] bg-[#005a36] hover:bg-[#004227] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all cursor-pointer group hover:scale-102"
+                className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl border-2 border-[#e8a62a] bg-[#163887] hover:bg-[#004227] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all cursor-pointer group hover:scale-102"
               >
                 <ArrowLeft className="w-4 h-4 text-[#e8a62a] group-hover:-translate-x-1 transition-transform" />
                 <span>Back to All Events</span>
@@ -321,7 +323,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
               {/* Prev Button */}
               <button
                 onClick={prevImage}
-                className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/70 hover:bg-[#005a36] text-white flex items-center justify-center transition-all cursor-pointer backdrop-blur-sm border border-white/20 shadow-xl hover:scale-108"
+                className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/70 hover:bg-[#163887] text-white flex items-center justify-center transition-all cursor-pointer backdrop-blur-sm border border-white/20 shadow-xl hover:scale-108"
                 title="Previous photo (Left Arrow)"
                 aria-label="Previous photo"
               >
@@ -331,7 +333,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
               {/* Next Button */}
               <button
                 onClick={nextImage}
-                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/70 hover:bg-[#005a36] text-white flex items-center justify-center transition-all cursor-pointer backdrop-blur-sm border border-white/20 shadow-xl hover:scale-108"
+                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/70 hover:bg-[#163887] text-white flex items-center justify-center transition-all cursor-pointer backdrop-blur-sm border border-white/20 shadow-xl hover:scale-108"
                 title="Next photo (Right Arrow)"
                 aria-label="Next photo"
               >

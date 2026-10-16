@@ -1,17 +1,14 @@
 # UAF Page Studio
 
-## Superadmin dashboard
+The admin designs pages in Page Studio and publishes them directly to the university website. Page templates contain page content only; the university site automatically places its shared header and footer around every page. The separate **Site-wide header** and **Site-wide footer** templates update those shared elements across the whole site. The dashboard shows current page publications, shared chrome and publication history.
 
-Open `/superadmin` for the separate superadmin sign-in and review dashboard. The UAF site's Admin Login modal also links to this page.
+## Run locally
 
-Set the credentials before using the sign-in screen:
+Start both apps from their project folders:
 
-1. Copy `.env.example` to `.env.local` in this folder.
-2. Set `SUPERADMIN_USERNAME`, `SUPERADMIN_PASSWORD`, and `SUPERADMIN_SESSION_SECRET` to private values. Use a long random value for the session secret.
-3. Restart the builder with `npm run dev`.
+1. In `webpage-builder`, run `npm run dev` (port 3001).
+2. In `uni`, run `npm run dev` (port 3000).
 
-The sign-in session is stored in an HTTP-only cookie and expires after eight hours. Do not commit `.env.local`.
+Publishing writes page content and shared header/footer settings to `../uni/public/published-pages.json` and, when present, `../uni/dist/published-pages.json`. The Page Studio server keeps publication history in its ignored `storage/publication-history.json` file.
 
-Design submissions and review decisions are stored by the Page Studio server in `storage/page-workflow.json`, so the designer, superadmin dashboard, and admin profile share the same review queue. This file is local runtime data and is excluded from Git.
-
-When an admin publishes an accepted design, the Page Studio API writes it to `../uni/public/published-pages.json`. The `uni` app reads that file and renders published designs on the selected home page, section, faculty portal, or event detail page. Run both apps locally from their own folders (`npm run dev`) for this file based publishing flow.
+For a deployed static university site, deploy the updated `uni` output after publishing so the hosting provider receives the new `published-pages.json` file.

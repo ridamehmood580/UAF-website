@@ -58,6 +58,20 @@ export interface Notice {
   attachmentName: string;
 }
 
+export interface EventScheduleItem {
+  time: string;
+  activity: string;
+  speakerOrLead?: string;
+  location?: string;
+}
+
+export interface EventSpeaker {
+  name: string;
+  designation: string;
+  organization: string;
+  image: string;
+}
+
 export interface CampusEvent {
   id: string;
   title: string;
@@ -69,6 +83,15 @@ export interface CampusEvent {
   description: string;
   details?: string;
   registrationOpen?: boolean;
+  galleryImages?: string[];
+  fullOverview?: string;
+  highlights?: string[];
+  schedule?: EventScheduleItem[];
+  speakers?: EventSpeaker[];
+  coordinatorName?: string;
+  coordinatorContact?: string;
+  entryFee?: string;
+  targetAudience?: string;
 }
 
 export interface StudentResource {

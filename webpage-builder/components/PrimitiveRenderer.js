@@ -5,6 +5,29 @@ import { STYLE_LOCK, themeElement, cleanRich, pastePlain, FONT } from '../lib/ua
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
 const richMarkup = (markup, plain) => cleanRich(markup) || escapeHtml(plain || '').replace(/\n/g, '<br>');
+const SocialMark = ({ name }) => {
+  const common = { width: 20, height: 20, viewBox: '0 0 24 24', 'aria-hidden': true, fill: 'currentColor' };
+  if (name === 'Facebook') return <svg {...common}><path d="M13.4 21v-8h2.7l.4-3.1h-3.1V8c0-.9.3-1.5 1.6-1.5h1.7V3.7c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2v2.1H7.5V13h2.7v8h3.2z"/></svg>;
+  if (name === 'Instagram') return <svg {...common} fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>;
+  if (name === 'LinkedIn') return <svg {...common}><path d="M5.2 8.5a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6ZM3.7 10h3v10h-3zM9 10h2.9v1.4h.1a3.2 3.2 0 0 1 2.9-1.6c3.1 0 3.7 2 3.7 4.7V20h-3v-4.9c0-1.2 0-2.8-1.8-2.8s-2 1.3-2 2.7V20H9z"/></svg>;
+  if (name === 'YouTube') return <svg {...common}><path d="M23 7.1a3 3 0 0 0-2.1-2.1C19 4.5 12 4.5 12 4.5s-7 0-8.9.5A3 3 0 0 0 1 7.1 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.9A3 3 0 0 0 3.1 19c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.9 31 31 0 0 0-.5-4.9ZM9.7 15.3V8.7l5.8 3.3z"/></svg>;
+  return null;
+};
+const renderHoverMenu = (items, safeHref, isEditing, depth = 0) => items.map((item, index) => (
+  <div className={`hover-menu-item ${item.children?.length ? 'has-children' : ''}`} key={`${item.label}-${index}`}>
+    <a href={safeHref(item.url)} target="_blank" rel="noreferrer" onClick={e => isEditing && e.preventDefault()} className="flex items-center justify-between gap-5 px-4 py-2 text-sm font-semibold text-[#163887] hover:bg-[#163887] hover:text-white">
+      <span>{item.label}</span>{item.children?.length ? <span aria-hidden="true">›</span> : null}
+    </a>
+    {!!item.children?.length && <div className={`hover-menu-panel ${depth ? 'hover-menu-panel-nested' : ''}`}>{renderHoverMenu(item.children, safeHref, isEditing, depth + 1)}</div>}
+  </div>
+));
+const safeHref = value => {
+  const href = String(value || '').trim();
+  if (!href) return '#';
+  if (/^(https?:|mailto:|tel:|sms:|#|\/|\?)/i.test(href)) return href;
+  if (/^[a-z][a-z\d+.-]*:/i.test(href)) return '#';
+  return `https://${href}`;
+};
 import { 
   ArrowRight, 
   Download, 
@@ -12,6 +35,8 @@ import {
   Check, 
   Phone, 
   Mail, 
+  MapPin,
+  ChevronRight,
   Link as LinkIcon, 
   ExternalLink,
   CheckCircle2,
@@ -22,7 +47,8 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
-  Maximize2
+  Maximize2,
+  Search
 } from 'lucide-react';
 
 function PrimitiveRenderer({ 
@@ -79,7 +105,10 @@ function PrimitiveRenderer({
       case 'Check': return <Check className="w-4 h-4 inline ml-1.5" />;
       case 'Phone': return <Phone className="w-4 h-4 inline ml-1.5" />;
       case 'Mail': return <Mail className="w-4 h-4 inline ml-1.5" />;
+      case 'MapPin': return <MapPin className="w-4 h-4 inline shrink-0 text-[#e8a62a]" />;
+      case 'ChevronRight': return <ChevronRight className="w-3 h-3 inline shrink-0 text-blue-200" />;
       case 'Link': return <LinkIcon className="w-4 h-4 inline ml-1.5" />;
+      case 'Search': return <Search className="w-4 h-4 inline text-[#e8a62a]" />;
       default: return null;
     }
   };
@@ -123,19 +152,26 @@ function PrimitiveRenderer({
 
       case 'hyperlink': {
         const fontPx = `${el.fontSize || 16}px`;
+        const isSocialLink = ['Facebook', 'Instagram', 'LinkedIn', 'YouTube'].includes(el.iconName);
         return (
-          <div style={inlineStyle} className={`${shadowClass} transition-all`}>
+          <div style={{ ...inlineStyle, ...(el.menuItems?.length ? { position: 'relative', zIndex: isSelected ? 40 : 20 } : {}) }} className={`${shadowClass} transition-all ${el.menuItems?.length ? 'group' : ''}`}>
             <a 
-              href={el.url || '#'} 
+              href={safeHref(el.url)} 
               target="_blank" 
               rel="noreferrer"
-              style={{ fontSize: fontPx, ...(STYLE_LOCK ? { color: s.textColor, fontFamily: FONT.body } : {}) }}
-              className={`font-semibold ${STYLE_LOCK ? 'hover:opacity-80' : 'text-agri-600 hover:text-agri-700'} transition inline-flex items-center gap-1 ${el.showUnderline ? 'underline' : ''}`}
+              style={{ fontSize: fontPx, color: s.textColor || '#163887', fontWeight: el.fontWeight || 600, ...(isSocialLink ? { width: '100%', height: '100%', borderRadius: '999px', backgroundColor: 'transparent', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' } : { display: 'inline-flex', alignItems: 'center', gap: '6px' }), ...(STYLE_LOCK ? { fontFamily: FONT.body } : {}) }}
+              className={`hover:opacity-80 transition ${isSocialLink ? 'text-white text-sm' : ''} ${el.showUnderline ? 'underline' : ''}`}
               onClick={e => { if (isEditing) e.preventDefault(); }}
             >
-              <span data-inline-editor={canEditContent ? '' : undefined} data-rich-editor={canEditContent ? '' : undefined} data-placeholder={canEditContent && !el.text && !el.richHtml ? 'Click to add link text' : undefined} contentEditable={canEditContent} {...pasteProps} suppressContentEditableWarning onBlur={e => canEditContent && updateRich('richHtml', 'text', e)} style={{ outline: 'none' }} dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.text) }} />
+              {isSocialLink ? <SocialMark name={el.iconName} /> : <>
+                {el.iconName && el.iconName !== 'None' ? renderIcon(el.iconName) : null}
+                <span data-inline-editor={canEditContent ? '' : undefined} data-rich-editor={canEditContent ? '' : undefined} data-placeholder={canEditContent && !el.text && !el.richHtml ? 'Click to add link text' : undefined} contentEditable={canEditContent} {...pasteProps} suppressContentEditableWarning onBlur={e => canEditContent && updateRich('richHtml', 'text', e)} style={{ outline: 'none' }} dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.text) }} />
+              </>}
               {el.showExternalIcon && <ExternalLink className="w-3.5 h-3.5 inline" />}
             </a>
+            {!!el.menuItems?.length && <div className="hover-menu-panel hover-menu-panel-root" style={{ marginTop: '-1px' }}>
+              {renderHoverMenu(el.menuItems, safeHref, isEditing)}
+            </div>}
           </div>
         );
       }
@@ -186,31 +222,27 @@ function PrimitiveRenderer({
       }
 
       case 'button': {
+        const buttonStyle = {
+          backgroundColor: s.bgColor || '#163887',
+          color: el.label ? (s.textColor || '#ffffff') : '#d1d5db',
+          width: '100%',
+          height: `${el.height || 42}px`,
+          borderColor: s.borderColor || 'transparent',
+          borderWidth: `${s.borderWidth || 0}px`,
+          borderStyle: s.borderWidth > 0 ? 'solid' : 'none',
+          borderRadius: `${s.borderRadius ?? 10}px`,
+          paddingTop: `${s.paddingTop ?? 8}px`,
+          paddingBottom: `${s.paddingBottom ?? 8}px`,
+          paddingLeft: `${s.paddingLeft ?? 16}px`,
+          paddingRight: `${s.paddingRight ?? 16}px`,
+          ...(el.fontSize ? { fontSize: `${el.fontSize}px` } : {}),
+          ...(el.fontFamily ? { fontFamily: el.fontFamily } : {}),
+          textDecoration: 'none',
+        };
+        const buttonContent = <><span data-inline-editor={canEditContent ? '' : undefined} data-rich-editor={canEditContent ? '' : undefined} data-placeholder={canEditContent && !el.label && !el.richHtml ? 'Write text here' : undefined} contentEditable={canEditContent} {...pasteProps} suppressContentEditableWarning onBlur={e => canEditContent && updateRich('richHtml', 'label', e)} style={{ outline: 'none' }} dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.label) }} />{renderIcon(el.iconName)}</>;
         return (
           <div style={{ textAlign: s.align || 'left', marginTop: `${s.marginTop || 0}px`, marginBottom: `${s.marginBottom || 0}px`, width: '100%', height: '100%', minHeight: 'inherit', display: 'flex' }}>
-            <button 
-              aria-disabled={!el.label}
-              style={{
-                backgroundColor: s.bgColor || '#16a34a',
-                color: el.label ? (s.textColor || '#ffffff') : '#d1d5db',
-                width: '100%',
-                height: `${el.height || 42}px`,
-                borderColor: s.borderColor || 'transparent',
-                borderWidth: `${s.borderWidth || 0}px`,
-                borderStyle: s.borderWidth > 0 ? 'solid' : 'none',
-                borderRadius: `${s.borderRadius ?? 10}px`,
-                paddingTop: `${s.paddingTop ?? 8}px`,
-                paddingBottom: `${s.paddingBottom ?? 8}px`,
-                paddingLeft: `${s.paddingLeft ?? 16}px`,
-                paddingRight: `${s.paddingRight ?? 16}px`,
-                ...(el.fontSize ? { fontSize: `${el.fontSize}px` } : {}),
-                ...(el.fontFamily ? { fontFamily: el.fontFamily } : {}),
-              }}
-              className={`font-bold text-xs ${STYLE_LOCK ? '' : 'shadow-md'} hover:opacity-90 active:scale-95 transition inline-flex items-center justify-center ${shadowClass}`}
-            >
-            <span data-inline-editor={canEditContent ? '' : undefined} data-rich-editor={canEditContent ? '' : undefined} data-placeholder={canEditContent && !el.label && !el.richHtml ? 'Write text here' : undefined} contentEditable={canEditContent} {...pasteProps} suppressContentEditableWarning onBlur={e => canEditContent && updateRich('richHtml', 'label', e)} style={{ outline: 'none' }} dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.label) }} />
-              {renderIcon(el.iconName)}
-            </button>
+            {!isEditing && el.url ? <a href={safeHref(el.url)} target="_blank" rel="noreferrer" style={buttonStyle} className={`font-bold text-xs ${STYLE_LOCK ? '' : 'shadow-md'} hover:opacity-90 transition inline-flex items-center justify-center ${shadowClass}`}>{buttonContent}</a> : <button type="button" style={buttonStyle} className={`font-bold text-xs ${STYLE_LOCK ? '' : 'shadow-md'} hover:opacity-90 active:scale-95 transition inline-flex items-center justify-center ${shadowClass}`}>{buttonContent}</button>}
           </div>
         );
       }
@@ -218,11 +250,13 @@ function PrimitiveRenderer({
       case 'image': {
         const h = el.height ? `${el.height}px` : '260px';
         const imgRadius = el.shape === 'circle' ? '9999px' : el.shape === 'oval' ? '50%' : `${s.borderRadius ?? 12}px`;
+        const imageStyle = { ...inlineStyle, display: 'block', padding: 0, width: '100%', minHeight: 0 };
+        const ImageWrapper = el.url ? 'a' : 'div';
 
         return (
-          <div style={inlineStyle} className={`${shadowClass} transition-all space-y-1.5`}>
+          <ImageWrapper {...(el.url ? { href: safeHref(el.url), target: '_blank', rel: 'noreferrer', onClick: e => isEditing && e.preventDefault() } : {})} style={imageStyle} className={`${shadowClass} transition-all space-y-1.5`}>
             <div 
-              style={{ height: h, borderRadius: imgRadius }} 
+              style={{ width: '100%', height: h, borderRadius: imgRadius, boxSizing: 'border-box', backgroundColor: el.shape === 'circle' ? '#ffffff' : '#e2e8f0', border: el.badge ? '2px solid #ed9d09' : undefined }} 
               className="overflow-hidden bg-slate-200 relative group"
             >
               {el.src ? <img 
@@ -235,7 +269,7 @@ function PrimitiveRenderer({
             {el.caption && (
               <p className="text-[11px] text-slate-500 italic text-center font-medium">{el.caption}</p>
             )}
-          </div>
+          </ImageWrapper>
         );
       }
 
@@ -291,9 +325,12 @@ function PrimitiveRenderer({
       }
 
       case 'divider': {
+        const flushHeaderRule = el.templateRegion === 'header' && (el.height || 0) <= 6;
         return (
-          <div style={inlineStyle} className="my-2">
-            <hr style={{ borderColor: s.borderColor || '#cbd5e1', borderWidth: `${el.thickness || 2}px`, borderStyle: el.lineStyle || 'solid' }} />
+          <div style={flushHeaderRule ? { ...inlineStyle, padding: 0, margin: 0, width: '100%', height: '100%', minHeight: 0 } : inlineStyle} className={flushHeaderRule ? '' : 'my-2'}>
+            <hr style={flushHeaderRule
+              ? { boxSizing: 'border-box', width: '100%', height: '100%', margin: 0, border: 0, borderTop: `${el.thickness || 2}px ${el.lineStyle || 'solid'} ${s.borderColor || '#cbd5e1'}` }
+              : { borderColor: s.borderColor || '#cbd5e1', borderWidth: `${el.thickness || 2}px`, borderStyle: el.lineStyle || 'solid' }} />
           </div>
         );
       }
@@ -310,6 +347,7 @@ function PrimitiveRenderer({
 
   return (
     <div 
+      style={{ width: '100%', height: '100%' }}
       onClick={isEditing && onSelect ? () => onSelect(el.id) : undefined}
       className={`transition-all relative ${
         isEditing ? 'cursor-pointer hover:outline hover:outline-2 hover:outline-blue-500' : ''

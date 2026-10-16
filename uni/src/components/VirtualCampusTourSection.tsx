@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Landmark,
@@ -30,7 +32,7 @@ export const VirtualCampusTourSection: React.FC = () => {
       ref={sectionRef}
       className="py-16 sm:py-20 bg-stone-900 text-white overflow-hidden relative"
     >
-      <div className="absolute inset-0 bg-radial from-emerald-950/40 via-transparent to-stone-950 pointer-events-none" />
+      <div className="absolute inset-0 bg-radial from-blue-950/40 via-transparent to-stone-950 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header (Slides Below-to-Up on Scroll) */}
@@ -42,7 +44,7 @@ export const VirtualCampusTourSection: React.FC = () => {
           }`}
         >
           {/* Main Top Heading (Increased Size) */}
-          <div className="inline-flex items-center justify-center gap-3 text-emerald-300 text-2xl sm:text-3xl lg:text-4xl font-extrabold uppercase tracking-[2px]">
+          <div className="inline-flex items-center justify-center gap-3 text-[#1e3a7a] text-2xl sm:text-3xl lg:text-4xl font-extrabold uppercase tracking-[2px]">
             <Compass className="w-7 h-7 text-amber-400 shrink-0" />
             <span>Virtual Campus Experience</span>
           </div>
@@ -81,7 +83,7 @@ export const VirtualCampusTourSection: React.FC = () => {
                 <Landmark className="w-3.5 h-3.5" />
                 <span>{selectedLandmark.category}</span>
               </span>
-              <span className="px-3 py-1 rounded-full bg-emerald-900/80 backdrop-blur-md text-emerald-200 text-xs font-semibold border border-emerald-700/50">
+              <span className="px-3 py-1 rounded-full bg-blue-900/80 backdrop-blur-md text-blue-200 text-xs font-semibold border border-blue-700/50">
                 Built {selectedLandmark.year}
               </span>
             </div>
@@ -97,7 +99,7 @@ export const VirtualCampusTourSection: React.FC = () => {
                 </p>
               </div>
               <span className="hidden sm:inline-flex items-center gap-1 text-xs text-stone-300 bg-stone-900 px-3 py-1.5 rounded-lg border border-stone-700">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                 <span>360° Heritage Landmark</span>
               </span>
             </div>
@@ -121,7 +123,7 @@ export const VirtualCampusTourSection: React.FC = () => {
             </div>
 
             {/* Historical Fact Note */}
-            <div className="bg-emerald-950/60 p-4 rounded-2xl border border-emerald-800/60 text-xs space-y-1.5">
+            <div className="bg-blue-950/60 p-4 rounded-2xl border border-blue-800/60 text-xs space-y-1.5">
               <div className="flex items-center gap-1.5 text-amber-300 font-bold uppercase tracking-wide text-[11px]">
                 <Info className="w-3.5 h-3.5" />
                 <span>Historical & Archival Fact</span>
@@ -143,7 +145,7 @@ export const VirtualCampusTourSection: React.FC = () => {
                     onClick={() => setSelectedLandmark(lm)}
                     className={`p-3 rounded-xl text-left transition-all duration-300 border flex items-start gap-2.5 cursor-pointer hover:translate-x-1.5 ${
                       selectedLandmark.id === lm.id
-                        ? 'bg-emerald-900/50 border-amber-400/80 text-white shadow-md'
+                        ? 'bg-blue-900/50 border-amber-400/80 text-white shadow-md'
                         : 'bg-stone-800/60 hover:bg-stone-800 border-stone-700 text-stone-300'
                     }`}
                   >

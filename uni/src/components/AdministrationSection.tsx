@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Building2, Calendar, ArrowRight } from 'lucide-react';
 
@@ -66,10 +68,10 @@ export const AdministrationSection: React.FC<AdministrationSectionProps> = ({
             }`}
           >
             {/* Main Top Heading (Increased Size) */}
-            <div className="inline-flex items-center gap-3 text-[#0f766e] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[1.8px] uppercase leading-tight">
-              <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block shrink-0"></span>
-              <span>Administration & Governance</span>
-            </div>
+            <div className="inline-flex items-center gap-3 text-[#1e3a7a] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[1.8px] uppercase leading-tight">
+  <span className="w-10 h-[3.5px] bg-[#e8a62a] inline-block shrink-0"></span>
+  <span>Administration & Governance</span>
+</div>
 
             {/* Sub-Heading Below (Reduced Size) */}
             <h2 className="font-serif-heading text-base sm:text-lg lg:text-xl font-bold text-[#071b2d] leading-snug tracking-tight">
@@ -87,7 +89,7 @@ export const AdministrationSection: React.FC<AdministrationSectionProps> = ({
                 <div
                   key={idx}
                   style={{ transitionDelay: `${idx * 120}ms` }}
-                  className={`p-4 bg-[#f5f8fa] rounded-xl border border-[#e5eaee] hover:border-[#0f766e]/50 hover:bg-white hover:shadow-lg transition-all duration-500 space-y-1 hover:-translate-y-1.5 hover:translate-x-1 cursor-pointer ${
+                  className={`p-4 bg-[#f5f8fa] rounded-xl border border-[#e5eaee] hover:border-[#1d4e89]/50 hover:bg-white hover:shadow-lg transition-all duration-500 space-y-1 hover:-translate-y-1.5 hover:translate-x-1 cursor-pointer ${
                     isVisible
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-12'
@@ -96,7 +98,7 @@ export const AdministrationSection: React.FC<AdministrationSectionProps> = ({
                   <h4 className="font-serif-heading font-bold text-base text-[#18212b]">
                     {office.title}
                   </h4>
-                  <span className="text-xs text-[#0f766e] font-bold block">
+                  <span className="text-xs text-black font-bold block">
                     {office.head}
                   </span>
                   <p className="text-xs text-[#46505a] leading-relaxed">

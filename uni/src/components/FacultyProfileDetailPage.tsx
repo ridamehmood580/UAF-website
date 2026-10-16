@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
 import {
   Mail,
@@ -5,7 +7,9 @@ import {
   MapPin,
   ShieldCheck,
   ExternalLink,
-  ArrowRight
+  ArrowRight,
+  Award,
+  GraduationCap
 } from 'lucide-react';
 import type { StaffMember } from './FacultyPortalPage';
 
@@ -28,6 +32,7 @@ export interface FacultyProfileDetailPageProps {
   departmentMembers?: StaffMember[];
   onSelectAnotherMember?: (member: StaffMember, portraitUrl: string, phoneNum: string) => void;
   showBackBtn?: boolean;
+  showJournalsAndArticles?: boolean;
 }
 
 export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> = ({
@@ -36,7 +41,8 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
   phoneNum,
   departmentName,
   departmentShortLabel,
-  facultyName
+  facultyName,
+  showJournalsAndArticles = false
 }) => {
   // Springer publication link provided by user
   const SPRINGER_URL = 'https://link.springer.com/article/10.1007/s11235-015-0076-8';
@@ -47,6 +53,21 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
   const fullName = member.name;
   const officialDesignation = member.designation || 'Professor';
 
+  const isMedicalStaff = Boolean(
+    departmentName.toLowerCase().includes('medical') ||
+    departmentName.toLowerCase().includes('health centre') ||
+    departmentShortLabel.toLowerCase().includes('medical') ||
+    member.hecApprovedSupervisor?.toLowerCase().includes('pmdc') ||
+    member.hecApprovedSupervisor?.toLowerCase().includes('pmc') ||
+    member.qualification?.toLowerCase().includes('m.b.b.s') ||
+    member.qualification?.toLowerCase().includes('b.d.s') ||
+    member.designation?.toLowerCase().includes('medical') ||
+    member.designation?.toLowerCase().includes('dental') ||
+    member.designation?.toLowerCase().includes('pathologist') ||
+    member.designation?.toLowerCase().includes('radiologist') ||
+    member.designation?.toLowerCase().includes('pharmacist')
+  );
+
   const isEhsanullah = fullName.toLowerCase().includes('ehsanullah');
   const isSaqib = fullName.toLowerCase().includes('saqib');
 
@@ -56,6 +77,8 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
       ? 'Ph.D. (UAF) (Agronomy)'
       : isSaqib
       ? 'Post-Doc (UTM, Malaysia) • Ph.D. (Computer Science)'
+      : isMedicalStaff
+      ? 'M.B.B.S • Medical & Clinical Certifications'
       : 'Ph.D. (UAF)');
 
   const specializationText =
@@ -64,6 +87,8 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
       ? 'Crop Husbandry & Agro-Technology'
       : isSaqib
       ? 'Artificial Intelligence, Big Data Analytics, Image Processing, Precision Agriculture'
+      : isMedicalStaff
+      ? 'Primary Healthcare, Outpatient Consultation, Emergency Medicine & Clinical Diagnostics'
       : `${departmentShortLabel}, Applied Scientific Research & Agricultural Technologies`);
 
   const bioParagraph =
@@ -71,6 +96,8 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
       ? 'Prof. Dr. Ehsanullah serves as Professor in the Department of Agronomy, Faculty of Agriculture, University of Agriculture, Faisalabad (UAF). Holding a Ph.D. (UAF) degree with specialization in Crop Husbandry & Agro-Technology, he is an active HEC Approved Supervisor (Yes) dedicated to postgraduate mentorship, curriculum innovation, and applied agricultural research.'
       : isSaqib
       ? 'Prof. Dr. Saqib Ali serves as Chairman and Professor in the Department of Computer Science, Faculty of Sciences, University of Agriculture, Faisalabad (UAF). Holding a Post-Doctoral fellowship and Ph.D. in Computer Science, he is an esteemed HEC Approved Supervisor dedicated to high-impact machine learning research, student mentorship, and precision agriculture innovations.'
+      : isMedicalStaff
+      ? `${fullName} serves as ${officialDesignation} at the Medical & Health Centre, University of Agriculture, Faisalabad (UAF). Holding ${qualificationText} with core clinical expertise in ${specializationText}. Actively providing healthcare consultations, outpatient services, diagnostic triage, and comprehensive medical support to UAF students, faculty members, and campus personnel.`
       : `${fullName} serves as ${officialDesignation} in the ${departmentName}, ${facultyName}, University of Agriculture, Faisalabad (UAF). Holding a ${qualificationText} degree with specialization in ${specializationText}, active HEC Approved Supervisor dedicated to undergraduate and postgraduate mentorship, curriculum innovation, and applied research.`;
 
   const researchAreasText =
@@ -79,11 +106,13 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
       ? 'Crop Husbandry & Agro-Technology, Sustainable Agronomy Systems, Climate-Resilient Agriculture'
       : isSaqib
       ? 'Artificial Intelligence, Big Data Analytics, Image Processing, Agri-IoT and Precision Agriculture'
+      : isMedicalStaff
+      ? `${specializationText}, Primary Healthcare Delivery, Emergency Clinical Protocols & Preventative Campus Wellness`
       : `${specializationText}, Sustainable Agricultural Systems, Climate Resilience & High-Impact Scientific Development`);
 
-  const primaryEmail = member.email || (isEhsanullah ? 'ehsanullah@uaf.edu.pk' : isSaqib ? 'saqib@uaf.edu.pk' : 'faculty@uaf.edu.pk');
+  const primaryEmail = member.email || (isEhsanullah ? 'ehsanullah@uaf.edu.pk' : isSaqib ? 'saqib@uaf.edu.pk' : isMedicalStaff ? 'medical@uaf.edu.pk' : 'faculty@uaf.edu.pk');
   const secondaryEmail = member.secondaryEmail || 'N/A';
-  const hecSupervisor = member.hecApprovedSupervisor || 'Yes';
+  const hecSupervisor = member.hecApprovedSupervisor || (isMedicalStaff ? 'PMDC / PMC Certified' : 'Yes');
   const addressText =
     member.address ||
     `${departmentName}, ${facultyName}, University of Agriculture, Faisalabad-38040, Pakistan`;
@@ -445,57 +474,61 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
                   : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
               }`}
             >
-              Faculty Profile
+              {isMedicalStaff ? 'Medical & Clinical Profile' : 'Faculty Profile'}
             </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('journals');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === 'journals'
-                  ? 'bg-[#005a36] text-white shadow-xs'
-                  : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
-              }`}
-            >
-              <span>Journals</span>
-              <span className={`px-2 py-0.2 rounded-full text-xs font-black ${
-                activeTab === 'journals' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'
-              }`}>
-                {totalJournalsCount}
-              </span>
-            </button>
+            {!isMedicalStaff && showJournalsAndArticles && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('journals');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === 'journals'
+                      ? 'bg-[#163887] text-white shadow-xs'
+                      : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
+                  }`}
+                >
+                  <span>Journals</span>
+                  <span className={`px-2 py-0.2 rounded-full text-xs font-black ${
+                    activeTab === 'journals' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'
+                  }`}>
+                    {totalJournalsCount}
+                  </span>
+                </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('conferences');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === 'conferences'
-                  ? 'bg-[#b8860b] text-white shadow-xs'
-                  : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
-              }`}
-            >
-              <span>Conferences</span>
-              <span className={`px-2 py-0.2 rounded-full text-xs font-black ${
-                activeTab === 'conferences' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'
-              }`}>
-                {totalConferencesCount}
-              </span>
-            </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('conferences');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === 'conferences'
+                      ? 'bg-[#b8860b] text-white shadow-xs'
+                      : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
+                  }`}
+                >
+                  <span>Conferences</span>
+                  <span className={`px-2 py-0.2 rounded-full text-xs font-black ${
+                    activeTab === 'conferences' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'
+                  }`}>
+                    {totalConferencesCount}
+                  </span>
+                </button>
+              </>
+            )}
           </div>
 
           <span className="text-xs font-semibold text-stone-500 hidden sm:inline">
-            {fullName} • {departmentShortLabel}
+            {fullName} • {isMedicalStaff ? 'Medical & Health Centre' : departmentShortLabel}
           </span>
         </div>
 
         {/* ========================================================
-            PAGE 1: FACULTY DETAIL PROFILE (CLEAN CARDS FOR JOURNALS & CONFERENCES)
+            PAGE 1: FACULTY / MEDICAL DETAIL PROFILE
         ========================================================= */}
         {activeTab === 'profile' && (
           <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-stone-200/90 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
@@ -503,9 +536,9 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
             {/* LEFT COLUMN: AVATAR & CONTACT CARD */}
             <div className="lg:col-span-4 space-y-6">
               
-              {/* Circular Avatar + HEC Badge */}
+              {/* Circular Avatar + Badge */}
               <div className="bg-stone-50/70 rounded-2xl p-6 border border-stone-200/80 flex flex-col items-center text-center shadow-xs">
-                <div className="relative w-48 h-48 sm:w-52 sm:h-52 rounded-full p-1 border-4 border-[#005a36] ring-4 ring-[#e8a62a]/30 shadow-md bg-white mb-5 overflow-hidden">
+                <div className="relative w-48 h-48 sm:w-52 sm:h-52 rounded-full p-1 border-4 border-[#163887] ring-4 ring-[#e8a62a]/30 shadow-md bg-white mb-5 overflow-hidden">
                   <img
                     src={portraitUrl}
                     alt={fullName}
@@ -517,14 +550,18 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
                   />
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-xs tracking-wide shadow-xs">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>HEC Approved Supervisor: {hecSupervisor}</span>
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-black border border-blue-300 font-bold text-xs tracking-wide shadow-xs">
+                  <ShieldCheck className="w-4 h-4 text-black shrink-0" />
+                  <span>
+                    {isMedicalStaff
+                      ? (member.hecApprovedSupervisor || 'PMDC / PMC Certified Practitioner')
+                      : `HEC Approved Supervisor: ${hecSupervisor}`}
+                  </span>
                 </div>
               </div>
 
               {/* Contact Information Card */}
-              <div className="bg-white rounded-xl p-5 border border-stone-200 border-l-4 border-l-[#005a36] shadow-xs space-y-3.5 text-xs sm:text-[13.5px]">
+              <div className="bg-white rounded-xl p-5 border border-stone-200 border-l-4 border-l-[#163887] shadow-xs space-y-3.5 text-xs sm:text-[13.5px]">
                 
                 <div className="flex items-start gap-2.5">
                   <Mail className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
@@ -532,7 +569,7 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
                     <span className="font-bold text-stone-800">Email: </span>
                     <a
                       href={`mailto:${primaryEmail}`}
-                      className="text-[#005a36] font-semibold hover:underline break-all"
+                      className="text-black font-semibold hover:underline break-all"
                     >
                       {primaryEmail}
                     </a>
@@ -548,7 +585,7 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
                 </div>
 
                 <div className="flex items-start gap-2.5">
-                  <Phone className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Phone className="w-4 h-4 text-black shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-stone-800">Phone: </span>
                     <span className="text-stone-700 font-semibold">{phoneNum}</span>
@@ -556,10 +593,14 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
                 </div>
 
                 <div className="flex items-start gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <ShieldCheck className="w-4 h-4 text-black shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold text-stone-800">HEC Supervisor: </span>
-                    <span className="text-emerald-700 font-bold">{hecSupervisor}</span>
+                    <span className="font-bold text-stone-800">
+                      {isMedicalStaff ? 'Clinical Registration: ' : 'HEC Supervisor: '}
+                    </span>
+                    <span className="text-black font-bold">
+                      {isMedicalStaff ? (member.hecApprovedSupervisor || 'PMDC / PMC Certified') : hecSupervisor}
+                    </span>
                   </div>
                 </div>
 
@@ -577,14 +618,14 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
 
             </div>
 
-            {/* RIGHT COLUMN: NAME, BIO, RESEARCH FOCUS, & 2 SIMPLE CLEAN CARDS */}
+            {/* RIGHT COLUMN: NAME, BIO, CLINICAL / RESEARCH FOCUS, & CARDS */}
             <div className="lg:col-span-8 space-y-6">
               
               <div className="space-y-1">
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-[#071b2d] tracking-tight">
                   {fullName}
                 </h1>
-                <p className="text-lg sm:text-xl font-bold text-[#005a36]">
+                <p className="text-lg sm:text-xl font-bold text-black">
                   {officialDesignation}
                 </p>
                 <p className="text-xs sm:text-sm text-stone-600 font-semibold pt-1">
@@ -594,89 +635,165 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
 
               <div className="space-y-3">
                 <h2 className="text-xl font-extrabold text-[#071b2d] border-b border-stone-200 pb-2.5">
-                  Biography & Academic Profile
+                  {isMedicalStaff ? 'Biography & Clinical Practice' : 'Biography & Academic Profile'}
                 </h2>
                 <p className="text-stone-700 text-sm sm:text-[15px] leading-relaxed text-justify font-normal">
                   {bioParagraph}
                 </p>
               </div>
 
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 sm:p-5 space-y-1.5 shadow-2xs">
-                <h3 className="text-xs font-extrabold text-[#005a36] tracking-wider uppercase">
-                  RESEARCH AREAS & SUPERVISION FOCUS:
+              <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-4 sm:p-5 space-y-1.5 shadow-2xs">
+                <h3 className="text-xs font-extrabold text-black tracking-wider uppercase">
+                  {isMedicalStaff ? 'CLINICAL RESPONSIBILITIES & HEALTHCARE SERVICES:' : 'RESEARCH AREAS & SUPERVISION FOCUS:'}
                 </h3>
                 <p className="text-sm sm:text-[15px] font-bold text-stone-800 leading-snug">
                   {researchAreasText}
                 </p>
               </div>
 
-              {/* 2 CLEAN CARDS: TOTAL JOURNALS & TOTAL CONFERENCES (NO EXTRA TEXT) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                
-                {/* CARD 1: JOURNALS */}
-                <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs hover:shadow-md hover:border-[#005a36] transition-all flex flex-col justify-between space-y-4">
-                  <div>
-                    <span className="text-xs font-bold text-[#005a36] uppercase tracking-wider">
-                      Research Output
-                    </span>
-                    <h3 className="text-lg font-extrabold text-[#071b2d] mt-1">
-                      Journals
-                    </h3>
-                    <div className="text-3xl font-black text-[#005a36] mt-2">
-                      {totalJournalsCount}{' '}
-                      <span className="text-sm font-semibold text-stone-500">
-                        Total Journals
+              {/* CLEAN CARDS: IF MEDICAL STAFF, SHOW CLINICAL OPD & EMERGENCY SERVICES (NO JOURNALS/CONFERENCES) */}
+              {isMedicalStaff ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs hover:shadow-md hover:border-[#163887] transition-all flex flex-col justify-between space-y-3">
+                    <div>
+                      <span className="text-xs font-bold text-black uppercase tracking-wider">
+                        Patient Care & Outpatient Services
                       </span>
+                      <h3 className="text-lg font-extrabold text-[#071b2d] mt-1">
+                        Clinical Healthcare & Consultations
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-600 mt-2 leading-relaxed">
+                        Daily clinical consultations, specialized outpatient clinics, maternal & child healthcare, dental surgery, and routine medical screening for campus residents.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center gap-2 text-xs font-bold text-black bg-blue-50 px-3.5 py-1.5 rounded-lg border border-blue-200 w-fit">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Active Outpatient Clinic</span>
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('journals');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="w-full py-2.5 px-4 rounded-xl bg-[#005a36] hover:bg-[#00472a] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
-                  >
-                    <span>See in Detail</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* CARD 2: CONFERENCES */}
-                <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs hover:shadow-md hover:border-[#b8860b] transition-all flex flex-col justify-between space-y-4">
-                  <div>
-                    <span className="text-xs font-bold text-[#b8860b] uppercase tracking-wider">
-                      Scholarly Presentations
-                    </span>
-                    <h3 className="text-lg font-extrabold text-[#071b2d] mt-1">
-                      Conferences & Publications
-                    </h3>
-                    <div className="text-3xl font-black text-[#b8860b] mt-2">
-                      {totalConferencesCount}{' '}
-                      <span className="text-sm font-semibold text-stone-500">
-                        Total Conferences
+                  <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs hover:shadow-md hover:border-[#071b2d] transition-all flex flex-col justify-between space-y-3">
+                    <div>
+                      <span className="text-xs font-bold text-[#071b2d] uppercase tracking-wider">
+                        Emergency & Diagnostic Facilities
                       </span>
+                      <h3 className="text-lg font-extrabold text-[#071b2d] mt-1">
+                        24/7 Casualty, Triage & Inpatient Care
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-600 mt-2 leading-relaxed">
+                        Round-the-clock emergency casualty care, acute medical triage, clinical pathology laboratory, in-house dispensary pharmacy, and rapid ambulance response.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center gap-2 text-xs font-bold text-[#071b2d] bg-stone-100 px-3.5 py-1.5 rounded-lg border border-stone-200 w-fit">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>24/7 Emergency Support Wing</span>
+                    </div>
+                  </div>
+                </div>
+              ) : showJournalsAndArticles ? (
+                /* REGULAR ACADEMIC FACULTY: 2 CLEAN CARDS FOR JOURNALS & CONFERENCES */
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  
+                  {/* CARD 1: JOURNALS */}
+                  <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs hover:shadow-md hover:border-[#163887] transition-all flex flex-col justify-between space-y-4">
+                    <div>
+                      <span className="text-xs font-bold text-black uppercase tracking-wider">
+                        Research Output
+                      </span>
+                      <h3 className="text-lg font-extrabold text-[#071b2d] mt-1">
+                        Journals
+                      </h3>
+                      <div className="text-3xl font-black text-black mt-2">
+                        {totalJournalsCount}{' '}
+                        <span className="text-sm font-semibold text-stone-500">
+                          Total Journals
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('journals');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl bg-[#163887] hover:bg-[#102a6b] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <span>See in Detail</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* CARD 2: CONFERENCES */}
+                  <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs hover:shadow-md hover:border-[#b8860b] transition-all flex flex-col justify-between space-y-4">
+                    <div>
+                      <span className="text-xs font-bold text-[#b8860b] uppercase tracking-wider">
+                        Scholarly Presentations
+                      </span>
+                      <h3 className="text-lg font-extrabold text-[#071b2d] mt-1">
+                        Conferences & Publications
+                      </h3>
+                      <div className="text-3xl font-black text-[#b8860b] mt-2">
+                        {totalConferencesCount}{' '}
+                        <span className="text-sm font-semibold text-stone-500">
+                          Total Conferences
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('conferences');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl bg-[#b8860b] hover:bg-[#996f08] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <span>See in Detail</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                </div>
+              ) : (
+                /* CLEAN ACADEMIC & RESEARCH PROFILE WITHOUT DIRECT JOURNALS/ARTICLES */
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs hover:shadow-md hover:border-[#163887] transition-all flex flex-col justify-between space-y-3">
+                    <div>
+                      <span className="text-xs font-bold text-black uppercase tracking-wider">
+                        Academic Instruction & Research
+                      </span>
+                      <h3 className="text-lg font-extrabold text-[#071b2d] mt-1">
+                        Postgraduate & Doctoral Supervision
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-600 mt-2 leading-relaxed">
+                        Instructional mentorship, doctoral thesis supervision, advanced course coordination, and laboratory research leadership.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center gap-2 text-xs font-bold text-black bg-blue-50 px-3.5 py-1.5 rounded-lg border border-blue-200 w-fit">
+                      <Award className="w-3.5 h-3.5" />
+                      <span>HEC Approved Faculty</span>
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('conferences');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="w-full py-2.5 px-4 rounded-xl bg-[#b8860b] hover:bg-[#996f08] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
-                  >
-                    <span>See in Detail</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                  <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs hover:shadow-md hover:border-[#071b2d] transition-all flex flex-col justify-between space-y-3">
+                    <div>
+                      <span className="text-xs font-bold text-[#071b2d] uppercase tracking-wider">
+                        Institutional Extension & Linkages
+                      </span>
+                      <h3 className="text-lg font-extrabold text-[#071b2d] mt-1">
+                        National & International Collaborations
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-600 mt-2 leading-relaxed">
+                        Collaborative scientific projects with national bodies and international partner agencies for sustainable agricultural impact.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center gap-2 text-xs font-bold text-[#071b2d] bg-stone-100 px-3.5 py-1.5 rounded-lg border border-stone-200 w-fit">
+                      <GraduationCap className="w-3.5 h-3.5" />
+                      <span>Academic & Research Fellow</span>
+                    </div>
+                  </div>
                 </div>
-
-              </div>
-
+              )}
             </div>
-
           </div>
         )}
 
@@ -692,7 +809,7 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
                 <h2 className="text-2xl font-black text-[#071b2d]">
                   Journals & Articles
                 </h2>
-                <p className="text-xs sm:text-sm font-semibold text-[#005a36] mt-0.5">
+                <p className="text-xs sm:text-sm font-semibold text-black mt-0.5">
                   {fullName} • {departmentName}
                 </p>
               </div>
@@ -724,9 +841,9 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
                   {journalsList.map((item) => (
                     <tr
                       key={item.id}
-                      className="hover:bg-emerald-50/40 transition-colors"
+                      className="hover:bg-blue-50/40 transition-colors"
                     >
-                      <td className="py-3.5 px-4 font-bold text-[#005a36] text-center">
+                      <td className="py-3.5 px-4 font-bold text-black text-center">
                         {item.srNo}
                       </td>
                       <td className="py-3.5 px-5 font-bold text-stone-900 leading-snug">
@@ -740,7 +857,7 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#005a36] hover:bg-[#00472a] text-white font-bold text-xs shadow-2xs transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#163887] hover:bg-[#102a6b] text-white font-bold text-xs shadow-2xs transition-colors cursor-pointer"
                         >
                           <span>Open Link</span>
                           <ExternalLink className="w-3.5 h-3.5" />

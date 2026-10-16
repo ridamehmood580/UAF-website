@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Calculator, Sparkles } from 'lucide-react';
 
@@ -13,6 +15,7 @@ export const CallToActionSection: React.FC<CallToActionSectionProps> = ({
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
+  // Scroll Slide Effect (Below-to-Up as user scrolls down)
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -30,7 +33,7 @@ export const CallToActionSection: React.FC<CallToActionSectionProps> = ({
       className="relative py-20 sm:py-24 bg-[#071b2d] text-white overflow-hidden"
     >
       {/* Clean Subtle Glow (Girls/Students background image removed) */}
-      <div className="absolute right-[-120px] bottom-[-120px] w-96 h-96 rounded-full bg-[#0f766e]/30 blur-3xl pointer-events-none" />
+      <div className="absolute right-[-120px] bottom-[-120px] w-96 h-96 rounded-full bg-[#1d4e89]/30 blur-3xl pointer-events-none" />
 
       <div
         className={`relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 transition-all duration-1000 ease-out ${
@@ -39,12 +42,14 @@ export const CallToActionSection: React.FC<CallToActionSectionProps> = ({
             : 'opacity-0 translate-y-20 scale-95'
         }`}
       >
+        {/* Main Top Heading (Increased Size) */}
         <div className="inline-flex items-center justify-center gap-3 text-[#e8a62a] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[2px] uppercase">
-          <span className="w-8 h-[3px] bg-[#e8a62a] inline-block"></span>
+          <span className="w-8 h-[3px] bg-[ #e8a62a] inline-block"></span>
           <span>Your Journey Begins Here</span>
-          <span className="w-8 h-[3px] bg-[#e8a62a] inline-block"></span>
+          <span className="w-8 h-[3px] bg-[ #e8a62a] inline-block"></span>
         </div>
 
+        {/* Sub-Heading Below (Reduced Size) */}
         <h2 className="font-serif-heading text-lg sm:text-xl lg:text-2xl font-bold text-white leading-snug tracking-tight">
           Ready to grow your future?
         </h2>
@@ -71,6 +76,7 @@ export const CallToActionSection: React.FC<CallToActionSectionProps> = ({
             <span>Ask UAF Guide</span>
           </button>
         </div>
+
       </div>
     </section>
   );
