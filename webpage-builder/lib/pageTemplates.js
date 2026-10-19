@@ -93,7 +93,7 @@ const header = () => [
   link('default', 'ORIC',              312, 12,  42, `${SITE_URL}/#rti`),
   link('default', 'Jobs',              366, 12,  38, `${SITE_URL}/#notices`),
   link('default', 'PKNC',              416, 12,  46, `${SITE_URL}/#campus`),
-  link('default', 'Quick Links ▾',     474, 12, 110, `${SITE_URL}/#quick-links`, menu([
+  link('default', 'Quick Links ',     474, 12, 110, `${SITE_URL}/#quick-links`, menu([
     'Undergraduate Merit Calculator', 'Ask UAF Virtual Guide', 'Main UAF Official Portal', 'Campus Events & News'
   ], 'quick-links')),
 
@@ -126,13 +126,14 @@ const header = () => [
 
   // ── 7. Desktop nav items (hidden xl:flex gap-3, uppercase bold 11.5px, text-white) ──
   //    Positions mirror Header.tsx ml-auto justify-end layout on 1200px canvas
-  link('light', 'HOME',                  342, 73,  56, `${SITE_URL}/`),
-  link('light', 'ABOUT ▾',              408, 73,  76, `${SITE_URL}/#vision`,
+  // The site header handles HOME internally; keep the URL local for older renderers.
+  link('light', 'HOME',                  342, 73,  56, '/'),
+  link('light', 'ABOUT ',              408, 73,  76, `${SITE_URL}/#vision`,
     menu(['VISION 2050 & HERITAGE', 'VICE CHANCELLOR MESSAGE', 'CAMPUS LIFE & BOTANICAL GARDENS'], 'about')),
   link('light', 'RTI',                   494, 73,  36, `${SITE_URL}/#rti`),
-  link('light', 'ADMINISTRATION ▾',      540, 73, 152, `${SITE_URL}/#administration`,
+  link('light', 'ADMINISTRATION ',      540, 73, 152, `${SITE_URL}/#administration`,
     menu(['OFFICERS OF THE UNIVERSITY', 'SYNDICATE & STATUTORY BODIES'], 'administration')),
-  link('light', 'ACADEMICS ▾',           702, 73, 108, `${SITE_URL}/#programs`,
+  link('light', 'ACADEMICS',           702, 73, 108, `${SITE_URL}/#programs`,
     groupedMenu({
       'FACULTIES': [
         'FACULTY OF AGRICULTURE', 'FACULTY OF VETERINARY SCIENCE', 'FACULTY OF SCIENCES',
@@ -175,9 +176,9 @@ const header = () => [
         'SOLAR PUMPING & SALINITY RECLAMATION', 'CLIMATE ADAPTIVE IRRIGATION REGIMES'
       ]
     })),
-  link('light', 'ADMISSIONS ▾',          820, 73, 118, `${SITE_URL}/#admissions`,
+  link('light', 'ADMISSIONS ',          820, 73, 118, `${SITE_URL}/#admissions`,
     menu(['UNDERGRADUATE', 'POSTGRADUATE', 'INTERNATIONAL STUDENTS'], 'admissions')),
-  link('light', 'MEDIA & PUBLICATIONS ▾', 948, 73, 182, `${SITE_URL}/#latest-events`,
+  link('light', 'MEDIA & PUBLICATIONS ', 948, 73, 182, `${SITE_URL}/#latest-events`,
     menu(['PRESS RELEASES & NEWS', 'OFFICIAL NOTICES & CIRCULARS', 'ANNUAL KISSAN MELA ARCHIVE'], 'media')),
 
   // ── 8. Search control, matching the original round action at the right ──

@@ -12,6 +12,12 @@ import { Eye, FolderOpen, Save, Type, Image as ImageIcon, Shapes, MousePointer2,
 const STORAGE_KEY = 'faculty-page-builder-drafts-v1';
 const freshPage = () => ({ draftId: `draft-${Date.now()}-${Math.floor(Math.random() * 10000)}`, meta: { title: 'Untitled faculty page', author: 'Faculty', allowPageScroll: true }, elements: [] });
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+const fontFamilyStack = family => {
+  const serif = ['Georgia', 'Times New Roman', 'Garamond', 'Palatino Linotype'].includes(family);
+  const monospace = ['Courier New', 'Consolas'].includes(family);
+  const fallback = serif ? 'serif' : monospace ? 'monospace' : 'sans-serif';
+  return `${family}, ${fallback}`;
+};
 
 export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, onOpenWorkflow, onOpenPublished }) {
   const [selectedId, setSelectedId] = useState(null);
@@ -110,7 +116,15 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
   }, []);
 
   const commit = (next) => { setHistory(prev => [...prev.slice(-29), pageData]); setFuture([]); setPageData(next); setSaved(false); dirtyRef.current = true; };
-  const updateElement = (id, changes) => { if (elements.find(el => el.id === id)?.fixed) return; commit({ ...pageData, elements: elements.map(el => el.id === id ? { ...el, ...changes } : el) }); };
+  const updateElement = (id, changes) => {
+    const current = elements.find(el => el.id === id);
+    if (!current) return;
+    // Shared header/footer elements stay in place, but their content and styling
+    // remain editable like any other template text.
+    const fixedEditableFields = new Set(['text', 'richHtml', 'label', 'title', 'titleHtml', 'description', 'descriptionHtml', 'shapeText', 'shapeHtml', 'url', 'menuItems', 'style', 'fontSize', 'fontWeight', 'fontFamily', 'tag', 'lineHeight', 'letterSpacing', 'textTransform', 'cardTextStyles', 'titleStyle', 'descStyle']);
+    if (current.fixed && Object.keys(changes).some(key => !fixedEditableFields.has(key))) return;
+    commit({ ...pageData, elements: elements.map(el => el.id === id ? { ...el, ...changes } : el) });
+  };
   updateElementRef.current = updateElement;
   const updateHeaderMenuItem = (menuId, path, action, value) => {
     const menuElement = elements.find(el => el.id === menuId);
@@ -266,6 +280,9 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
     selection.removeAllRanges(); selection.addRange(saved.range);
     document.execCommand(command, false, value);
     savedRangeRef.current = { range: selection.getRangeAt(0).cloneRange(), node: saved.node };
+    const richKey = saved.node.dataset.richKey;
+    const plainKey = saved.node.dataset.plainKey;
+    if (richKey && plainKey) updateElement(selectedId, { [richKey]: saved.node.innerHTML, [plainKey]: saved.node.textContent });
   };
   const formatSelectionStyle = (property, value) => {
     if (STYLE_LOCK) return;
@@ -281,6 +298,13 @@ export default function AdminBuilder({ pageData, setPageData, onSwitchToPublic, 
     const nextRange = document.createRange(); nextRange.selectNodeContents(span);
     selection.removeAllRanges(); selection.addRange(nextRange);
     savedRangeRef.current = { range: nextRange.cloneRange(), node: saved.node };
+    const richKey = saved.node.dataset.richKey;
+    const plainKey = saved.node.dataset.plainKey;
+    if (richKey && plainKey) {
+      const changes = { [richKey]: saved.node.innerHTML, [plainKey]: saved.node.textContent };
+      if (property === 'font-family' && selection.toString().trim() === saved.node.textContent.trim()) changes.fontFamily = fontFamilyStack(value);
+      updateElement(selectedId, changes);
+    }
   };
   const addSimpleTextBullets = (style = simpleTextBulletStyle) => {
     if (!selected || selected.type !== 'text') return;

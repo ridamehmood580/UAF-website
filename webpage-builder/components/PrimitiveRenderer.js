@@ -63,7 +63,7 @@ function PrimitiveRenderer({
   if (!rawEl) return null;
   // With STYLE_LOCK on, colors / fonts / sizes always come from the UAF brand theme.
   const el = themeElement(rawEl);
-  const canEditContent = isEditing && !el.fixed;
+  const canEditContent = isEditing;
   const pasteProps = isEditing && STYLE_LOCK ? { onPaste: pastePlain } : {};
 
   const s = el.style || {};
@@ -129,6 +129,12 @@ function PrimitiveRenderer({
   const updateRich = (htmlKey, textKey, event) => {
     if (onChange) onChange(el.id, { [htmlKey]: cleanRich(event.currentTarget.innerHTML), [textKey]: event.currentTarget.textContent });
   };
+  const handleRichBlur = (htmlKey, textKey, event) => {
+    // Moving focus to a formatting control must not commit/rerender the editor
+    // before that control can apply its change to the saved text selection.
+    if (event.relatedTarget?.closest?.('.canvas-text-toolbar')) return;
+    updateRich(htmlKey, textKey, event);
+  };
 
   const renderPrimitive = () => {
     switch (el.type) {
@@ -143,7 +149,7 @@ function PrimitiveRenderer({
               <Tag 
                 style={{ fontSize: fontPx, fontWeight: fontW, lineHeight: el.lineHeight || '1.4', letterSpacing: el.letterSpacing, textTransform: el.textTransform, fontFamily: el.fontFamily || 'Arial, sans-serif' }}
               >
-                <span data-inline-editor={canEditContent ? '' : undefined} data-rich-editor={canEditContent ? '' : undefined} data-placeholder={canEditContent && !el.text && !el.richHtml ? 'Click here to add text' : undefined} contentEditable={canEditContent} {...pasteProps} suppressContentEditableWarning role={canEditContent ? 'textbox' : undefined} aria-label={canEditContent ? 'Edit text' : undefined} onBlur={e => canEditContent && updateRich('richHtml', 'text', e)} style={{ display: 'block', minHeight: '1.4em', outline: 'none' }} dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.text) }} />
+                <span data-inline-editor={canEditContent ? '' : undefined} data-rich-editor={canEditContent ? '' : undefined} data-rich-key="richHtml" data-plain-key="text" data-placeholder={canEditContent && !el.text && !el.richHtml ? 'Click here to add text' : undefined} contentEditable={canEditContent} {...pasteProps} suppressContentEditableWarning role={canEditContent ? 'textbox' : undefined} aria-label={canEditContent ? 'Edit text' : undefined} onBlur={e => canEditContent && handleRichBlur('richHtml', 'text', e)} style={{ display: 'block', minHeight: '1.4em', outline: 'none' }} dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.text) }} />
               </Tag>
             }
           </div>
@@ -153,19 +159,23 @@ function PrimitiveRenderer({
       case 'hyperlink': {
         const fontPx = `${el.fontSize || 16}px`;
         const isSocialLink = ['Facebook', 'Instagram', 'LinkedIn', 'YouTube'].includes(el.iconName);
+        const isHomeLink = String(el.text || '').replace(/<[^>]*>/g, '').trim().toUpperCase() === 'HOME';
+        // Older saved header drafts contain the old absolute UAF URL. Resolve
+        // HOME locally at render time as well as in newly created templates.
+        const linkHref = isHomeLink ? '/' : safeHref(el.url);
         return (
           <div style={{ ...inlineStyle, ...(el.menuItems?.length ? { position: 'relative', zIndex: isSelected ? 40 : 20 } : {}) }} className={`${shadowClass} transition-all ${el.menuItems?.length ? 'group' : ''}`}>
             <a 
-              href={safeHref(el.url)} 
-              target="_blank" 
-              rel="noreferrer"
-              style={{ fontSize: fontPx, color: s.textColor || '#163887', fontWeight: el.fontWeight || 600, ...(isSocialLink ? { width: '100%', height: '100%', borderRadius: '999px', backgroundColor: 'transparent', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' } : { display: 'inline-flex', alignItems: 'center', gap: '6px' }), ...(STYLE_LOCK ? { fontFamily: FONT.body } : {}) }}
+              href={linkHref}
+              target={linkHref.startsWith('/') ? undefined : '_blank'}
+              rel={linkHref.startsWith('/') ? undefined : 'noreferrer'}
+              style={{ fontSize: fontPx, color: s.textColor || '#163887', fontWeight: el.fontWeight || 600, ...(isSocialLink ? { width: '100%', height: '100%', borderRadius: '999px', backgroundColor: 'transparent', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' } : { display: 'inline-flex', alignItems: 'center', gap: '6px' }), ...(el.fontFamily ? { fontFamily: el.fontFamily } : STYLE_LOCK ? { fontFamily: FONT.body } : {}) }}
               className={`hover:opacity-80 transition ${isSocialLink ? 'text-white text-sm' : ''} ${el.showUnderline ? 'underline' : ''}`}
               onClick={e => { if (isEditing) e.preventDefault(); }}
             >
               {isSocialLink ? <SocialMark name={el.iconName} /> : <>
                 {el.iconName && el.iconName !== 'None' ? renderIcon(el.iconName) : null}
-                <span data-inline-editor={canEditContent ? '' : undefined} data-rich-editor={canEditContent ? '' : undefined} data-placeholder={canEditContent && !el.text && !el.richHtml ? 'Click to add link text' : undefined} contentEditable={canEditContent} {...pasteProps} suppressContentEditableWarning onBlur={e => canEditContent && updateRich('richHtml', 'text', e)} style={{ outline: 'none' }} dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.text) }} />
+                <span data-inline-editor={canEditContent ? '' : undefined} data-rich-editor={canEditContent ? '' : undefined} data-rich-key="richHtml" data-plain-key="text" data-placeholder={canEditContent && !el.text && !el.richHtml ? 'Click to add link text' : undefined} contentEditable={canEditContent} {...pasteProps} suppressContentEditableWarning onBlur={e => canEditContent && handleRichBlur('richHtml', 'text', e)} style={{ outline: 'none' }} dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.text) }} />
               </>}
               {el.showExternalIcon && <ExternalLink className="w-3.5 h-3.5 inline" />}
             </a>

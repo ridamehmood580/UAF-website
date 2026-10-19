@@ -186,6 +186,14 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
           el={isMenu ? { ...element, text: element.text?.replace(/\s*[▾▼]$/, '') } : element}
           preserveStyleColors
           onHyperlinkClick={(clickedElement, event) => {
+            if (clickedElement.text?.replace(/\s*[▾▼]$/, '').trim().toUpperCase() === 'HOME') {
+              event.preventDefault();
+              onNavigateHome?.();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              setOpenSubmenuLabel(null);
+              setOpenMenuId(null);
+              return;
+            }
             if (isMenu) {
               event.preventDefault();
               setOpenSubmenuLabel(null);

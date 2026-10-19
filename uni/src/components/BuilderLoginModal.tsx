@@ -55,7 +55,7 @@ export const BuilderLoginModal: React.FC<BuilderLoginModalProps> = ({ isOpen, on
         <div className="relative border-b-2 border-[#e8a62a] bg-[#071b2d] p-6 text-white">
           <button type="button" onClick={onClose} aria-label="Close login" className="absolute right-5 top-5 rounded-lg p-1 text-stone-300 transition hover:bg-white/10 hover:text-white"><X className="h-5 w-5"/></button>
           <div className="flex items-center gap-3">
-            <img src="/uaf_logo.png" alt="UAF" className="h-11 w-11 rounded-full border-2 border-[#e8a62a] bg-white p-0.5"/>
+            <img src="/uaf.jpeg" alt="UAF" className="h-11 w-11 rounded-full border-2 border-[#e8a62a] bg-white p-0.5"/>
             <div><h2 id="builder-login-title" className="text-lg font-extrabold">Staff Login</h2><p className="text-xs font-semibold text-[#e8a62a]">Sign in to the webpage builder</p></div>
           </div>
         </div>

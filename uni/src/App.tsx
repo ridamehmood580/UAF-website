@@ -173,7 +173,14 @@ export default function App() {
     setCurrentEventView(null);
     setCurrentAdmissionsView(null);
     setCurrentCmsView(null);
+    setPublishedPageData(null);
+    setPublishedPageNotFound(false);
+    setPublishedPageTarget('home');
     setFacultyInitialSection(undefined);
+    const homeUrl = new URL(window.location.href);
+    homeUrl.searchParams.delete('page');
+    homeUrl.hash = '';
+    window.history.pushState({}, '', `${homeUrl.pathname}${homeUrl.search}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
