@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { STYLE_LOCK, themeElement, cleanRich, pastePlain, FONT } from './uafTheme';
 import { PrimitiveElement } from './elementPrimitives';
 import {
@@ -11,6 +11,7 @@ import {
   Phone,
   Mail,
   MapPin,
+  ChevronDown,
   ChevronRight,
   Link as LinkIcon,
   ExternalLink,
@@ -32,6 +33,48 @@ const escapeHtml = (value: any) =>
 const richMarkup = (markup?: string, plain?: string) =>
   cleanRich(markup || '') || escapeHtml(plain || '').replace(/\n/g, '<br>');
 
+const renderPublishedMenuItems = (items: PrimitiveElement['menuItems'] = [], depth = 0, onMenuItemClick?: (url: string) => void): React.ReactNode => (
+  <div>
+    {items.map((item, index) => {
+      const hasChildren = Boolean(item.children?.length);
+      const hoverGroupClass = depth === 0 ? 'group/menu-root' : depth === 1 ? 'group/menu-level-one' : 'group/menu-level-two';
+      const revealFlyout = depth === 0
+        ? 'group-hover/menu-root:visible group-hover/menu-root:block group-hover/menu-root:opacity-100 group-focus-within/menu-root:visible group-focus-within/menu-root:block group-focus-within/menu-root:opacity-100'
+        : depth === 1
+          ? 'group-hover/menu-level-one:visible group-hover/menu-level-one:block group-hover/menu-level-one:opacity-100 group-focus-within/menu-level-one:visible group-focus-within/menu-level-one:block group-focus-within/menu-level-one:opacity-100'
+          : 'group-hover/menu-level-two:visible group-hover/menu-level-two:block group-hover/menu-level-two:opacity-100 group-focus-within/menu-level-two:visible group-focus-within/menu-level-two:block group-focus-within/menu-level-two:opacity-100';
+      return (
+        <div key={`${item.label}-${depth}-${index}`} className={`${hoverGroupClass} relative`}>
+          <a
+            href={item.url || '#'}
+            target={item.url?.startsWith('http') ? '_blank' : undefined}
+            rel={item.url?.startsWith('http') ? 'noreferrer' : undefined}
+            aria-haspopup={hasChildren ? 'menu' : undefined}
+            onClick={(event) => {
+              if (item.url?.startsWith('#') && onMenuItemClick) {
+                event.preventDefault();
+                onMenuItemClick(item.url);
+              }
+            }}
+            className="flex w-full items-center justify-between gap-3 whitespace-normal break-words rounded-md px-3 py-2 text-left text-sm font-semibold text-white hover:bg-[#163887] focus:bg-[#163887] focus:outline-none"
+          >
+            <span>{item.label}</span>
+            {hasChildren && <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />}
+          </a>
+          {hasChildren && (
+            <div
+              role="menu"
+              className={`invisible absolute right-full top-0 z-[110] hidden w-[min(18rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] rounded-xl border border-[#c99738]/60 bg-[#071b2d] p-2 opacity-0 shadow-2xl transition-opacity ${revealFlyout}`}
+            >
+              {renderPublishedMenuItems(item.children, depth + 1, onMenuItemClick)}
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+);
+
 interface PrimitiveRendererProps {
   el: PrimitiveElement;
   isEditing?: boolean;
@@ -41,6 +84,8 @@ interface PrimitiveRendererProps {
   onRequestImage?: (id: string) => void;
   onRequestVideo?: (id: string) => void;
   onHyperlinkClick?: (el: PrimitiveElement, event: React.MouseEvent<HTMLAnchorElement>) => void;
+  onPublishedLinkClick?: (url: string) => void;
+  onPublishedMenuItemClick?: (url: string) => void;
   preserveStyleColors?: boolean;
 }
 
@@ -53,8 +98,11 @@ export const PrimitiveRenderer: React.FC<PrimitiveRendererProps> = ({
   onRequestImage,
   onRequestVideo,
   onHyperlinkClick,
+  onPublishedLinkClick,
+  onPublishedMenuItemClick,
   preserveStyleColors = false
 }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   if (!rawEl) return null;
   const el = themeElement(rawEl);
   const canEditContent = isEditing && !el.fixed;
@@ -212,20 +260,38 @@ export const PrimitiveRenderer: React.FC<PrimitiveRendererProps> = ({
       case 'hyperlink': {
         const fontPx = `${el.fontSize || 16}px`;
         const isSocialLink = !!socialIconClass[el.iconName || ''];
+        const hasMenu = Boolean(el.menuItems?.length && !onHyperlinkClick);
+        const hyperlinkMarkup = richMarkup(el.richHtml, el.text).replace(/[▾▼⌄]/g, '');
+        const weightText = String(el.fontWeight || '').toLowerCase();
+        const numericWeight = Number.parseInt(weightText, 10);
+        const isStrongLink = !weightText || ['bold', 'semibold', 'black', 'extrabold'].includes(weightText) || numericWeight >= 600;
         return (
-          <div style={inlineStyle} className={`${shadowClass} transition-all`}>
+          <div style={{ ...inlineStyle, ...(hasMenu ? { position: 'relative', zIndex: 30 } : {}) }} className={`${shadowClass} transition-all ${hasMenu ? 'group' : ''}`}>
             <a
               href={el.url || '#'}
-              target="_blank"
-              rel="noreferrer"
+              target={el.url?.startsWith('http') ? '_blank' : undefined}
+              rel={el.url?.startsWith('http') ? 'noreferrer' : undefined}
               style={{
                 fontSize: fontPx,
+                fontWeight: isStrongLink ? 700 : 400,
                 ...(STYLE_LOCK || preserveStyleColors ? { color: s.textColor, ...(STYLE_LOCK ? { fontFamily: FONT.body } : {}) } : {})
               }}
-              className={`${el.fontWeight ? (el.fontWeight >= 600 ? 'font-semibold' : 'font-normal') : 'font-semibold'} ${preserveStyleColors ? '' : 'text-black'} hover:text-blue-700 transition ${isSocialLink ? 'w-full h-full flex items-center justify-center text-white text-sm' : 'inline-flex items-center gap-1.5'} ${
+              className={`${isStrongLink ? 'font-semibold' : 'font-normal'} ${preserveStyleColors ? '' : 'text-black'} hover:text-blue-700 transition ${isSocialLink ? 'w-full h-full flex items-center justify-center text-white text-sm' : 'inline-flex items-center gap-1.5'} ${
                 el.showUnderline ? 'underline' : ''
               }`}
+              aria-haspopup={hasMenu ? 'menu' : undefined}
+              aria-expanded={hasMenu ? menuOpen : undefined}
               onClick={(e) => {
+                if (hasMenu) {
+                  e.preventDefault();
+                  setMenuOpen((open) => !open);
+                  return;
+                }
+                if (el.url?.startsWith('#') && onPublishedLinkClick) {
+                  e.preventDefault();
+                  onPublishedLinkClick(el.url);
+                  return;
+                }
                 if (onHyperlinkClick) onHyperlinkClick(el, e);
                 else if (isEditing) e.preventDefault();
               }}
@@ -240,10 +306,16 @@ export const PrimitiveRenderer: React.FC<PrimitiveRendererProps> = ({
                 suppressContentEditableWarning
                 onBlur={(e) => canEditContent && updateRich('richHtml', 'text', e)}
                 style={{ outline: 'none' }}
-                dangerouslySetInnerHTML={{ __html: richMarkup(el.richHtml, el.text) }}
+                dangerouslySetInnerHTML={{ __html: hyperlinkMarkup }}
               />
+              {el.menuItems?.length && !onHyperlinkClick ? <ChevronDown className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> : null}
               {el.showExternalIcon && <ExternalLink className="w-3.5 h-3.5 inline ml-0.5" />}
             </a>
+            {hasMenu && (
+              <div role="menu" className={`absolute ${String(el.text || '').replace(/\s*[▾▼]$/, '').trim().toUpperCase() === 'MORE' ? 'right-0' : 'left-0'} top-full z-[100] ${menuOpen ? 'block' : 'hidden group-hover:block group-focus-within:block'} w-[min(18rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] overflow-visible rounded-xl border border-[#c99738]/60 bg-[#071b2d] p-2 shadow-2xl`}>
+                {renderPublishedMenuItems(el.menuItems, 0, onPublishedMenuItemClick)}
+              </div>
+            )}
           </div>
         );
       }

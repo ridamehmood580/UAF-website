@@ -8,7 +8,6 @@ import {
   ChevronDown,
   ChevronLeft,
   Sparkles,
-  GraduationCap,
   UserCheck,
   ExternalLink,
   LogOut,
@@ -16,7 +15,10 @@ import {
   Building2,
   Globe2,
   Award,
-  ChevronRight
+  ChevronRight,
+  BookOpen,
+  Leaf,
+  Download
 } from 'lucide-react';
 import type { AuthUser } from '../page-builder/cmsStore';
 
@@ -60,7 +62,6 @@ const NAV_BLUE = '#163887';
 export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onOpenAdvisor,
-  onOpenCalculator,
   onOpenAppointment,
   onSelectFaculty,
   onNavigateHome,
@@ -260,10 +261,10 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-50 w-full select-none font-sans bg-white">
 
       {/* =====================================================
-          1. TOP UTILITY BAR (Full width, white, rounded top, gold border)
+          1. TOP UTILITY BAR (Full width, white, square top edge)
       ====================================================== */}
       <div
-        className="w-full text-[13px] rounded-t-2xl border-t-2 border-x-2 border-b-2"
+        className="w-full text-[13px] border-x-2 border-b-2"
         style={{ backgroundColor: TOP_BAR_WHITE, color: TOP_BAR_TEXT_BLUE, borderColor: GOLD_ACCENT }}
       >
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 min-h-[42px] flex items-center justify-between gap-4">
@@ -276,19 +277,19 @@ export const Header: React.FC<HeaderProps> = ({
             <a href="https://sis.uaf.edu.pk" target="_blank" rel="noopener noreferrer" className="hover:text-[#2563eb] hover:underline transition-colors">
               SIS
             </a>
-            <a href="#administration" className="hover:text-[#2563eb] hover:underline transition-colors">
+            <a href="https://web.uaf.edu.pk/FacultyProfile/Directory" target="_blank" rel="noopener noreferrer" className="hover:text-[#2563eb] hover:underline transition-colors">
               Faculty and Staff
             </a>
-            <a href="#about" className="hover:text-[#2563eb] hover:underline transition-colors">
+            <a href="https://alumni.uaf.edu.pk/" className="hover:text-[#2563eb] hover:underline transition-colors">
               Alumni
             </a>
-            <a href="#rti" className="hover:text-[#2563eb] hover:underline transition-colors">
+            <a href="https://oric.uaf.edu.pk/" className="hover:text-[#2563eb] hover:underline transition-colors">
               ORIC
             </a>
-            <a href="#notices" className="hover:text-[#2563eb] hover:underline transition-colors">
+            <a href="https://web.uaf.edu.pk/Jobs" className="hover:text-[#2563eb] hover:underline transition-colors">
               Jobs
             </a>
-            <a href="#about" className="hover:text-[#2563eb] hover:underline transition-colors">
+            <a href="https://pkncuaf.com/" className="hover:text-[#2563eb] hover:underline transition-colors">
               PKNC
             </a>
 
@@ -304,42 +305,54 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               {quickLinksOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white text-stone-800 rounded-2xl shadow-2xl border border-stone-200 py-2 z-50 animate-in fade-in duration-150 overflow-hidden">
-                  <button
-                    onClick={() => {
-                      setQuickLinksOpen(false);
-                      onOpenCalculator();
-                    }}
-                    className="w-full text-left flex items-center justify-between px-4 py-2.5 hover:bg-[#163887] hover:text-white text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    <span>Undergraduate Merit Calculator</span>
-                    <span className="text-[10px] bg-amber-200 text-stone-900 px-1.5 py-0.5 rounded font-bold">2026</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setQuickLinksOpen(false);
-                      onOpenAdvisor();
-                    }}
-                    className="w-full text-left flex items-center justify-between px-4 py-2.5 hover:bg-[#163887] hover:text-white text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    <span>Ask UAF Virtual Guide</span>
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  </button>
+                <div className="absolute top-full left-0 mt-2 w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-stone-200 bg-white p-1.5 text-stone-900 shadow-2xl z-50 animate-in fade-in duration-150 overflow-hidden">
                   <a
-                    href="https://web.uaf.edu.pk"
+                    href="chrome-extension://kdpelmjpfafjppnhbloffcjpeomlnpah/https://web.uaf.edu.pk/UploadFiles/Announcements/oric_quick_facts.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between px-4 py-2.5 hover:bg-[#163887] hover:text-white text-xs font-semibold transition-colors"
+                    onClick={() => setQuickLinksOpen(false)}
+                    className="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-stone-50"
                   >
-                    <span>Main UAF Official Portal</span>
-                    <ExternalLink className="w-3 h-3 text-stone-400" />
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00664f] text-white shadow-sm">
+                      <BookOpen className="h-5 w-5" />
+                    </span>
+                    <span className="text-sm font-medium">Quick Facts</span>
                   </a>
                   <a
-                    href="#latest-events"
+                    href="https://web.uaf.edu.pk/Library"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => setQuickLinksOpen(false)}
-                    className="flex items-center justify-between px-4 py-2.5 hover:bg-[#163887] hover:text-white text-xs font-semibold transition-colors"
+                    className="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-stone-50"
                   >
-                    <span>Campus Events & News</span>
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00664f] text-white shadow-sm">
+                      <BookOpen className="h-5 w-5" />
+                    </span>
+                    <span className="text-sm font-medium">Library</span>
+                  </a>
+                  <a
+                    href="https://web.uaf.edu.pk/Main/Sustainability_Policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setQuickLinksOpen(false)}
+                    className="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-stone-50"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00664f] text-white shadow-sm">
+                      <Leaf className="h-5 w-5" />
+                    </span>
+                    <span className="text-sm font-medium">Sustainability Policy</span>
+                  </a>
+                  <a
+                    href="https://web.uaf.edu.pk/Downloads/Downloadables"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setQuickLinksOpen(false)}
+                    className="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-stone-50"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00664f] text-white shadow-sm">
+                      <Download className="h-5 w-5" />
+                    </span>
+                    <span className="text-sm font-medium">Downloads</span>
                   </a>
                 </div>
               )}
@@ -437,9 +450,8 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'about' ? null : 'about')}
-                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${
-                  activeDropdown === 'about' ? 'text-amber-400' : ''
-                }`}
+                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${activeDropdown === 'about' ? 'text-amber-400' : ''
+                  }`}
               >
                 <span>ABOUT</span>
                 <ChevronDown className="w-3.5 h-3.5" />
@@ -470,9 +482,8 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'admin' ? null : 'admin')}
-                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${
-                  activeDropdown === 'admin' ? 'text-amber-400' : ''
-                }`}
+                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${activeDropdown === 'admin' ? 'text-amber-400' : ''
+                  }`}
               >
                 <span>ADMINISTRATION</span>
                 <ChevronDown className="w-3.5 h-3.5" />
@@ -499,9 +510,8 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={handleAcademicsClick}
-                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${
-                  activeDropdown === 'academics' ? 'text-amber-400' : ''
-                }`}
+                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${activeDropdown === 'academics' ? 'text-amber-400' : ''
+                  }`}
               >
                 <span>ACADEMICS</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'academics' ? 'rotate-180' : ''}`} />
@@ -560,19 +570,17 @@ export const Header: React.FC<HeaderProps> = ({
                             key={category}
                             onMouseEnter={() => setActiveAcademicCategory(category)}
                             onClick={() => setActiveAcademicCategory(category)}
-                            className={`group w-full px-5 py-3 text-left text-[12px] sm:text-[12.5px] font-bold tracking-wider uppercase flex items-center justify-between transition-colors cursor-pointer ${
-                              isActive
+                            className={`group w-full px-5 py-3 text-left text-[12px] sm:text-[12.5px] font-bold tracking-wider uppercase flex items-center justify-between transition-colors cursor-pointer ${isActive
                                 ? '!bg-[#163887] !text-white'
                                 : 'text-[#1e3a7a] hover:!bg-[#163887] hover:!text-white active:!bg-[#163887] active:!text-white'
-                            }`}
+                              }`}
                           >
                             <span className={`${isActive ? '!text-white' : 'group-hover:!text-white group-active:!text-white'} transition-colors`}>
                               {category}
                             </span>
                             <ChevronLeft
-                              className={`w-4 h-4 transition-colors shrink-0 ml-2 ${
-                                isActive ? 'text-[#e8a62a]' : 'text-[#1e3a7a] group-hover:text-[#e8a62a]'
-                              }`}
+                              className={`w-4 h-4 transition-colors shrink-0 ml-2 ${isActive ? 'text-[#e8a62a]' : 'text-[#1e3a7a] group-hover:text-[#e8a62a]'
+                                }`}
                             />
                           </button>
                         );
@@ -598,9 +606,8 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={handleAdmissionsClick}
-                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${
-                  activeDropdown === 'admissions' ? 'text-amber-400' : ''
-                }`}
+                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${activeDropdown === 'admissions' ? 'text-amber-400' : ''
+                  }`}
               >
                 <span>ADMISSIONS</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'admissions' ? 'rotate-180' : ''}`} />
@@ -619,7 +626,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                   {/* White Card matching Image 1 with Faculty Pop-up style hover */}
                   <div className="w-60 sm:w-64 bg-white rounded-xl shadow-2xl border border-stone-200/90 p-3 space-y-1.5 text-left">
-                    
+
                     {/* Item 1: UNDERGRADUATE */}
                     <button
                       type="button"
@@ -666,23 +673,28 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'media' ? null : 'media')}
-                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${
-                  activeDropdown === 'media' ? 'text-amber-400' : ''
-                }`}
+                className={`hover:text-amber-400 transition-colors py-2 px-1 flex items-center gap-1 cursor-pointer ${activeDropdown === 'media' ? 'text-amber-400' : ''
+                  }`}
               >
                 <span>MEDIA & PUBLICATIONS</span>
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
               {activeDropdown === 'media' && (
                 <div className="absolute top-full right-0 w-64 bg-white rounded-md shadow-2xl border border-stone-200 py-2 z-50 animate-in fade-in duration-150 overflow-hidden">
+                  <a href="https://web.uaf.edu.pk/Main/AnnualReport" target="_blank" rel="noopener noreferrer" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
+                    ANNUAL REPORTS
+                  </a>
+                  <a href="https://web.uaf.edu.pk/CampusNews/ViewCampusNews" target="_blank" rel="noopener noreferrer" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
+                    CAMPUS NEWS
+                  </a>
+                  <a href="https://web.uaf.edu.pk/Main/AgrometBuletin" target="_blank" rel="noopener noreferrer" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
+                    AGROMENT BULLETIN
+                  </a>
                   <a href="#latest-events" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
-                    PRESS RELEASES & NEWS
+                    NEWS AND EVENTS
                   </a>
-                  <a href="#notices" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
-                    OFFICIAL NOTICES & CIRCULARS
-                  </a>
-                  <a href="#events" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
-                    ANNUAL KISSAN MELA ARCHIVE
+                  <a href="https://web.uaf.edu.pk/Contents/journal/jou_list.html" target="_blank" rel="noopener noreferrer" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
+                    JOURNALS
                   </a>
                 </div>
               )}
@@ -722,16 +734,6 @@ export const Header: React.FC<HeaderProps> = ({
           style={{ backgroundColor: NAV_BLUE }}
         >
           <div className="flex gap-2">
-            <button
-              onClick={() => {
-                onOpenCalculator();
-                setMobileMenuOpen(false);
-              }}
-              className="flex-1 py-3 px-3 bg-amber-400 text-stone-950 font-bold rounded-lg text-xs flex items-center justify-center gap-2 shadow-xs"
-            >
-              <GraduationCap className="w-4 h-4" />
-              <span>Merit Calculator</span>
-            </button>
             <button
               onClick={() => {
                 onOpenAdvisor();
@@ -818,9 +820,16 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            <a href="#latest-events" onClick={() => setMobileMenuOpen(false)} className="block py-3 hover:text-amber-400">
-              MEDIA & PUBLICATIONS
-            </a>
+            <div className="py-3">
+              <span className="block pb-2 hover:text-amber-400">MEDIA & PUBLICATIONS</span>
+              <div className="pl-3 space-y-2 text-xs font-semibold text-blue-100">
+                <a href="https://web.uaf.edu.pk/Main/AnnualReport" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-white">• ANNUAL REPORTS</a>
+                <a href="https://web.uaf.edu.pk/CampusNews/ViewCampusNews" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-white">• CAMPUS NEWS</a>
+                <a href="https://web.uaf.edu.pk/Main/AgrometBuletin" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-white">• AGROMENT BULLETIN</a>
+                <a href="#latest-events" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-white">• NEWS AND EVENTS</a>
+                <a href="https://web.uaf.edu.pk/Contents/journal/jou_list.html" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-white">• JOURNALS</a>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -39,7 +39,7 @@ import {
   type AuthUser
 } from './page-builder/cmsStore';
 
-import { Sparkles, GraduationCap } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export default function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -51,6 +51,7 @@ export default function App() {
   const [, setSelectedFacultyFilter] = useState<string | null>(null);
   const [currentFacultyView, setCurrentFacultyView] = useState<string | null>(null);
   const [facultyInitialSection, setFacultyInitialSection] = useState<FacultySection | undefined>(undefined);
+  const [facultyInitialSubView, setFacultyInitialSubView] = useState<DepartmentSubView | undefined>(undefined);
 
   // State for Selected Event Detail View
   const [currentEventView, setCurrentEventView] = useState<string | null>(null);
@@ -69,6 +70,7 @@ export default function App() {
   const [publishedPageIndex, setPublishedPageIndex] = useState<Record<string, any>>({});
   const [publishedSiteHeader, setPublishedSiteHeader] = useState<any>(null);
   const [publishedSiteFooter, setPublishedSiteFooter] = useState<any>(null);
+  const [publishedPillNavigationIndex, setPublishedPillNavigationIndex] = useState<Record<string, any>>({});
 
   // Initial template data for Page Studio
   const [studioPageData, setStudioPageData] = useState<any>(() => {
@@ -103,10 +105,21 @@ export default function App() {
         ));
         setPublishedSiteHeader(store.chrome?.pageOverrides?.[targetPage]?.header?.data || store.chrome?.header?.data || null);
         setPublishedSiteFooter(store.chrome?.pageOverrides?.[targetPage]?.footer?.data || store.chrome?.footer?.data || null);
+        setPublishedPillNavigationIndex(Object.fromEntries(
+          Object.entries(store.chrome?.pageOverrides || {})
+            .filter(([, override]: [string, any]) => override?.pillNavigation?.data)
+            .map(([target, override]: [string, any]) => [target, override.pillNavigation.data])
+        ));
         const page = (store.pages || []).find((entry: any) => entry.targetPage === targetPage);
+        const pagePillNavigation = store.chrome?.pageOverrides?.[targetPage]?.pillNavigation?.data;
         if (page?.data) {
           setPublishedPageData(page.data);
-        } else if (requestedPage) {
+        } else if (requestedPage && targetPage.startsWith('faculty:')) {
+          const targetParts = targetPage.split(':');
+          setCurrentFacultyView(targetParts[1] || 'fac-agri');
+          setFacultyInitialSection((targetParts[2] === 'unit' ? targetParts[3] : targetParts[2] || 'overview') as FacultySection);
+          setFacultyInitialSubView((targetParts[2] === 'unit' ? targetParts[4] : undefined) as DepartmentSubView | undefined);
+        } else if (requestedPage && !pagePillNavigation) {
           setPublishedPageNotFound(true);
         }
       } catch (error) {
@@ -130,11 +143,16 @@ export default function App() {
     setCurrentFacultyView(facultyId);
     setCurrentEventView(null);
     setCurrentAdmissionsView(null);
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('page', `faculty:${facultyId}:${section || 'overview'}`);
+    nextUrl.hash = '';
+    window.history.replaceState(null, '', nextUrl.toString());
     if (section) {
       setFacultyInitialSection(section as FacultySection);
     } else {
       setFacultyInitialSection('overview');
     }
+    setFacultyInitialSubView('overview');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -177,6 +195,7 @@ export default function App() {
     setPublishedPageNotFound(false);
     setPublishedPageTarget('home');
     setFacultyInitialSection(undefined);
+    setFacultyInitialSubView(undefined);
     const homeUrl = new URL(window.location.href);
     homeUrl.searchParams.delete('page');
     homeUrl.hash = '';
@@ -279,6 +298,7 @@ export default function App() {
         publishedSiteHeader={publishedSiteHeader}
         publishedPageContent={publishedPageData}
         publishedPages={publishedPageIndex}
+        publishedPillNavigationIndex={publishedPillNavigationIndex}
       />
       {publishedSiteFooter ? <PublishedSiteFooter data={publishedSiteFooter} /> : <Footer
         onOpenCalculator={() => handleOpenCalculator()}
@@ -355,6 +375,7 @@ export default function App() {
           <FacultyPortalPage
             currentFacultyId={currentFacultyView}
             initialSection={facultyInitialSection}
+            initialDepartmentSubView={facultyInitialSubView}
             onNavigateHome={handleNavigateHome}
             onSelectFaculty={(facId) => handleSelectFaculty(facId, 'overview')}
             onOpenSearch={() => setIsSearchOpen(true)}
@@ -365,6 +386,7 @@ export default function App() {
             onNavigateAdmissions={handleNavigateAdmissions}
             publishedSiteHeader={publishedSiteHeader}
             publishedPages={publishedPageIndex}
+            publishedPillNavigationIndex={publishedPillNavigationIndex}
           />
         ) : (
           /* C. Otherwise show Comprehensive Main University Landing Experience */
@@ -449,14 +471,6 @@ export default function App() {
           </span>
         </button>
 
-        {/* Floating Merit Calculator shortcut */}
-        <button
-          onClick={() => handleOpenCalculator()}
-          className="hidden sm:flex items-center gap-2 px-3.5 py-2.5 bg-white text-black hover:text-[#071b2d] rounded-full shadow-xl hover:scale-105 transition-all duration-300 border border-stone-200 cursor-pointer text-xs font-bold"
-        >
-          <GraduationCap className="w-4 h-4 text-[#e8a62a]" />
-          <span>Merit Calculator</span>
-        </button>
       </div>
 
       {/* =====================================================

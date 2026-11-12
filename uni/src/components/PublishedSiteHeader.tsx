@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronRight, Search } from 'lucide-react';
+import { BookOpen, ChevronDown, ChevronRight, Download, Leaf, Search } from 'lucide-react';
 import { PrimitiveRenderer } from '../page-builder/PrimitiveRenderer';
 import type { PrimitiveElement, PrimitiveMenuItem } from '../page-builder/elementPrimitives';
 
@@ -19,12 +19,57 @@ interface PublishedSiteHeaderProps {
 const readY = (element: PrimitiveElement) => element.y || 0;
 const readX = (element: PrimitiveElement) => element.x || 0;
 const readHeight = (element: PrimitiveElement) => element.height || 0;
+const HEADER_LINK_DESTINATIONS: Record<string, string> = {
+  LMS: 'https://lms.uaf.edu.pk',
+  SIS: 'https://sis.uaf.edu.pk',
+  'FACULTY AND STAFF': 'https://web.uaf.edu.pk/FacultyProfile/Directory',
+  ALUMNI: 'https://alumni.uaf.edu.pk/',
+  ORIC: 'https://oric.uaf.edu.pk/',
+  JOBS: 'https://web.uaf.edu.pk/Jobs',
+  PKNC: 'https://pkncuaf.com/',
+  'QUICK LINKS': '#quick-links',
+  'COMPLAINTS / SUGGESTIONS': '#resources',
+  'COMPLAINTS/SUGGESTIONS': '#resources',
+  'STAFF LOGIN': '#staff-login',
+  HOME: '/',
+  ABOUT: '#vision',
+  RTI: '#rti',
+  ADMINISTRATION: '#administration',
+  ACADEMICS: '#programs',
+  ADMISSIONS: '#admissions',
+  'MEDIA & PUBLICATIONS': '#latest-events',
+  'ANNUAL REPORTS': 'https://web.uaf.edu.pk/Main/AnnualReport',
+  'CAMPUS NEWS': 'https://web.uaf.edu.pk/CampusNews/ViewCampusNews',
+  'AGROMENT BULLETIN': 'https://web.uaf.edu.pk/Main/AgrometBuletin',
+  'NEWS AND EVENTS': '#latest-events',
+  JOURNALS: 'https://web.uaf.edu.pk/Contents/journal/jou_list.html',
+  'VISION 2050 & HERITAGE': '#vision',
+  'VICE CHANCELLOR MESSAGE': '#vc-message',
+  'CAMPUS LIFE & BOTANICAL GARDENS': '#campus',
+  'OFFICERS OF THE UNIVERSITY': '#administration',
+  'SYNDICATE & STATUTORY BODIES': '#administration',
+  'ASK UAF VIRTUAL GUIDE': '#advisor',
+  'MAIN UAF OFFICIAL PORTAL': 'https://web.uaf.edu.pk',
+  'CAMPUS EVENTS & NEWS': '#latest-events',
+  'PRESS RELEASES & NEWS': '#latest-events',
+  'OFFICIAL NOTICES & CIRCULARS': '#notices',
+  'ANNUAL KISSAN MELA ARCHIVE': '#events'
+};
+const normalizeHeaderLabel = (label?: string) => String(label || '').replace(/\s*[▾▼]$/, '').trim().toUpperCase();
+const canonicalHeaderHref = (label?: string, fallback?: string) =>
+  HEADER_LINK_DESTINATIONS[normalizeHeaderLabel(label)] || fallback || '#';
+const canonicalMenuItems = (items: PrimitiveMenuItem[] = []): PrimitiveMenuItem[] => items
+  .filter((item) => normalizeHeaderLabel(item.label) !== 'UNDERGRADUATE MERIT CALCULATOR')
+  .map((item) => ({
+    ...item,
+    url: canonicalHeaderHref(item.label, item.url),
+    ...(item.children?.length ? { children: canonicalMenuItems(item.children) } : {})
+  }));
 
 export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
   data,
   onOpenSearch,
   onOpenAdvisor,
-  onOpenCalculator,
   onOpenAuthModal,
   onNavigateAdmissions,
   onSelectFaculty,
@@ -65,18 +110,42 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
     return () => document.removeEventListener('mousedown', closeMenu);
   }, [openMenuId]);
 
-  const renderMenuItems = (items: PrimitiveMenuItem[], element: PrimitiveElement, nested = false) => (
+  const followInternalAnchor = (href: string, event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!href.startsWith('#')) return false;
+    event.preventDefault();
+    const targetId = decodeURIComponent(href.slice(1));
+    window.history.pushState({}, '', `${window.location.pathname}${window.location.search}${href}`);
+    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return true;
+  };
+
+  const renderMenuItems = (items: PrimitiveMenuItem[], element: PrimitiveElement, nested = false) => {
+    const isQuickLinks = normalizeHeaderLabel(element.text) === 'QUICK LINKS';
+    const quickLinkIcon = (label: string) => {
+      if (label === 'Sustainability Policy') return <Leaf className="h-5 w-5" />;
+      if (label === 'Downloads') return <Download className="h-5 w-5" />;
+      return <BookOpen className="h-5 w-5" />;
+    };
+    return (
     <div
-      className={`absolute ${nested ? 'right-full mr-2 top-0' : 'left-0 top-full mt-2'} z-[100] min-w-64 max-w-[22rem] overflow-visible rounded-xl border border-stone-200 bg-white py-2 text-[#1e3a7a] shadow-2xl`}
+      className={`absolute ${nested ? 'right-full mr-2 top-0' : 'left-0 top-full mt-2'} z-[100] ${isQuickLinks ? 'w-[min(16rem,calc(100vw-2rem))] rounded-xl p-1.5' : 'min-w-64 max-w-[22rem] rounded-xl py-2'} overflow-visible border border-stone-200 bg-white text-[#1e3a7a] shadow-2xl`}
       onClick={(event) => event.stopPropagation()}
     >
       {items.map((item) => {
         const hasChildren = Boolean(item.children?.length);
-        const itemContent = <>
+        const itemHref = canonicalHeaderHref(item.label, item.url);
+        const itemContent = isQuickLinks ? <>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00664f] text-white shadow-sm">
+            {quickLinkIcon(item.label)}
+          </span>
+          <span className="flex-1 text-sm font-medium text-stone-900">{item.label}</span>
+        </> : <>
           <span>{item.label}</span>
           {hasChildren && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[#e8a62a]" />}
         </>;
-        const commonClass = 'flex w-full items-center justify-between gap-4 px-4 py-2.5 text-left text-xs font-bold transition-colors hover:bg-[#163887] hover:text-white';
+        const commonClass = isQuickLinks
+          ? 'flex w-full items-center gap-2.5 rounded-lg px-1.5 py-1.5 text-left transition-colors hover:bg-stone-50'
+          : 'flex w-full items-center justify-between gap-4 px-4 py-2.5 text-left text-xs font-bold transition-colors hover:bg-[#163887] hover:text-white';
 
         if (hasChildren) {
           return (
@@ -96,6 +165,7 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
 
         const label = item.label.toLowerCase();
         const facultyId = label.includes('veterinary') ? 'fac-vet'
+          : label.includes('arts and humanities') ? 'fac-arts'
           : label.includes('social sciences') ? 'fac-social'
           : label.includes('food, nutrition') ? 'fac-food'
           : label.includes('health and pharmaceutical') ? 'fac-health'
@@ -109,9 +179,6 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
             event.preventDefault();
             onNavigateHome();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else if (label.includes('merit calculator') && onOpenCalculator) {
-            event.preventDefault();
-            onOpenCalculator();
           } else if ((label.includes('virtual guide') || label.includes('advisor')) && onOpenAdvisor) {
             event.preventDefault();
             onOpenAdvisor();
@@ -123,6 +190,8 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
           } else if (facultyId && onSelectFaculty) {
             event.preventDefault();
             onSelectFaculty(facultyId);
+          } else {
+            followInternalAnchor(itemHref, event);
           }
           setOpenMenuId(null);
           setOpenSubmenuLabel(null);
@@ -131,9 +200,9 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
         return (
           <a
             key={item.label}
-            href={item.url || '#'}
-            target={item.url?.startsWith('http') ? '_blank' : undefined}
-            rel={item.url?.startsWith('http') ? 'noreferrer' : undefined}
+            href={itemHref}
+            target={itemHref.startsWith('http') ? '_blank' : undefined}
+            rel={itemHref.startsWith('http') ? 'noreferrer' : undefined}
             className={commonClass}
             onClick={handleItemClick}
           >
@@ -142,11 +211,19 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
         );
       })}
     </div>
-  );
+    );
+  };
 
   const renderFlowItem = (element: PrimitiveElement, section: 'utility' | 'navbar') => {
     const menuItems = element.menuItems || [];
     const isMenu = element.type === 'hyperlink' && menuItems.length > 0;
+    // Old published headers store absolute URLs to the former home-page anchors.
+    // Resolve their labels against the same destinations as Header.tsx instead.
+    const renderedElement = {
+      ...element,
+      url: canonicalHeaderHref(element.text, element.url),
+      ...(menuItems.length ? { menuItems: canonicalMenuItems(menuItems) } : {})
+    };
     const isSearch = element.type === 'button' && element.iconName === 'Search';
     const isStaffLogin = element.text?.toLowerCase().includes('staff login');
     const isComplaints = element.text?.toLowerCase().includes('complaints');
@@ -183,10 +260,10 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
         style={{ width: 'max-content', minHeight: section === 'navbar' ? navbarHeight : utilityHeight }}
       >
         <PrimitiveRenderer
-          el={isMenu ? { ...element, text: element.text?.replace(/\s*[▾▼]$/, '') } : element}
+          el={isMenu ? { ...renderedElement, text: renderedElement.text?.replace(/\s*[▾▼]$/, '') } : renderedElement}
           preserveStyleColors
           onHyperlinkClick={(clickedElement, event) => {
-            if (clickedElement.text?.replace(/\s*[▾▼]$/, '').trim().toUpperCase() === 'HOME') {
+            if (normalizeHeaderLabel(clickedElement.text) === 'HOME') {
               event.preventDefault();
               onNavigateHome?.();
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -206,6 +283,8 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
             } else if (isComplaints && onOpenAdvisor) {
               event.preventDefault();
               onOpenAdvisor();
+            } else {
+              followInternalAnchor(canonicalHeaderHref(clickedElement.text, clickedElement.url), event);
             }
           }}
         />
@@ -219,10 +298,6 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
   const navbarStyle = navbarBackground?.style || {};
   const accentStyle = accent?.style || {};
   const accentHeight = accent ? Math.min(readHeight(accent), 4) : 2;
-  const utilityRadius = legacyHeader && Number(utilityStyle.borderRadius) === 0
-    ? 16
-    : utilityStyle.borderRadius == null ? 16 : Number(utilityStyle.borderRadius);
-
   return (
     <header ref={containerRef} className="sticky top-0 z-50 w-full overflow-visible font-sans">
       <div
@@ -233,7 +308,8 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
           color: utilityStyle.textColor || '#1e3a7a',
           borderColor: utilityStyle.borderColor || '#ed9d09',
           borderWidth: utilityStyle.borderWidth ?? 2,
-          borderRadius: `${utilityRadius}px ${utilityRadius}px 0 0`,
+          borderTopWidth: 0,
+          borderRadius: 0,
           boxSizing: 'border-box'
         }}
       >

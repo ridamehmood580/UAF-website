@@ -48,7 +48,7 @@ export const PublishedDepartmentContent: React.FC<{ data: DepartmentPageData }> 
     return () => observer.disconnect();
   }, [host]);
 
-  return <div ref={setHost} className="w-full overflow-hidden">
+  return <div ref={setHost} className="w-full overflow-visible">
     <div style={{ width: 1200 * scale, height: height * scale, marginInline: 'auto' }}>
       <div className="relative origin-top-left bg-white" style={{ width: 1200, height, transform: `scale(${scale})` }}>
         {elements.map((element, layerIndex) => <div key={element.id} style={{ position: 'absolute', left: element.x || 0, top: element.y || 0, width: element.width || 260, height: element.height || 80, zIndex: layerIndex }}><PrimitiveRenderer el={element} preserveStyleColors /></div>)}

@@ -47,11 +47,22 @@ const card = (o, x, y, w, h) => place({ type: 'card', badgeTag: '', buttonLabel:
 // ── shared header (130px) and footer (390px) — exact match of uni/src/components/Header.tsx & Footer.tsx ───
 const sectionUrl = section => `${SITE_URL}/#${section}`;
 const menuDestinations = {
-  'quick-links': [`${SITE_URL}/#admissions`, `${SITE_URL}/#resources`, `${SITE_URL}/`, `${SITE_URL}/#latest-events`],
+  'quick-links': [
+    'chrome-extension://kdpelmjpfafjppnhbloffcjpeomlnpah/https://web.uaf.edu.pk/UploadFiles/Announcements/oric_quick_facts.pdf',
+    `${SITE_URL}/Library`,
+    `${SITE_URL}/Main/Sustainability_Policy`,
+    `${SITE_URL}/Downloads/Downloadables`
+  ],
   about: [`${SITE_URL}/#vision`, `${SITE_URL}/#vc-message`, `${SITE_URL}/#campus`],
   administration: [`${SITE_URL}/#administration`, `${SITE_URL}/#administration`],
   admissions: [`${SITE_URL}/#admissions`, `${SITE_URL}/#admissions`, `${SITE_URL}/#admissions`],
-  media: [`${SITE_URL}/#latest-events`, `${SITE_URL}/#notices`, `${SITE_URL}/#latest-events`]
+  media: [
+    `${SITE_URL}/Main/AnnualReport`,
+    `${SITE_URL}/CampusNews/ViewCampusNews`,
+    `${SITE_URL}/Main/AgrometBuletin`,
+    `${SITE_URL}/#latest-events`,
+    `${SITE_URL}/Contents/journal/jou_list.html`
+  ]
 };
 const menu = (labels, section) => labels.map((label, index) => ({
   label,
@@ -82,24 +93,24 @@ const header = () => [
 
   // ── 1. Utility bar background: white, gold border (matches Header.tsx border-t-2 border-x-2 border-b-2 border-[#ed9d09]) ──
   box('utility', 0, 0, 1200, 42, {
-    style: { bgColor: '#ffffff', textColor: '#1e3a7a', borderColor: '#ed9d09', borderWidth: 2, borderRadius: 16 }
+    style: { bgColor: '#ffffff', textColor: '#1e3a7a', borderColor: '#ed9d09', borderWidth: 2, borderRadius: 0 }
   }),
 
   // ── 2. Utility bar LEFT links (gap-6 ≈ 24px spacing, text-[13px] font-semibold tracking-wide) ──
   link('default', 'LMS',               32,  12,  36, 'https://lms.uaf.edu.pk'),
   link('default', 'SIS',               80,  12,  34, 'https://sis.uaf.edu.pk'),
-  link('default', 'Faculty and Staff', 126, 12, 110, `${SITE_URL}/#administration`),
-  link('default', 'Alumni',            248, 12,  52, `${SITE_URL}/#campus`),
-  link('default', 'ORIC',              312, 12,  42, `${SITE_URL}/#rti`),
-  link('default', 'Jobs',              366, 12,  38, `${SITE_URL}/#notices`),
-  link('default', 'PKNC',              416, 12,  46, `${SITE_URL}/#campus`),
-  link('default', 'Quick Links ',     474, 12, 110, `${SITE_URL}/#quick-links`, menu([
-    'Undergraduate Merit Calculator', 'Ask UAF Virtual Guide', 'Main UAF Official Portal', 'Campus Events & News'
+  link('default', 'Faculty and Staff', 126, 12, 110, `${SITE_URL}/FacultyProfile/Directory`),
+  link('default', 'Alumni',            248, 12,  52, 'https://alumni.uaf.edu.pk/'),
+  link('default', 'ORIC',              312, 12,  42, 'https://oric.uaf.edu.pk/'),
+  link('default', 'Jobs',              366, 12,  38, `${SITE_URL}/Jobs`),
+  link('default', 'PKNC',              416, 12,  46, 'https://pkncuaf.com/'),
+  link('default', 'Quick Links ',     474, 12, 110, '#quick-links', menu([
+    'Quick Facts', 'Library', 'Sustainability Policy', 'Downloads'
   ], 'quick-links')),
 
   // ── 3. Utility bar RIGHT links (ml-auto in real site, right-aligned) ──
-  link('default', 'Complaints / Suggestions', 792, 12, 180, `${SITE_URL}/#resources`),
-  link('default', '👤  Staff Login',           984, 12, 110, `${SITE_URL}/`),
+  link('default', 'Complaints / Suggestions', 792, 12, 180, '#resources'),
+  link('default', '👤  Staff Login',           984, 12, 110, '#staff-login'),
 
   // ── 4. Navbar background: navy #163887, 84px, gold bottom border ──
   box('nav', 0, 42, 1200, 84, {
@@ -128,12 +139,12 @@ const header = () => [
   //    Positions mirror Header.tsx ml-auto justify-end layout on 1200px canvas
   // The site header handles HOME internally; keep the URL local for older renderers.
   link('light', 'HOME',                  342, 73,  56, '/'),
-  link('light', 'ABOUT ',              408, 73,  76, `${SITE_URL}/#vision`,
+  link('light', 'ABOUT ',              408, 73,  76, '#vision',
     menu(['VISION 2050 & HERITAGE', 'VICE CHANCELLOR MESSAGE', 'CAMPUS LIFE & BOTANICAL GARDENS'], 'about')),
-  link('light', 'RTI',                   494, 73,  36, `${SITE_URL}/#rti`),
-  link('light', 'ADMINISTRATION ',      540, 73, 152, `${SITE_URL}/#administration`,
+  link('light', 'RTI',                   494, 73,  36, '#rti'),
+  link('light', 'ADMINISTRATION ',      540, 73, 152, '#administration',
     menu(['OFFICERS OF THE UNIVERSITY', 'SYNDICATE & STATUTORY BODIES'], 'administration')),
-  link('light', 'ACADEMICS',           702, 73, 108, `${SITE_URL}/#programs`,
+  link('light', 'ACADEMICS',           702, 73, 108, '#programs',
     groupedMenu({
       'FACULTIES': [
         'FACULTY OF AGRICULTURE', 'FACULTY OF VETERINARY SCIENCE', 'FACULTY OF SCIENCES',
@@ -176,10 +187,12 @@ const header = () => [
         'SOLAR PUMPING & SALINITY RECLAMATION', 'CLIMATE ADAPTIVE IRRIGATION REGIMES'
       ]
     })),
-  link('light', 'ADMISSIONS ',          820, 73, 118, `${SITE_URL}/#admissions`,
+  link('light', 'ADMISSIONS ',          820, 73, 118, '#admissions',
     menu(['UNDERGRADUATE', 'POSTGRADUATE', 'INTERNATIONAL STUDENTS'], 'admissions')),
-  link('light', 'MEDIA & PUBLICATIONS ', 948, 73, 182, `${SITE_URL}/#latest-events`,
-    menu(['PRESS RELEASES & NEWS', 'OFFICIAL NOTICES & CIRCULARS', 'ANNUAL KISSAN MELA ARCHIVE'], 'media')),
+  link('light', 'MEDIA & PUBLICATIONS ', 948, 73, 182, '#latest-events',
+    menu([
+      'ANNUAL REPORTS', 'CAMPUS NEWS', 'AGROMENT BULLETIN', 'NEWS AND EVENTS', 'JOURNALS'
+    ], 'media')),
 
   // ── 8. Search control, matching the original round action at the right ──
   place({ type: 'button', label: '', buttonLabel: '', iconName: 'Search', style: {
@@ -296,6 +309,60 @@ const banner = (src, height) => [
   image(src, 0, 130, 1200, height, { shape: 'square', alt: 'UAF campus' }),
   box('overlay', 0, 130, 1200, height)
 ];
+
+// Standalone department navigation pill template. It is a separate reusable
+// component page so editors can style the pill and maintain its nested menus.
+const PILL_NAV_PROFILES = [
+  { id: 'general', name: 'General Department', departments: ['Department Overview', 'Programs', 'Research Areas'], institutes: ['Institute of Horticultural Sciences', 'Institute of Soil and Environmental Sciences', 'Other Institutes'] }
+];
+
+const departmentPillNavigation = (profile) => {
+  const slug = value => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const instituteItems = profile.institutes.map(name => ({
+    label: name, url: `#${slug(name)}`, children: [
+      { label: 'Institute Overview', url: `#${slug(name)}-overview` },
+      { label: 'Faculty and Staff', url: `#${slug(name)}-staff` }
+    ]
+  }));
+  const pillItems = [
+    { label: 'Overview', x: 204, width: 112 },
+    { label: 'The Dean', x: 332, width: 112 },
+    { label: 'Educational Department', x: 460, width: 228, menuItems: [
+      { label: 'Undergraduate', url: '#undergraduate' },
+      { label: 'Postgraduate', url: '#postgraduate' },
+      { label: 'Internship', url: '#internship' },
+      { label: 'Short Courses', url: '#short-courses' }
+    ] },
+    { label: 'Departments', x: 704, width: 154, menuItems: profile.departments.map(name => ({ label: name, url: `#${slug(name)}` })) },
+    { label: 'More', x: 874, width: 114, menuItems: [
+      { label: 'Institutes', url: '#institutes', children: instituteItems },
+      { label: 'Portfolio & Research', url: '#portfolio-research' }
+    ] }
+  ];
+  const elements = [place({
+    type: 'container', shapeType: 'pill', style: {
+      bgColor: '#071b2d', textColor: '#ffffff', borderColor: '#c99738', borderWidth: 2,
+      borderRadius: 999, paddingTop: 6, paddingBottom: 6, paddingLeft: 10, paddingRight: 10,
+      shadow: 'lg'
+    }
+  }, 180, 56, 840, 66)];
+  pillItems.forEach((item, index) => elements.push(place({
+    type: 'hyperlink', templateRegion: 'pills', text: `${item.label}${item.menuItems ? '  ▾' : ''}`,
+    url: `#${item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+    ...(item.menuItems ? { menuItems: item.menuItems } : {}),
+    showUnderline: false, showExternalIcon: false, fontSize: 15, fontWeight: 'bold',
+    style: {
+      bgColor: item.label === 'Overview' ? '#163887' : 'transparent',
+      textColor: '#ffffff', borderRadius: 999, borderWidth: 0,
+      borderColor: '#2f65b8', paddingTop: 10, paddingBottom: 10, paddingLeft: 14, paddingRight: 14
+    }
+  }, item.x, 68, item.width, 42)));
+  elements.push(
+    text('label', profile.name, 72, 150, 1056, 24),
+    text('small', 'Edit this department’s pill labels and dropdown options. Every institute includes Institute Overview and Faculty and Staff suboptions.', 72, 178, 1056, 38)
+  );
+  return elements;
+};
 
 // Department section templates mirror the content layouts in
 // uni/src/components/FacultyPortalPage.tsx. Shared header, faculty hero/banner,
@@ -706,6 +773,14 @@ const facultyOverview = () => {
 export const PAGE_TEMPLATES = [
   { id: 'site-header', name: 'Header', category: 'Header', pageTitle: 'University header', description: 'Edit the shared university header. Publishing it updates the header across every page.', build: header },
   { id: 'site-footer', name: 'Footer', category: 'Footer', pageTitle: 'University footer', description: 'Edit the shared university footer. Publishing it updates the footer across every page.', build: () => footer(0) },
+  ...PILL_NAV_PROFILES.map(profile => ({
+    id: `department-pill-navigation-${profile.id}`,
+    name: 'General department pill navigation',
+    category: 'Department navigation',
+    pageTitle: 'General department pill navigation',
+    description: 'One editable pill template with general department sections and institute overview and Faculty and Staff suboptions.',
+    build: () => departmentPillNavigation(profile)
+  })),
   { id: 'department-home', name: 'Overview', category: 'Department pages', pageTitle: 'Department overview', departmentSection: 'overview', description: 'Editable academic overview content. The department hero, tabs, header, and footer are supplied by the university site.', build: departmentHome },
   { id: 'department-dean', name: 'The Dean', category: 'Department pages', pageTitle: 'The Dean', departmentSection: 'dean', description: 'Content area for the dean’s message and leadership profile.', build: departmentDean },
   { id: 'department-educational', name: 'Educational Department', category: 'Department pages', pageTitle: 'Educational Department', departmentSection: 'educational-department', description: 'Content area for academic departments, subjects, and programs.', build: departmentEducational },
@@ -727,7 +802,8 @@ export function buildTemplate(id) {
   if (!template) return null;
   start();
   const isGlobalChrome = id === 'site-header' || id === 'site-footer';
-  const elements = template.build().filter(element => isGlobalChrome || !element.templateRegion).map(element => {
+  const isDepartmentPills = id.startsWith('department-pill-navigation-');
+  const elements = template.build().filter(element => isGlobalChrome || isDepartmentPills || !element.templateRegion).map(element => {
     const themed = themeElement(element);
     const { look, ...materialized } = themed;
     if (id === 'site-footer') {
@@ -747,7 +823,7 @@ export function buildTemplate(id) {
     title: template.pageTitle,
     meta: isGlobalChrome
       ? { templateType: id === 'site-header' ? 'site-header' : 'site-footer', ...(id === 'site-header' ? { headerTemplateVersion: 2 } : {}) }
-      : { usesSiteChrome: true, ...(template.departmentSection ? { departmentSection: template.departmentSection } : {}) },
+      : { usesSiteChrome: true, ...(isDepartmentPills ? { templateType: 'department-pill-navigation' } : {}), ...(template.departmentSection ? { departmentSection: template.departmentSection } : {}) },
     elements
   };
 }

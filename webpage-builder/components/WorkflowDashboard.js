@@ -42,7 +42,8 @@ export default function WorkflowDashboard({ pageData, onBack }) {
   const title = pageData?.meta?.title || 'Untitled page';
   const chromeType = pageData?.meta?.templateType;
   const isGlobalChrome = chromeType === 'site-header' || chromeType === 'site-footer';
-  const isPageScopedChrome = isGlobalChrome && publicationScope === 'page';
+  const isDepartmentPills = chromeType === 'department-pill-navigation';
+  const isPageScopedChrome = isDepartmentPills || (isGlobalChrome && publicationScope === 'page');
   const jsonText = useMemo(() => JSON.stringify(pageData || {}, null, 2), [pageData]);
   const mainTargets = publishTargets.filter(target => target.department === 'Main website');
   const faculties = useMemo(() => {
@@ -96,9 +97,11 @@ export default function WorkflowDashboard({ pageData, onBack }) {
         const localSite = ['localhost', '127.0.0.1'].includes(window.location.hostname);
         const siteBase = process.env.NEXT_PUBLIC_UNI_URL || (localSite ? `${window.location.protocol}//${window.location.hostname}:3000` : 'https://web.uaf.edu.pk');
         setPublishedPageUrl(new URL(`/?page=${encodeURIComponent(targetPage)}`, siteBase).toString());
-        setNotice(isGlobalChrome
-          ? `The ${chromeType === 'site-header' ? 'header' : 'footer'} is now published only on ${target.label}.`
-          : `“${title}” is now published to ${target.label}.`);
+        setNotice(isDepartmentPills
+          ? `The pill navigation is now updated only on ${target.label}. The page content was kept unchanged.`
+          : isGlobalChrome
+            ? `The ${chromeType === 'site-header' ? 'header' : 'footer'} is now published only on ${target.label}.`
+            : `“${title}” is now published to ${target.label}.`);
       }
     } catch (error) {
       setNotice(error.message || 'Could not publish this page.');

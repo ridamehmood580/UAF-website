@@ -7,6 +7,7 @@
 
 import { themeElement } from './uafTheme';
 import type { PrimitiveElement } from './elementPrimitives';
+import { FACULTY_DATA_MAP, FACULTY_MENUS_MAP } from '../components/FacultyPortalPage';
 
 const IMG = {
   logo: '/uaf_logo.png',
@@ -76,6 +77,78 @@ const facultyCard = (opt: any, x: number, y: number, w: number, h: number) =>
 
 const table = (opt: any, x: number, y: number, w: number, h: number) =>
   place({ type: 'table', style: {}, ...opt }, x, y, w, h);
+
+const facultyPillNavigation = (facultyId: string, useGeneralOptions = false) => {
+  const faculty = FACULTY_DATA_MAP[facultyId];
+  const sourceConfig = FACULTY_MENUS_MAP[facultyId];
+  if (!faculty || !sourceConfig) return [];
+  const config = useGeneralOptions ? {
+    ...sourceConfig,
+    departments: [{ id: 'department-directory', label: 'Department Directory', fullName: 'Department Directory', focus: 'Browse academic departments' }],
+    institutes: [{ id: 'institutes', label: 'Institutes', fullName: 'Institutes', focus: 'Browse university institutes' }],
+    centres: [],
+    hasPortfolio: true
+  } : sourceConfig;
+
+  const facultyRoute = (section: string) => `?page=faculty:${facultyId}:${section}`;
+  const unitRoute = (unitId: string, subView: 'overview' | 'staff' = 'overview') =>
+    `?page=faculty:${facultyId}:unit:${unitId}:${subView}`;
+  const divisionItems = (divisions: any[] = [], unitKind: 'Department' | 'Institute' | 'Centre' = 'Department') => divisions.map((division) => ({
+    label: division.label,
+    url: unitRoute(division.id),
+    children: [
+      { label: `${unitKind} Overview`, url: unitRoute(division.id, 'overview') },
+      { label: 'Faculty and Staff', url: unitRoute(division.id, 'staff') }
+    ]
+  }));
+  const groups = [
+    { id: 'overview', label: 'Overview', url: facultyRoute('overview'), menuItems: [] },
+    { id: 'dean', label: 'The Dean', url: facultyRoute('dean'), menuItems: [] },
+    ...(config.hasEducationalPrograms !== false ? [{
+      id: 'education', label: 'Educational Department', url: '#education', menuItems: [
+        { label: 'Undergraduate', url: facultyRoute('undergraduate') }, { label: 'Postgraduate', url: facultyRoute('postgraduate') },
+        { label: 'Internship', url: facultyRoute('internship') }, { label: 'Short Courses', url: facultyRoute('short-courses') }
+      ]
+    }] : []),
+    ...(config.departments?.length ? [{ id: 'departments', label: 'Departments', url: '#departments', menuItems: divisionItems(config.departments) }] : []),
+    ...(config.centres?.length ? [{ id: 'centres', label: 'Centres', url: '#centres', menuItems: divisionItems(config.centres, 'Centre') }] : []),
+    ...(config.institutes?.length ? [{ id: 'institutes', label: 'Institutes', url: '#institutes', menuItems: divisionItems(config.institutes, 'Institute') }] : []),
+    ...(config.hasPortfolio ? [{ id: 'portfolio', label: 'Portfolio & Research', url: facultyRoute('portfolio'), menuItems: [] }] : [])
+  ];
+  const visible = groups.slice(0, 4);
+  const overflow = groups.slice(4);
+  const moreItems = overflow.map((group) => ({
+    label: group.label,
+    url: group.url,
+    ...(group.menuItems.length ? { children: group.menuItems } : {})
+  }));
+  const pills = [...visible, ...(moreItems.length ? [{ id: 'more', label: 'More', url: '#more', menuItems: moreItems }] : [])];
+  const widths = pills.map((pill) => Math.max(82, Math.min(220, pill.label.length * 7.2 + 34)));
+  const gap = 8;
+  const totalWidth = widths.reduce((sum, width) => sum + width, 0) + Math.max(0, pills.length - 1) * gap;
+  let x = Math.max(24, Math.round((1200 - totalWidth) / 2));
+  const elements: PrimitiveElement[] = [place({
+    type: 'container', shapeType: 'pill', style: {
+      bgColor: '#071b2d', textColor: '#ffffff', borderColor: '#c99738', borderWidth: 2,
+      borderRadius: 999, paddingTop: 6, paddingBottom: 6, paddingLeft: 10, paddingRight: 10
+    }
+  }, 20, 52, 1160, 64)];
+
+  pills.forEach((pill, index) => {
+    const width = widths[index];
+    elements.push(place({
+      type: 'hyperlink', text: pill.label, url: pill.url,
+      menuItems: pill.menuItems, showUnderline: false, showExternalIcon: false,
+      fontSize: 15, fontWeight: 'bold',
+      style: {
+        bgColor: pill.id === 'overview' ? '#163887' : 'transparent', textColor: '#ffffff',
+        borderRadius: 999, borderWidth: 0, paddingTop: 10, paddingBottom: 10, paddingLeft: 14, paddingRight: 14
+      }
+    }, x, 70, width, 42));
+    x += width + gap;
+  });
+  return elements;
+};
 
 // Standard UAF Header (84px) - locked for branding
 const header = () =>
@@ -973,6 +1046,14 @@ const brandedBlank = () => [
 ];
 
 export const PAGE_TEMPLATES = [
+  {
+    id: 'faculty-pill-navigation-general',
+    name: 'Faculty Pill Navigation',
+    category: 'Department Navigation Pills',
+    pageTitle: 'Department Navigation',
+    description: 'Faculty pill navigation with stable links to Overview, the Dean, degree pages, departments, institutes, and Faculty and Staff pages.',
+    build: () => facultyPillNavigation('fac-agri')
+  },
   {
     id: 'faculty-portal-overview',
     name: 'Academic Faculty Overview',

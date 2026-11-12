@@ -90,8 +90,9 @@ export async function POST(request) {
   const pageData = normalizePublishedPage(body?.pageData);
   const chromeType = pageData?.meta?.templateType || pageData?.meta?.template;
   const chromeRegion = chromeType === 'site-header' ? 'header'
-    : chromeType === 'site-footer' ? 'footer' : null;
-  const pageScopedChrome = Boolean(chromeRegion && body?.chromeScope === 'page');
+    : chromeType === 'site-footer' ? 'footer'
+    : chromeType === 'department-pill-navigation' ? 'pillNavigation' : null;
+  const pageScopedChrome = chromeRegion === 'pillNavigation' || Boolean(chromeRegion && body?.chromeScope === 'page');
   const customMenu = await readCustomMenu();
   const target = chromeRegion && !pageScopedChrome ? null : getPublishTarget(body?.targetPage, customMenu);
   if ((!chromeRegion || pageScopedChrome) && !target) return NextResponse.json({ error: 'Choose a valid page on the university website.' }, { status: 400 });

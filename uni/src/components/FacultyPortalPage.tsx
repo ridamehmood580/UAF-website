@@ -21,6 +21,7 @@ import {
 import { Header } from './Header';
 import { PublishedSiteHeader } from './PublishedSiteHeader';
 import { PublishedDepartmentContent } from './PublishedDepartmentContent';
+import { PublishedDepartmentPillNavigation } from './PublishedDepartmentPillNavigation';
 import { FacultyProfileDetailPage } from './FacultyProfileDetailPage';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1439,6 +1440,7 @@ interface FacultyPortalPageProps {
   publishedSiteHeader?: { elements?: any[] } | null;
   publishedPageContent?: { elements?: any[] } | null;
   publishedPages?: Record<string, { elements?: any[] }>;
+  publishedPillNavigationIndex?: Record<string, { elements?: any[] }>;
   initialDepartmentSubView?: DepartmentSubView;
 }
 
@@ -1456,11 +1458,15 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
   publishedSiteHeader = null,
   publishedPageContent = null,
   publishedPages = {},
+  publishedPillNavigationIndex = {},
   initialDepartmentSubView = 'overview'
 }) => {
   const [activeSection, setActiveSection] = useState<FacultySection>(initialSection);
   const [departmentSubView, setDepartmentSubView] = useState<DepartmentSubView>(initialDepartmentSubView);
   const [openDropdown, setOpenDropdown] = useState<'education' | 'departments' | 'institutes' | 'centres' | null>(null);
+  const [morePillsOpen, setMorePillsOpen] = useState(false);
+  const [morePillGroupOpen, setMorePillGroupOpen] = useState<string | null>(null);
+  const [morePillDivisionOpen, setMorePillDivisionOpen] = useState<string | null>(null);
   const [hoveredDeptItem, setHoveredDeptItem] = useState<FacultySection | null>(null);
   const [hoveredCentreItem, setHoveredCentreItem] = useState<FacultySection | null>(null);
   const [hoveredInstItem, setHoveredInstItem] = useState<FacultySection | null>(null);
@@ -1477,6 +1483,9 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
   useEffect(() => {
     setActiveSection(initialSection);
     setDepartmentSubView(initialDepartmentSubView);
+    setMorePillsOpen(false);
+    setMorePillGroupOpen(null);
+    setMorePillDivisionOpen(null);
     setOpenDropdown(null);
     setHoveredDeptItem(null);
     setHoveredCentreItem(null);
@@ -1492,9 +1501,43 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
   const activeDepartmentsList = currentFacultyConfig.departments || [];
   const activeInstitutesList = currentFacultyConfig.institutes || [];
   const activeCentresList = currentFacultyConfig.centres || [];
-  const hasEducationalPrograms = currentFacultyConfig.hasEducationalPrograms !== false;
+  const hasEducationalPrograms = currentFacultyId === 'fac-agri' && currentFacultyConfig.hasEducationalPrograms !== false;
   const hasPortfolio = currentFacultyConfig.hasPortfolio === true;
   const hasCentres = currentFacultyConfig.hasCentres === true || activeCentresList.length > 0;
+  const pillGroups = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'dean', label: 'The Dean' },
+    ...(hasEducationalPrograms ? [{ id: 'education', label: 'Educational Department' }] : []),
+    ...(activeDepartmentsList.length ? [{ id: 'departments', label: 'Departments' }] : []),
+    ...(hasCentres ? [{ id: 'centres', label: 'Centres' }] : []),
+    ...(activeInstitutesList.length ? [{ id: 'institutes', label: 'Institutes' }] : []),
+    ...(hasPortfolio ? [{ id: 'portfolio', label: 'Portfolio & Research' }] : [])
+  ];
+  const visiblePillKeys = new Set(pillGroups.slice(0, 4).map((group) => group.id));
+  const overflowPillGroups = pillGroups.slice(4);
+  const overflowPillOptions = (groupId: string) => {
+    if (groupId === 'education') return [
+      { id: 'undergraduate', label: 'Undergraduate' },
+      { id: 'postgraduate', label: 'Postgraduate' },
+      { id: 'internship', label: 'Internship' },
+      { id: 'short-courses', label: 'Short Courses' }
+    ];
+    if (groupId === 'portfolio') return [{ id: 'portfolio', label: 'Portfolio & Research' }];
+    const divisions = groupId === 'departments' ? activeDepartmentsList
+      : groupId === 'institutes' ? activeInstitutesList
+      : groupId === 'centres' ? activeCentresList : [];
+    return divisions.map((division) => ({
+      id: division.id,
+      label: division.label,
+      children: [
+        { id: division.id, label: `${groupId === 'institutes' ? 'Institute' : groupId === 'centres' ? 'Centre' : 'Department'} Overview`, subView: 'overview' as const },
+        { id: division.id, label: 'Faculty and Staff', subView: 'staff' as const }
+      ]
+    }));
+  };
+  const activeOverflowPill = overflowPillGroups.some((group) =>
+    overflowPillOptions(group.id).some((option) => option.id === activeSection || option.children?.some((child) => child.id === activeSection))
+  );
 
   // Main sections that are NOT specific department/institute subpages
   const MAIN_FACULTY_SECTIONS = [
@@ -1515,6 +1558,11 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
   const activePublishedPageContent = publishedPages[activePublishedTarget]
     || (activeSection === initialSection ? publishedPageContent : null);
   const showPublishedPageContent = Boolean(activePublishedPageContent && !selectedStaffProfile);
+  const activePublishedPillNavigation = publishedPillNavigationIndex[
+    `faculty:${currentFacultyId}:unit:${activeSection}:${departmentSubView}`
+  ] || publishedPillNavigationIndex[
+    `faculty:${currentFacultyId}:${activeSection}`
+  ] || publishedPillNavigationIndex[`faculty:${currentFacultyId}`] || null;
 
   // Department data resolved only when a department is actually selected
   const activeDeptData = isDepartmentSection ? getDepartment(activeSection, facultyInfo) : undefined;
@@ -1522,6 +1570,16 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
   const handleSelectSection = (section: FacultySection, subView: DepartmentSubView = 'overview') => {
     setActiveSection(section);
     setDepartmentSubView(subView);
+    const pageTarget = MAIN_FACULTY_SECTIONS.includes(section)
+      ? `faculty:${currentFacultyId}:${section}`
+      : `faculty:${currentFacultyId}:unit:${section}:${subView}`;
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('page', pageTarget);
+    nextUrl.hash = '';
+    window.history.replaceState(null, '', nextUrl.toString());
+    setMorePillsOpen(false);
+    setMorePillGroupOpen(null);
+    setMorePillDivisionOpen(null);
     setSelectedStaffProfile(null);
     setOpenDropdown(null);
     setHoveredDeptItem(null);
@@ -1662,9 +1720,58 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
       </section>
 
       {/* 2. FLOATING COMPACT PILL NAVIGATION BAR (Size fitted dynamically to menus, Home removed) */}
+      {activePublishedPillNavigation ? (
+        <PublishedDepartmentPillNavigation
+          data={activePublishedPillNavigation}
+          onLinkClick={(url) => {
+            const target = url.slice(1).toLowerCase();
+            const directSections: Record<string, FacultySection> = {
+              overview: 'overview',
+              'the-dean': 'dean',
+              undergraduate: 'undergraduate',
+              postgraduate: 'postgraduate',
+              internship: 'internship',
+              'short-courses': 'short-courses',
+              'portfolio-research': 'portfolio'
+            };
+            if (directSections[target]) {
+              handleSelectSection(directSections[target]);
+              return;
+            }
+            const division = [...activeDepartmentsList, ...activeInstitutesList].find((item) => {
+              const slug = item.label.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+              return target === slug || target.startsWith(`${slug}-`);
+            });
+            if (division) {
+              handleSelectSection(division.id, target.endsWith('-staff') ? 'staff' : 'overview');
+            }
+          }}
+          onMenuItemClick={(url) => {
+            const target = url.slice(1).toLowerCase();
+            const directSections: Record<string, FacultySection> = {
+              undergraduate: 'undergraduate',
+              postgraduate: 'postgraduate',
+              internship: 'internship',
+              'short-courses': 'short-courses',
+              'portfolio-research': 'portfolio'
+            };
+            if (directSections[target]) {
+              handleSelectSection(directSections[target]);
+              return;
+            }
+            const division = [...activeDepartmentsList, ...activeInstitutesList].find((item) => {
+              const slug = item.label.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+              return target === slug || target.startsWith(`${slug}-`);
+            });
+            if (!division) return;
+            const subView: DepartmentSubView = target.endsWith('-staff') ? 'staff' : 'overview';
+            handleSelectSection(division.id, subView);
+          }}
+        />
+      ) : (
       <div className="relative z-40 -mt-6 sm:-mt-7 flex justify-center px-3 sm:px-6">
-        <div className="inline-flex bg-[#071b2d] text-white rounded-2xl sm:rounded-full px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-[0_12px_32px_rgba(7,27,45,0.4)] border-2 border-[#c99738]/80 max-w-full">
-          <nav className="flex items-center justify-center flex-wrap gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-[13px] font-bold">
+        <div className="inline-flex bg-[#071b2d] text-white rounded-2xl sm:rounded-full px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-[0_12px_32px_rgba(7,27,45,0.4)] border-2 border-[#c99738]/80 max-w-full overflow-visible">
+          <nav className="flex w-max min-w-full flex-nowrap items-center justify-center gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-[13px] font-bold whitespace-nowrap">
             
             {/* Faculty Overview */}
             <button
@@ -1693,7 +1800,7 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
             </button>
 
             {/* Educational Department Dropdown (Shown ONLY if hasEducationalPrograms is true) */}
-            {hasEducationalPrograms && (
+            {hasEducationalPrograms && visiblePillKeys.has('education') && (
               <div
                 className="relative"
                 onMouseEnter={() => setOpenDropdown('education')}
@@ -1741,7 +1848,7 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
             )}
 
             {/* Departments Dropdown (Only if departments exist) */}
-            {activeDepartmentsList && activeDepartmentsList.length > 0 && (
+            {activeDepartmentsList && activeDepartmentsList.length > 0 && visiblePillKeys.has('departments') && (
               <div
                 className="relative"
                 onMouseEnter={() => setOpenDropdown("departments")}
@@ -1860,7 +1967,7 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
               </div>
             )}
             {/* Centres Dropdown / Tab (Shown for Health or any faculty with Centres) */}
-            {hasCentres && (
+            {hasCentres && visiblePillKeys.has('centres') && (
               <div
                 className="relative"
                 onMouseEnter={() => setOpenDropdown("centres")}
@@ -1954,7 +2061,7 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
               </div>
             )}
             {/* Institutes Dropdown (Shown ONLY if activeInstitutesList has items) */}
-            {activeInstitutesList && activeInstitutesList.length > 0 && (
+            {activeInstitutesList && activeInstitutesList.length > 0 && visiblePillKeys.has('institutes') && (
               <div
                 className="relative"
                 onMouseEnter={() => setOpenDropdown("institutes")}
@@ -2124,7 +2231,7 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
               </div>
             )}
             {/* Portfolio & Research (Shown ONLY if hasPortfolio is true) */}
-            {hasPortfolio && (
+            {hasPortfolio && visiblePillKeys.has('portfolio') && (
               <button
                 type="button"
                 onClick={() => handleSelectSection('portfolio')}
@@ -2138,9 +2245,121 @@ export const FacultyPortalPage: React.FC<FacultyPortalPageProps> = ({
               </button>
             )}
 
+            {overflowPillGroups.length > 0 && (
+              <div
+                className="relative"
+                onMouseEnter={() => {
+                  setOpenDropdown(null);
+                  setMorePillsOpen(true);
+                }}
+                onMouseLeave={() => {
+                  setMorePillsOpen(false);
+                  setMorePillGroupOpen(null);
+                  setMorePillDivisionOpen(null);
+                }}
+              >
+                <button
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded={morePillsOpen}
+                  onClick={() => {
+                    setOpenDropdown(null);
+                    const supportsHover = window.matchMedia?.('(hover: hover)').matches;
+                    setMorePillsOpen((open) => supportsHover ? true : !open);
+                    setMorePillGroupOpen(null);
+                    setMorePillDivisionOpen(null);
+                  }}
+                  className={`flex items-center gap-1.5 rounded-full px-3 sm:px-3.5 py-1.5 sm:py-2 transition-all duration-200 ${activeOverflowPill || morePillsOpen ? 'bg-[#163887] text-white shadow-md ring-1 ring-blue-400/50' : 'text-white hover:bg-[#163887]'}`}
+                >
+                  More <ChevronDown className={`h-3.5 w-3.5 transition-transform ${morePillsOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {morePillsOpen && (
+                  <div className="absolute right-0 top-full z-50 w-[min(20rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] pt-2">
+                  <div role="menu" className="w-full max-w-full overflow-visible rounded-2xl border border-[#c99738]/50 bg-[#071b2d] py-2 text-white shadow-2xl box-border">
+                    {overflowPillGroups.map((group) => (
+                      <section key={group.id} className="min-w-0 w-full">
+                        <button
+                          type="button"
+                          role="menuitem"
+                          aria-expanded={morePillGroupOpen === group.id}
+                          onMouseEnter={() => {
+                            setMorePillGroupOpen(group.id);
+                            setMorePillDivisionOpen(null);
+                          }}
+                          onClick={() => {
+                            const supportsHover = window.matchMedia?.('(hover: hover)').matches;
+                            setMorePillGroupOpen((open) => supportsHover ? group.id : open === group.id ? null : group.id);
+                            setMorePillDivisionOpen(null);
+                          }}
+                          className="flex w-full items-center justify-between border-b border-white/10 px-4 py-2.5 text-left text-xs font-bold text-white hover:bg-[#163887] sm:text-[13px]"
+                        >
+                          {group.label}
+                          <ChevronRight className={`h-4 w-4 transition-transform ${morePillGroupOpen === group.id ? 'rotate-90' : ''}`} />
+                        </button>
+                        {morePillGroupOpen === group.id && overflowPillOptions(group.id).map((option) => {
+                          const divisionKey = `${group.id}:${option.id}`;
+                          const hasChildren = Boolean(option.children?.length);
+                          const isDivisionOpen = morePillDivisionOpen === divisionKey;
+                          return (
+                            <div
+                              key={divisionKey}
+                              className="group relative min-w-0 w-full"
+                              onMouseEnter={() => hasChildren && setMorePillDivisionOpen(divisionKey)}
+                            >
+                              <div className="flex items-center">
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  onClick={() => handleSelectSection(option.id)}
+                                  className={`min-w-0 flex-1 whitespace-normal break-words px-4 py-2.5 text-left text-xs sm:text-[13px] font-bold transition-colors ${activeSection === option.id ? 'bg-[#163887] text-white' : 'text-white/90 hover:bg-[#163887]'}`}
+                                >
+                                  {option.label}
+                                </button>
+                                {hasChildren && (
+                                  <button
+                                    type="button"
+                                    aria-label={`${isDivisionOpen ? 'Hide' : 'Show'} ${option.label} suboptions`}
+                                    aria-expanded={isDivisionOpen}
+                                    onClick={() => {
+                                      const supportsHover = window.matchMedia?.('(hover: hover)').matches;
+                                      setMorePillDivisionOpen((open) => supportsHover ? divisionKey : open === divisionKey ? null : divisionKey);
+                                    }}
+                                    className="px-4 py-2.5 text-white/80 hover:bg-[#163887]"
+                                  >
+                                    <ChevronRight className="h-4 w-4 text-white/80" />
+                                  </button>
+                                )}
+                              </div>
+                              {hasChildren && isDivisionOpen && (
+                                <div className="w-full min-w-0 bg-[#061728]/70 sm:absolute sm:right-full sm:top-0 sm:z-[60] sm:w-56 sm:rounded-xl sm:border sm:border-[#c99738]/60 sm:bg-[#071b2d] sm:py-1.5 sm:shadow-2xl">
+                                  {option.children.map((child) => (
+                                    <button
+                                      key={`${divisionKey}:${child.id}:${child.subView || 'overview'}`}
+                                      type="button"
+                                      role="menuitem"
+                                      onClick={() => handleSelectSection(child.id, child.subView || 'overview')}
+                                      className={`block w-full min-w-0 whitespace-normal break-words border-l-2 border-[#c99738]/60 py-2 pl-8 pr-4 text-left text-xs sm:text-[12px] font-semibold transition-colors ${activeSection === child.id && departmentSubView === (child.subView || 'overview') ? 'bg-[#163887] text-white' : 'text-white/80 hover:bg-[#163887]'}`}
+                                    >
+                                      {child.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </section>
+                    ))}
+                  </div>
+                  </div>
+                )}
+              </div>
+            )}
+
           </nav>
         </div>
       </div>
+      )}
 
       {/* 3. Main Content Views */}
       {showPublishedPageContent ? (

@@ -24,10 +24,10 @@ export async function POST() {
       if (latest.previousPublication) chrome[latest.chromeRegion] = latest.previousPublication;
       else delete chrome[latest.chromeRegion];
       nextPublication = { ...publication, chrome };
-    } else if (latest.publicationType === 'chrome-page' && ['header', 'footer'].includes(latest.chromeRegion) && latest.targetPage) {
+    } else if (latest.publicationType === 'chrome-page' && ['header', 'footer', 'pillNavigation'].includes(latest.chromeRegion) && latest.targetPage) {
       const current = publication.chrome?.pageOverrides?.[latest.targetPage]?.[latest.chromeRegion];
       if (current?.id !== latest.id) {
-        return NextResponse.json({ error: 'This page header or footer has changed since publication. Refresh before undoing.' }, { status: 409 });
+        return NextResponse.json({ error: 'This page component has changed since publication. Refresh before undoing.' }, { status: 409 });
       }
       const pageOverrides = { ...(publication.chrome?.pageOverrides || {}) };
       const pageEntry = { ...(pageOverrides[latest.targetPage] || {}) };

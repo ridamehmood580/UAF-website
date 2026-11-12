@@ -158,6 +158,11 @@ function PrimitiveRenderer({
 
       case 'hyperlink': {
         const fontPx = `${el.fontSize || 16}px`;
+        const weightText = String(el.fontWeight || 'semibold').toLowerCase();
+        const numericWeight = Number.parseInt(weightText, 10);
+        const fontWeight = ['bold', 'semibold', 'black', 'extrabold'].includes(weightText)
+          ? 700
+          : Number.isFinite(numericWeight) ? numericWeight : 400;
         const isSocialLink = ['Facebook', 'Instagram', 'LinkedIn', 'YouTube'].includes(el.iconName);
         const isHomeLink = String(el.text || '').replace(/<[^>]*>/g, '').trim().toUpperCase() === 'HOME';
         // Older saved header drafts contain the old absolute UAF URL. Resolve
@@ -169,7 +174,7 @@ function PrimitiveRenderer({
               href={linkHref}
               target={linkHref.startsWith('/') ? undefined : '_blank'}
               rel={linkHref.startsWith('/') ? undefined : 'noreferrer'}
-              style={{ fontSize: fontPx, color: s.textColor || '#163887', fontWeight: el.fontWeight || 600, ...(isSocialLink ? { width: '100%', height: '100%', borderRadius: '999px', backgroundColor: 'transparent', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' } : { display: 'inline-flex', alignItems: 'center', gap: '6px' }), ...(el.fontFamily ? { fontFamily: el.fontFamily } : STYLE_LOCK ? { fontFamily: FONT.body } : {}) }}
+              style={{ fontSize: fontPx, color: s.textColor || '#163887', fontWeight, ...(isSocialLink ? { width: '100%', height: '100%', borderRadius: '999px', backgroundColor: 'transparent', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' } : { display: 'inline-flex', alignItems: 'center', gap: '6px' }), ...(el.fontFamily ? { fontFamily: el.fontFamily } : STYLE_LOCK ? { fontFamily: FONT.body } : {}) }}
               className={`hover:opacity-80 transition ${isSocialLink ? 'text-white text-sm' : ''} ${el.showUnderline ? 'underline' : ''}`}
               onClick={e => { if (isEditing) e.preventDefault(); }}
             >
