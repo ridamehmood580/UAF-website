@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { historyFile, publishedFiles, readJson, writeJson } from '../../../lib/serverStore';
+import { historyFile, readJson, readPublication, writePublication, writeJson } from '../../../lib/serverStore';
 
 export const runtime = 'nodejs';
 
@@ -14,7 +14,7 @@ export async function POST() {
       return NextResponse.json({ error: 'There is no recent publication available to undo.' }, { status: 409 });
     }
 
-    const publication = await readJson(publishedFiles[0], { pages: [], chrome: {} });
+    const publication = await readPublication();
     let nextPublication;
     if (latest.publicationType === 'chrome' && ['header', 'footer'].includes(latest.chromeRegion)) {
       if (publication.chrome?.[latest.chromeRegion]?.id !== latest.id) {
@@ -48,7 +48,7 @@ export async function POST() {
       return NextResponse.json({ error: 'This publication cannot be undone.' }, { status: 409 });
     }
 
-    for (const outputFile of publishedFiles) await writeJson(outputFile, nextPublication);
+    await writePublication(nextPublication);
     const nextEntries = entries.slice();
     nextEntries[historyIndex] = { ...latest, undoneAt: new Date().toISOString() };
     await writeJson(historyFile, { entries: nextEntries });

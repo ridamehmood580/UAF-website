@@ -1,0 +1,1005 @@
+{
+  "kind": "chrome",
+  "region": "header",
+  "entry": {
+    "id": "site-header-1794732566254",
+    "title": "University header",
+    "author": "Faculty",
+    "data": {
+      "meta": {
+        "title": "University header",
+        "author": "Faculty",
+        "templateType": "site-header",
+        "headerTemplateVersion": 4,
+        "template": "site-header",
+        "usesSiteChrome": true
+      },
+      "elements": [
+        {
+          "type": "container",
+          "shapeType": "rectangle",
+          "layoutMode": "vertical",
+          "style": {
+            "bgColor": "#ffffff",
+            "textColor": "#1e3a7a",
+            "borderColor": "#ed9d09",
+            "borderWidth": 2,
+            "borderRadius": 16,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-0",
+          "x": -4400,
+          "y": 0,
+          "width": 10000,
+          "height": 42,
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "LMS",
+          "url": "https://lms.uaf.edu.pk",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-1",
+          "x": 32,
+          "y": 12,
+          "width": 36,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "SIS",
+          "url": "https://sis.uaf.edu.pk",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-2",
+          "x": 80,
+          "y": 12,
+          "width": 34,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "Faculty and Staff",
+          "url": "https://web.uaf.edu.pk/FacultyProfile/Directory",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-3",
+          "x": 126,
+          "y": 12,
+          "width": 110,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "Alumni",
+          "url": "https://alumni.uaf.edu.pk/",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-4",
+          "x": 248,
+          "y": 12,
+          "width": 52,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "ORIC",
+          "url": "https://oric.uaf.edu.pk/",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-5",
+          "x": 312,
+          "y": 12,
+          "width": 42,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "Jobs",
+          "url": "https://web.uaf.edu.pk/Jobs",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-6",
+          "x": 366,
+          "y": 12,
+          "width": 38,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "PKNC",
+          "url": "https://pkncuaf.com/",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-7",
+          "x": 416,
+          "y": 12,
+          "width": 46,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "Quick Links ",
+          "url": "#quick-links",
+          "menuItems": [
+            {
+              "label": "Quick Facts",
+              "url": "https://web.uaf.edu.pk/UploadFiles/Announcements/oric_quick_facts.pdf"
+            },
+            {
+              "label": "Library",
+              "url": "https://web.uaf.edu.pk/Library"
+            },
+            {
+              "label": "Sustainability Policy",
+              "url": "https://web.uaf.edu.pk/Main/Sustainability_Policy"
+            },
+            {
+              "label": "Downloads",
+              "url": "https://web.uaf.edu.pk/Downloads/Downloadables"
+            }
+          ],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-8",
+          "x": 474,
+          "y": 12,
+          "width": 110,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "Complaints / Suggestions",
+          "url": "#resources",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-9",
+          "x": 792,
+          "y": 12,
+          "width": 180,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "👤  Staff Login",
+          "url": "#staff-login",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#163887",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-a",
+          "x": 984,
+          "y": 12,
+          "width": 110,
+          "height": 22,
+          "fontSize": 15,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "container",
+          "shapeType": "rectangle",
+          "layoutMode": "vertical",
+          "style": {
+            "bgColor": "#163887",
+            "textColor": "#ffffff",
+            "borderColor": "transparent",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-b",
+          "x": -4400,
+          "y": 42,
+          "width": 10000,
+          "height": 84,
+          "templateRegion": "header"
+        },
+        {
+          "type": "divider",
+          "style": {
+            "marginTop": 0,
+            "marginBottom": 0,
+            "bgColor": "transparent",
+            "borderColor": "#e8a62a",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 8,
+            "paddingBottom": 8,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "thickness": 3,
+          "id": "el-mwhlf5i2hlr-c",
+          "x": -4400,
+          "y": 124,
+          "width": 10000,
+          "height": 2,
+          "templateRegion": "header",
+          "lineStyle": "solid"
+        },
+        {
+          "type": "image",
+          "src": "/templates/uaf-logo.jpg",
+          "alt": "University of Agriculture Faisalabad Emblem",
+          "caption": "",
+          "shape": "circle",
+          "objectFit": "contain",
+          "style": {
+            "bgColor": "#ffffff",
+            "borderColor": "#ed9d09",
+            "borderWidth": 2,
+            "borderRadius": 999,
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "badge": true,
+          "url": "https://web.uaf.edu.pk/",
+          "height": 56,
+          "id": "el-mwhlf5i2hlr-d",
+          "x": 32,
+          "y": 52,
+          "width": 56,
+          "templateRegion": "header"
+        },
+        {
+          "type": "text",
+          "text": "UNIVERSITY OF",
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#e7e5e4",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-e",
+          "x": 102,
+          "y": 52,
+          "width": 188,
+          "height": 14,
+          "templateRegion": "header",
+          "tag": "p",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontFamily": "'DM Sans', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+          "lineHeight": 1.2,
+          "letterSpacing": "0.2em",
+          "textTransform": "uppercase"
+        },
+        {
+          "type": "text",
+          "text": "AGRICULTURE",
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#ffffff",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-f",
+          "x": 102,
+          "y": 67,
+          "width": 232,
+          "height": 28,
+          "templateRegion": "header",
+          "tag": "p",
+          "fontSize": 24,
+          "fontWeight": "black",
+          "fontFamily": "'Playfair Display', Georgia, serif",
+          "lineHeight": 1.1,
+          "letterSpacing": "0.06em",
+          "textTransform": "uppercase"
+        },
+        {
+          "type": "text",
+          "text": "FAISALABAD",
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#60a5fa",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-g",
+          "x": 102,
+          "y": 97,
+          "width": 186,
+          "height": 14,
+          "templateRegion": "header",
+          "tag": "p",
+          "fontSize": 11,
+          "fontWeight": "bold",
+          "fontFamily": "'DM Sans', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+          "lineHeight": 1.2,
+          "letterSpacing": "0.26em",
+          "textTransform": "uppercase"
+        },
+        {
+          "type": "hyperlink",
+          "text": "HOME",
+          "url": "/",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#ffffff",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-h",
+          "x": 342,
+          "y": 73,
+          "width": 56,
+          "height": 22,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "ABOUT ",
+          "url": "#vision",
+          "menuItems": [
+            {
+              "label": "Organization Chart",
+              "url": "https://web.uaf.edu.pk/Contents/downloads/organization_chart.pdf"
+            },
+            {
+              "label": "Act, Statues, Rules and Regulations",
+              "url": "/?page=act-statues-rules"
+            },
+            {
+              "label": "Former Vice Chancellors",
+              "url": "/?page=former-vice-chancellors"
+            }
+          ],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#ffffff",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-i",
+          "x": 408,
+          "y": 73,
+          "width": 76,
+          "height": 22,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "RTI",
+          "url": "#rti",
+          "menuItems": [],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#ffffff",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-j",
+          "x": 494,
+          "y": 73,
+          "width": 36,
+          "height": 22,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "ADMINISTRATION ",
+          "url": "#administration",
+          "menuItems": [
+            {
+              "label": "VICE CHANCELLOR OFFICE",
+              "url": "https://web.uaf.edu.pk/FacultyProfile/Department?id=49"
+            },
+            {
+              "label": "PRO-VICE CHANCELLOR OFFICE",
+              "url": "https://web.uaf.edu.pk/FacultyProfile/Department?id=47"
+            },
+            {
+              "label": "REGISTRAR OFFICE",
+              "url": "https://web.uaf.edu.pk/FacultyProfile/Department?id=50"
+            },
+            {
+              "label": "TREASURER OFFICE",
+              "url": "https://web.uaf.edu.pk/FacultyProfile/Department?id=51"
+            },
+            {
+              "label": "CONTROLLER OF EXAMINATIONS",
+              "url": "https://web.uaf.edu.pk/Contents/controller_office/con_overview.html"
+            },
+            {
+              "label": "PUBLIC RELATIONS AND MEDIA",
+              "url": "https://web.uaf.edu.pk/Contents/pr/pr_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF PRESS & PUBLICATIONS",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/publications/pb_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF ITRCDB",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/it/it_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF GRADUATE STUDIES",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/advanced_studies/adv_res.html"
+            },
+            {
+              "label": "DIRECTORATE OF PROCUREMENT AND INVENTORY CONTROL",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/dpiv/dpiv_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF ACADEMICS",
+              "url": "https://web.uaf.edu.pk/FacultyProfile/Department?id=69"
+            },
+            {
+              "label": "DIRECTORATE OF STUDENT AFFAIRS",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/student_affairs/dr_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF EXTERNAL LINKAGES",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/external_linkages/ext_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF SPORTS",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/sports/sp_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF FARMS",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/farms/farm_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF OUTREACH",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/outreach/out_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF FINANCIAL ASSISTANCE AND UNIVERSITY ADVANCEMENT",
+              "url": "https://web.uaf.edu.pk/"
+            },
+            {
+              "label": "DIRECTORATE OF PLANNING AND DEVELOPMENT",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/Planning_Development/pd_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF MONITORING & EVALUATION",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/mne/mne_overview.html"
+            },
+            {
+              "label": "ENDOWMENT FUND SECRETARIAT",
+              "url": "https://efs-uaf.org/"
+            },
+            {
+              "label": "HUMAN RESOURCE",
+              "url": "https://web.uaf.edu.pk/FacultyProfile/Department?id=44"
+            },
+            {
+              "label": "OFFICE OF RESEARCH, INNOVATION AND COMMERCIALIZATION",
+              "url": "https://oric.uaf.edu.pk/"
+            },
+            {
+              "label": "BUSINESS INCUBATION CENTER",
+              "url": "https://web.uaf.edu.pk/Contents/bic/bic_overview.html"
+            },
+            {
+              "label": "QUALITY ENHANCEMENT CELL",
+              "url": "https://web.uaf.edu.pk/Contents/qec/qec_head_message.html"
+            },
+            {
+              "label": "SENIOR TUTOR OFFICE",
+              "url": "https://web.uaf.edu.pk/Contents/sto/st_overview.html"
+            },
+            {
+              "label": "DIRECTORATE OF PUBLICATIONS",
+              "url": "https://web.uaf.edu.pk/Contents/directorates/publications/pb_overview.html"
+            },
+            {
+              "label": "FOREIGN STUDENTS' ADVISOR",
+              "url": "https://uaf.edu.pk/directorates/fsa/fsa_overview.html"
+            }
+          ],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#ffffff",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-k",
+          "x": 540,
+          "y": 73,
+          "width": 152,
+          "height": 22,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "ACADEMICS",
+          "url": "#programs",
+          "menuItems": [
+            {
+              "label": "FACULTIES",
+              "url": "https://web.uaf.edu.pk/#programs",
+              "children": [
+                {
+                  "label": "FACULTY OF AGRICULTURE",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "FACULTY OF VETERINARY SCIENCE",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "FACULTY OF SCIENCES",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "FACULTY OF ANIMAL HUSBANDRY",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "FACULTY OF AGRICULTURE ENGINEERING AND TECHNOLOGY",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "FACULTY OF SOCIAL SCIENCES",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "FACULTY OF FOOD, NUTRITION AND HOME SCIENCES",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "FACULTY OF ARTS AND HUMANITIES",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "FACULTY OF HEALTH AND PHARMACEUTICAL SCIENCES",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                }
+              ]
+            },
+            {
+              "label": "INSTITUTES",
+              "url": "https://web.uaf.edu.pk/#programs",
+              "children": [
+                {
+                  "label": "INSTITUTE OF HORTICULTURAL SCIENCES",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "INSTITUTE OF SOIL & ENVIRONMENTAL SCIENCES",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "INSTITUTE OF ANIMAL & DAIRY SCIENCES",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "INSTITUTE OF BUSINESS MANAGEMENT SCIENCES (IBMS)",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "INSTITUTE OF MICROBIOLOGY",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "NATIONAL INSTITUTE OF FOOD SCIENCE & TECHNOLOGY (NIFSAT)",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "INSTITUTE OF AGRICULTURAL EXTENSION & RURAL DEVELOPMENT",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "INSTITUTE OF PHARMACY, PHYSIOLOGY & PHARMACOLOGY",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "INSTITUTE OF AGRICULTURAL & RESOURCE ECONOMICS",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                }
+              ]
+            },
+            {
+              "label": "CONSTITUENT COLLEGES",
+              "url": "https://web.uaf.edu.pk/#programs",
+              "children": [
+                {
+                  "label": "UAF SUB-CAMPUS BUREWALA (VEHARI)",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "UAF SUB-CAMPUS TOBA TEK SINGH",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                },
+                {
+                  "label": "UAF SUB-CAMPUS DEPALPUR (OKARA)",
+                  "url": "https://web.uaf.edu.pk/#programs"
+                }
+              ]
+            },
+            {
+              "label": "U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES",
+              "url": "https://web.uaf.edu.pk/#programs"
+            },
+            {
+              "label": "COMMUNITY COLLEGE",
+              "url": "https://web.uaf.edu.pk/#programs"
+            },
+            {
+              "label": "DIRECTORATE OF CABB",
+              "url": "https://web.uaf.edu.pk/#programs"
+            },
+            {
+              "label": "PROFESSIONAL TRAINING AND SKILL DEVELOPMENT CENTER",
+              "url": "https://web.uaf.edu.pk/#programs"
+            },
+            {
+              "label": "DIRECTORATE OF WATER MANAGEMENT RESEARCH CENTRE",
+              "url": "https://web.uaf.edu.pk/#programs"
+            }
+          ],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#ffffff",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-l",
+          "x": 702,
+          "y": 73,
+          "width": 108,
+          "height": 22,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "ADMISSIONS ",
+          "url": "#admissions",
+          "menuItems": [
+            {
+              "label": "UNDERGRADUATE",
+              "url": "https://web.uaf.edu.pk/#admissions"
+            },
+            {
+              "label": "POSTGRADUATE",
+              "url": "https://web.uaf.edu.pk/#admissions"
+            },
+            {
+              "label": "INTERNATIONAL STUDENTS",
+              "url": "https://web.uaf.edu.pk/#admissions"
+            }
+          ],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#ffffff",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-m",
+          "x": 820,
+          "y": 73,
+          "width": 118,
+          "height": 22,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "hyperlink",
+          "text": "MEDIA & PUBLICATIONS ",
+          "url": "#latest-events",
+          "menuItems": [
+            {
+              "label": "ANNUAL REPORTS",
+              "url": "https://web.uaf.edu.pk/Main/AnnualReport"
+            },
+            {
+              "label": "CAMPUS NEWS",
+              "url": "https://web.uaf.edu.pk/CampusNews/ViewCampusNews"
+            },
+            {
+              "label": "AGROMENT BULLETIN",
+              "url": "https://web.uaf.edu.pk/Main/AgrometBuletin"
+            },
+            {
+              "label": "NEWS AND EVENTS",
+              "url": "https://web.uaf.edu.pk/#latest-events"
+            },
+            {
+              "label": "JOURNALS",
+              "url": "https://web.uaf.edu.pk/Contents/journal/jou_list.html"
+            }
+          ],
+          "showUnderline": false,
+          "showExternalIcon": false,
+          "style": {
+            "bgColor": "transparent",
+            "textColor": "#ffffff",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-n",
+          "x": 948,
+          "y": 73,
+          "width": 182,
+          "height": 22,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "templateRegion": "header"
+        },
+        {
+          "type": "button",
+          "label": "",
+          "buttonLabel": "",
+          "iconName": "Search",
+          "style": {
+            "bgColor": "rgba(255,255,255,0.10)",
+            "textColor": "#e8a62a",
+            "borderColor": "rgba(255,255,255,0.20)",
+            "borderWidth": 1,
+            "borderRadius": 999,
+            "paddingTop": 0,
+            "paddingBottom": 0,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "id": "el-mwhlf5i2hlr-o",
+          "x": 1144,
+          "y": 63,
+          "width": 40,
+          "height": 40,
+          "templateRegion": "header"
+        },
+        {
+          "type": "divider",
+          "style": {
+            "marginTop": 0,
+            "marginBottom": 0,
+            "bgColor": "transparent",
+            "borderColor": "#e8a62a",
+            "borderWidth": 0,
+            "borderRadius": 0,
+            "shadow": "none",
+            "paddingTop": 8,
+            "paddingBottom": 8,
+            "paddingLeft": 0,
+            "paddingRight": 0
+          },
+          "thickness": 3,
+          "id": "el-mwhlf5i2hlr-p",
+          "x": -4400,
+          "y": 126,
+          "width": 10000,
+          "height": 4,
+          "templateRegion": "header",
+          "lineStyle": "solid"
+        }
+      ],
+      "draftId": "draft-1794732548763-1688"
+    },
+    "publishedAt": "2026-11-15T08:49:26.227Z"
+  }
+}

@@ -33,6 +33,14 @@ const HEADER_LINK_DESTINATIONS: Record<string, string> = {
   'STAFF LOGIN': '#staff-login',
   HOME: '/',
   ABOUT: '#vision',
+  'ORGANIZATION CHART': 'https://web.uaf.edu.pk/Contents/downloads/organization_chart.pdf',
+  'ACT, STATUES, RULES AND REGULATIONS': '/?page=act-statues-rules',
+  'FORMER VICE CHANCELLORS': '/?page=former-vice-chancellors',
+  'DIRECTORATE OF WATER MANAGEMENT RESEARCH CENTRE': '/?page=water-management-research-centre',
+  'U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES': 'https://uspcasafs.uaf.edu.pk/',
+  'PROFESSIONAL TRAINING AND SKILL DEVELOPMENT CENTER': 'https://web.uaf.edu.pk/FacultyProfile/Department?id=54',
+  'DIRECTORATE OF CABB': '/?page=cabb',
+  'COMMUNITY COLLEGE': '/?page=community-college',
   RTI: '#rti',
   ADMINISTRATION: '#administration',
   ACADEMICS: '#programs',
@@ -48,6 +56,33 @@ const HEADER_LINK_DESTINATIONS: Record<string, string> = {
   'CAMPUS LIFE & BOTANICAL GARDENS': '#campus',
   'OFFICERS OF THE UNIVERSITY': '#administration',
   'SYNDICATE & STATUTORY BODIES': '#administration',
+  'VICE CHANCELLOR OFFICE': 'https://web.uaf.edu.pk/FacultyProfile/Department?id=49',
+  'PRO-VICE CHANCELLOR OFFICE': 'https://web.uaf.edu.pk/FacultyProfile/Department?id=47',
+  'REGISTRAR OFFICE': 'https://web.uaf.edu.pk/FacultyProfile/Department?id=50',
+  'TREASURER OFFICE': 'https://web.uaf.edu.pk/FacultyProfile/Department?id=51',
+  'CONTROLLER OF EXAMINATIONS': '/?page=controller-examinations',
+  'PUBLIC RELATIONS AND MEDIA': '/?page=public-relations',
+  'DIRECTORATE OF PRESS & PUBLICATIONS': '/?page=press-publications',
+  'DIRECTORATE OF ITRCDB': '/?page=itrcdb',
+  'DIRECTORATE OF GRADUATE STUDIES': '/?page=graduate-studies',
+  'DIRECTORATE OF PROCUREMENT AND INVENTORY CONTROL': '/?page=procurement-inventory',
+  'DIRECTORATE OF ACADEMICS': 'https://web.uaf.edu.pk/FacultyProfile/Department?id=69',
+  'DIRECTORATE OF STUDENT AFFAIRS': '/?page=student-affairs',
+  'DIRECTORATE OF EXTERNAL LINKAGES': '/?page=external-linkages',
+  'DIRECTORATE OF SPORTS': '/?page=sports',
+  'DIRECTORATE OF FARMS': '/?page=farms',
+  'DIRECTORATE OF OUTREACH': '/?page=outreach',
+  'DIRECTORATE OF FINANCIAL ASSISTANCE AND UNIVERSITY ADVANCEMENT': '/?page=dfaua',
+  'DIRECTORATE OF PLANNING AND DEVELOPMENT': '/?page=planning-development',
+  'DIRECTORATE OF MONITORING & EVALUATION': '/?page=monitoring-evaluation',
+  'ENDOWMENT FUND SECRETARIAT': 'https://efs-uaf.org/',
+  'HUMAN RESOURCE': 'https://web.uaf.edu.pk/FacultyProfile/Department?id=44',
+  'OFFICE OF RESEARCH, INNOVATION AND COMMERCIALIZATION': 'https://oric.uaf.edu.pk/',
+  'BUSINESS INCUBATION CENTER': '/?page=business-incubation',
+  'QUALITY ENHANCEMENT CELL': '/?page=quality-enhancement-cell',
+  'SENIOR TUTOR OFFICE': '/?page=senior-tutor-office',
+  'DIRECTORATE OF PUBLICATIONS': '/?page=press-publications',
+  "FOREIGN STUDENTS' ADVISOR": '/?page=foreign-students-advisor',
   'ASK UAF VIRTUAL GUIDE': '#advisor',
   'MAIN UAF OFFICIAL PORTAL': 'https://web.uaf.edu.pk',
   'CAMPUS EVENTS & NEWS': '#latest-events',
@@ -56,15 +91,74 @@ const HEADER_LINK_DESTINATIONS: Record<string, string> = {
   'ANNUAL KISSAN MELA ARCHIVE': '#events'
 };
 const normalizeHeaderLabel = (label?: string) => String(label || '').replace(/\s*[▾▼]$/, '').trim().toUpperCase();
+const FLAT_ACADEMIC_MENU_LABELS = new Set([
+  'U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES',
+  'COMMUNITY COLLEGE',
+  'DIRECTORATE OF CABB',
+  'PROFESSIONAL TRAINING AND SKILL DEVELOPMENT CENTER',
+  'DIRECTORATE OF WATER MANAGEMENT RESEARCH CENTRE'
+]);
 const canonicalHeaderHref = (label?: string, fallback?: string) =>
   HEADER_LINK_DESTINATIONS[normalizeHeaderLabel(label)] || fallback || '#';
 const canonicalMenuItems = (items: PrimitiveMenuItem[] = []): PrimitiveMenuItem[] => items
-  .filter((item) => normalizeHeaderLabel(item.label) !== 'UNDERGRADUATE MERIT CALCULATOR')
-  .map((item) => ({
-    ...item,
-    url: canonicalHeaderHref(item.label, item.url),
-    ...(item.children?.length ? { children: canonicalMenuItems(item.children) } : {})
-  }));
+  .filter((item) => !['UNDERGRADUATE MERIT CALCULATOR', 'UAF COMMUNITY COLLEGE PARS'].includes(normalizeHeaderLabel(item.label)))
+  .map((item) => {
+    const isConstituentColleges = normalizeHeaderLabel(item.label) === 'CONSTITUENT COLLEGES';
+    return {
+      ...item,
+      url: canonicalHeaderHref(item.label, item.url),
+      ...(item.children?.length && !FLAT_ACADEMIC_MENU_LABELS.has(normalizeHeaderLabel(item.label)) ? {
+        children: isConstituentColleges
+          ? item.children.map((child) => ({ label: child.label, url: canonicalHeaderHref(child.label, child.url) }))
+          : canonicalMenuItems(item.children)
+      } : {})
+    };
+  });
+
+const ADMINISTRATION_MENU_LABELS = [
+  'VICE CHANCELLOR OFFICE',
+  'PRO-VICE CHANCELLOR OFFICE',
+  'REGISTRAR OFFICE',
+  'TREASURER OFFICE',
+  'CONTROLLER OF EXAMINATIONS',
+  'PUBLIC RELATIONS AND MEDIA',
+  'DIRECTORATE OF PRESS & PUBLICATIONS',
+  'DIRECTORATE OF ITRCDB',
+  'DIRECTORATE OF GRADUATE STUDIES',
+  'DIRECTORATE OF PROCUREMENT AND INVENTORY CONTROL',
+  'DIRECTORATE OF ACADEMICS',
+  'DIRECTORATE OF STUDENT AFFAIRS',
+  'DIRECTORATE OF EXTERNAL LINKAGES',
+  'DIRECTORATE OF SPORTS',
+  'DIRECTORATE OF FARMS',
+  'DIRECTORATE OF OUTREACH',
+  'DIRECTORATE OF FINANCIAL ASSISTANCE AND UNIVERSITY ADVANCEMENT',
+  'DIRECTORATE OF PLANNING AND DEVELOPMENT',
+  'DIRECTORATE OF MONITORING & EVALUATION',
+  'ENDOWMENT FUND SECRETARIAT',
+  'HUMAN RESOURCE',
+  'OFFICE OF RESEARCH, INNOVATION AND COMMERCIALIZATION',
+  'BUSINESS INCUBATION CENTER',
+  'QUALITY ENHANCEMENT CELL',
+  'SENIOR TUTOR OFFICE',
+  'DIRECTORATE OF PUBLICATIONS',
+  "FOREIGN STUDENTS' ADVISOR"
+];
+const defaultAdministrationMenu = (): PrimitiveMenuItem[] => ADMINISTRATION_MENU_LABELS.map((label) => ({
+  label,
+  url: canonicalHeaderHref(label)
+}));
+const defaultAboutMenu = (): PrimitiveMenuItem[] => [
+  'Organization Chart',
+  'Act, Statues, Rules and Regulations',
+  'Former Vice Chancellors'
+].map((label) => ({ label, url: canonicalHeaderHref(label) }));
+const QUICK_LINK_MENU_ITEMS: PrimitiveMenuItem[] = [
+  { label: 'Quick Facts', url: 'https://web.uaf.edu.pk/UploadFiles/Announcements/oric_quick_facts.pdf' },
+  { label: 'Library', url: 'https://web.uaf.edu.pk/Library' },
+  { label: 'Sustainability Policy', url: 'https://web.uaf.edu.pk/Main/Sustainability_Policy' },
+  { label: 'Downloads', url: 'https://web.uaf.edu.pk/Downloads/Downloadables' }
+];
 
 export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
   data,
@@ -96,7 +190,8 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
   const brandText = brandItems.filter((element) => element.type === 'text');
   const primaryItems = navbarItems.filter((element) => readX(element) >= 342).sort((a, b) => readX(a) - readX(b));
   const accent = elements.find((element) => element.type === 'divider' && readY(element) >= navbarStart + navbarHeight - 4);
-  const legacyHeader = data?.meta?.headerTemplateVersion !== 2;
+  const headerTemplateVersion = data?.meta?.headerTemplateVersion || 1;
+  const legacyHeader = headerTemplateVersion < 2;
   const hasSearchControl = primaryItems.some((element) => element.type === 'button' && element.iconName === 'Search');
   useEffect(() => {
     if (!openMenuId) return;
@@ -121,6 +216,7 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
 
   const renderMenuItems = (items: PrimitiveMenuItem[], element: PrimitiveElement, nested = false) => {
     const isQuickLinks = normalizeHeaderLabel(element.text) === 'QUICK LINKS';
+    const isAdministration = normalizeHeaderLabel(element.text) === 'ADMINISTRATION';
     const quickLinkIcon = (label: string) => {
       if (label === 'Sustainability Policy') return <Leaf className="h-5 w-5" />;
       if (label === 'Downloads') return <Download className="h-5 w-5" />;
@@ -128,11 +224,12 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
     };
     return (
     <div
-      className={`absolute ${nested ? 'right-full mr-2 top-0' : 'left-0 top-full mt-2'} z-[100] ${isQuickLinks ? 'w-[min(16rem,calc(100vw-2rem))] rounded-xl p-1.5' : 'min-w-64 max-w-[22rem] rounded-xl py-2'} overflow-visible border border-stone-200 bg-white text-[#1e3a7a] shadow-2xl`}
+      className={`absolute ${nested ? 'right-full mr-2 top-0' : 'left-0 top-full mt-2'} z-[100] ${isQuickLinks ? 'w-[min(16rem,calc(100vw-2rem))] rounded-xl p-1.5' : 'min-w-64 max-w-[22rem] rounded-xl py-2'} ${isAdministration && !nested ? 'max-h-[70vh] overflow-y-auto overscroll-contain' : 'overflow-visible'} border border-stone-200 bg-white text-[#1e3a7a] shadow-2xl`}
       onClick={(event) => event.stopPropagation()}
     >
       {items.map((item) => {
         const hasChildren = Boolean(item.children?.length);
+        const showSubmenuArrow = hasChildren;
         const itemHref = canonicalHeaderHref(item.label, item.url);
         const itemContent = isQuickLinks ? <>
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#00664f] text-white shadow-sm">
@@ -141,7 +238,7 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
           <span className="flex-1 text-sm font-medium text-stone-900">{item.label}</span>
         </> : <>
           <span>{item.label}</span>
-          {hasChildren && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[#e8a62a]" />}
+          {showSubmenuArrow && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[#e8a62a]" />}
         </>;
         const commonClass = isQuickLinks
           ? 'flex w-full items-center gap-2.5 rounded-lg px-1.5 py-1.5 text-left transition-colors hover:bg-stone-50'
@@ -179,7 +276,7 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
             event.preventDefault();
             onNavigateHome();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else if ((label.includes('virtual guide') || label.includes('advisor')) && onOpenAdvisor) {
+          } else if (label.includes('virtual guide') && onOpenAdvisor) {
             event.preventDefault();
             onOpenAdvisor();
           } else if (element.text?.toLowerCase().includes('admissions') && onNavigateAdmissions) {
@@ -221,8 +318,18 @@ export const PublishedSiteHeader: React.FC<PublishedSiteHeaderProps> = ({
     // Resolve their labels against the same destinations as Header.tsx instead.
     const renderedElement = {
       ...element,
-      url: canonicalHeaderHref(element.text, element.url),
-      ...(menuItems.length ? { menuItems: canonicalMenuItems(menuItems) } : {})
+      url: headerTemplateVersion >= 4 && section === 'utility'
+        ? (element.url || canonicalHeaderHref(element.text))
+        : canonicalHeaderHref(element.text, element.url),
+      ...(menuItems.length ? {
+        menuItems: normalizeHeaderLabel(element.text) === 'ABOUT'
+          ? defaultAboutMenu()
+          : normalizeHeaderLabel(element.text) === 'ADMINISTRATION' && headerTemplateVersion < 3
+          ? defaultAdministrationMenu()
+          : normalizeHeaderLabel(element.text) === 'QUICK LINKS' && headerTemplateVersion < 4
+            ? QUICK_LINK_MENU_ITEMS
+            : canonicalMenuItems(menuItems)
+      } : {})
     };
     const isSearch = element.type === 'button' && element.iconName === 'Search';
     const isStaffLogin = element.text?.toLowerCase().includes('staff login');

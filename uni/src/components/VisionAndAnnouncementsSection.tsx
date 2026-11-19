@@ -14,54 +14,12 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
   const [isVisible, setIsVisible] = useState(false);
 
   const ANNOUNCEMENTS_LIST = [
-    {
-      day: '9',
-      month: 'Aug',
-      title: 'Undergraduate Result of Second Entry Test held on 02-08-2026',
-      subtext: 'Undergraduate Admission 2026-27',
-      link: 'https://web.uaf.edu.pk/UploadFiles/Announcements/d0121647-ccc2-44b7-b056-1cd6b7aa3303.pdf',
-      isNew: true
-    },
-    {
-      day: '7',
-      month: 'Aug',
-      title: 'Schedule Of Hafiz-e-Quran Test/Interviews For Undergraduate Admission 2026-27',
-      subtext: 'Test will be conducted on 12-08-2026 at 08:00 am at DSA Office',
-      link: 'https://web.uaf.edu.pk/UploadFiles/Announcements/14477d17-1db9-4744-ac7c-7e96fc8e24ae.pdf',
-      isNew: true
-    },
-    {
-      day: '7',
-      month: 'Aug',
-      title: 'Schedule For Interview/Test Of Co-Curricular Activities For Undergraduate Admissions 2026-27',
-      subtext: 'Interview/Test of Co-curricular activities 2026-27',
-      link: 'https://web.uaf.edu.pk/UploadFiles/Announcements/aaea3a73-c5d7-4eba-8932-60b05c644d3f.jpeg',
-      isNew: false
-    },
-    {
-      day: '7',
-      month: 'Aug',
-      title: 'Schedule Of Sports Trials (New Date Will Be Announced Soon)',
-      subtext: 'Sports Trials Details & venue guidelines',
-      link: '#notices',
-      isNew: false
-    },
-    {
-      day: '23',
-      month: 'Jul',
-      title: 'Postponement of Screening Test for the post of Assistant Professor',
-      subtext: 'Notice for applicants of the Assistant Professor screening test',
-      link: 'https://web.uaf.edu.pk/UploadFiles/Announcements/85faa25b-e664-4685-b869-ee1fb01b7066.jpeg',
-      isNew: false
-    },
-    {
-      day: '9',
-      month: 'Jun',
-      title: 'Online Application for Admission Undergraduate Session 2026-27',
-      subtext: 'Undergraduate Admission 2026-27 portal registration',
-      link: 'https://admissions.uaf.edu.pk/',
-      isNew: false
-    }
+    { day: '3', month: 'Nov', title: 'Undergraduate First Semester Fee Voucher', subtext: 'Fee voucher information for undergraduate students', link: 'https://appserver1.uaf.edu.pk/', isNew: true },
+    { day: '21', month: 'Oct', title: "Chief Minister's Honhaar Scholarship Program 2026", subtext: 'Scholarship announcement for eligible students', link: 'https://web.uaf.edu.pk/UploadFiles/Announcements/b4ab2fc4-b2be-4ba7-add7-7df6e15d7761.jpg', isNew: true },
+    { day: '9', month: 'Oct', title: '4th Entry Test for Winter Semester 2026-27', subtext: 'Entry test notice for Winter Semester admissions', link: 'https://web.uaf.edu.pk/UploadFiles/Announcements/c919331c-1027-4103-adc5-cda08cda08cf.pdf', isNew: true },
+    { day: '9', month: 'Oct', title: 'Two-Year Associate Degree in Renewable Energy Technologies', subtext: 'Academic session 2026-2027', link: 'https://web.uaf.edu.pk/UploadFiles/Announcements/70c2c382-e8cf-4694-b93d-a3fa23b34cbf.pdf', isNew: false },
+    { day: '1', month: 'Oct', title: 'Result of 3rd GRE Test held on 27-09-2026', subtext: 'Graduate Record Examination result notice', link: 'https://web.uaf.edu.pk/UploadFiles/Announcements/cefbf0f0-8b07-45b0-8df8-1aaded93871f.pdf', isNew: false },
+    { day: '6', month: 'Sep', title: 'Undergraduate Merit Lists 2026-2027', subtext: 'Merit list updates for undergraduate admissions', link: 'https://web.uaf.edu.pk/Downloads/MeritListsView', isNew: false }
   ];
 
   // Scroll Slide Effect #1: Slides in from Left-to-Right when scrolling
@@ -107,23 +65,25 @@ export const VisionAndAnnouncementsSection: React.FC<VisionAndAnnouncementsSecti
             {/* Body Text */}
             <div className="space-y-4 text-[#46505a] text-[15px] sm:text-[16px] leading-[1.85] text-justify font-normal">
               <p>
-                Founded in 1906 as the Punjab Agricultural College and Research Institute, Lyallpur, the institution became the West Pakistan Agricultural University in 1961 and has stood as the University of Agriculture, Faisalabad since 1973. Into the 21st century, UAF continues to push the frontiers of knowledge through interdisciplinary teaching, research and outreach that serve agricultural and rural development.
+                The foundation stone of UAF was laid in 1906 with the name of Punjab Agricultural College and Research Institute, Lyallpur which was upgraded as the West Pakistan Agricultural University, Lyallpur in 1961 and now the University of Agriculture, Faisalabad since 1973. In the 21st century, UAF will push across the frontiers of knowledge to create, in service to the public, unique interdisciplinary programs of teaching, research, and outreach essential for agricultural and rural development. UAF will become an exemplar of a university that prepares citizens as work force and for leadership in a diverse, global and technology-driven environment.
               </p>
               <p className="text-[#46505a] font-normal">
-                The Vision 2050 Strategic Framework charts UAF's path toward becoming an internationally recognized research university and a gateway to agricultural knowledge for Pakistan — guiding the university's priorities and planning cycles for the years ahead.
+                For a knowledge-based economy, the university becomes a key element of innovation systems both as a creator of new knowledge and ideas based on research, and as a provider of human capital. The purpose of the Vision 2050 Strategic Framework is to articulate an action plan that defines a path to elevate UAF's position as one of the internationally recognized research universities and a gateway to knowledge for agricultural and rural development in Pakistan. It provides the overarching themes for more detailed plans that will be based on imperatives current for the time and that will shape strategic thinking during the respective planning cycles in the future years.
               </p>
             </div>
 
             {/* Read More Link */}
             <div className="pt-3">
               <a
-                href="#about"
+                href="https://web.uaf.edu.pk/UploadFiles/Announcements/970f97f8-77b6-47c5-96e2-0d7e0b8bb45a.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-4 text-[#102a43] hover:text-blue-700 font-bold text-sm sm:text-base group transition-colors"
               >
                 <span className="w-12 h-12 rounded-full bg-[#1d4e89] group-hover:bg-[#102a43] text-white flex items-center justify-center transition-all group-hover:translate-x-1.5 shadow-md">
                   <ArrowRight className="w-5 h-5" />
                 </span>
-                <span>Read more about Vision 2050</span>
+                <span>Read the full Vision 2050 framework</span>
               </a>
             </div>
 

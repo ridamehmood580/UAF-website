@@ -4910,16 +4910,16 @@
             "url": "https://web.uaf.edu.pk/#vision",
             "menuItems": [
               {
-                "label": "VISION 2050 & HERITAGE",
-                "url": "https://web.uaf.edu.pk/#vision"
+                "label": "Organization Chart",
+                "url": "https://web.uaf.edu.pk/Contents/downloads/organization_chart.pdf"
               },
               {
-                "label": "VICE CHANCELLOR MESSAGE",
-                "url": "https://web.uaf.edu.pk/#vc-message"
+                "label": "Act, Statues, Rules and Regulations",
+                "url": "/?page=act-statues-rules"
               },
               {
-                "label": "CAMPUS LIFE & BOTANICAL GARDENS",
-                "url": "https://web.uaf.edu.pk/#campus"
+                "label": "Former Vice Chancellors",
+                "url": "/?page=former-vice-chancellors"
               }
             ],
             "showUnderline": false,
@@ -5111,122 +5111,28 @@
                   {
                     "label": "UAF SUB-CAMPUS DEPALPUR (OKARA)",
                     "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "UAF COMMUNITY COLLEGE PARS",
-                    "url": "https://web.uaf.edu.pk/#programs"
                   }
                 ]
               },
               {
                 "label": "U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES",
-                "url": "https://web.uaf.edu.pk/#programs",
-                "children": [
-                  {
-                    "label": "USPCAS-AFS RESEARCH DIVISIONS",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "CLIMATE WATER BIO-RESOURCES WING",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "CHILLED CLIMATE RESEARCH PHYTOTRONS",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "POLICY DIALOGUE & OUTREACH SUITE",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  }
-                ]
+                "url": "https://web.uaf.edu.pk/#programs"
               },
               {
                 "label": "COMMUNITY COLLEGE",
-                "url": "https://web.uaf.edu.pk/#programs",
-                "children": [
-                  {
-                    "label": "DIPLOMA IN AGRICULTURAL SCIENCES (DAS)",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "INTERMEDIATE PRE-AGRICULTURE",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "LIVESTOCK ASSISTANT DIPLOMA (LAD)",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "FARM MACHINERY SKILL TRAINING",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  }
-                ]
+                "url": "https://web.uaf.edu.pk/#programs"
               },
               {
                 "label": "DIRECTORATE OF CABB",
-                "url": "https://web.uaf.edu.pk/#programs",
-                "children": [
-                  {
-                    "label": "CENTRE OF AGRICULTURAL BIOCHEMISTRY & BIOTECHNOLOGY",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "PLANT TISSUE CULTURE & TRANSGENICS LAB",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "MOLECULAR DIAGNOSTICS & GENOMICS CORE",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "BIO-INFORMATICS & GENE EDITING (CRISPR)",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  }
-                ]
+                "url": "https://web.uaf.edu.pk/#programs"
               },
               {
                 "label": "PROFESSIONAL TRAINING AND SKILL DEVELOPMENT CENTER",
-                "url": "https://web.uaf.edu.pk/#programs",
-                "children": [
-                  {
-                    "label": "SHORT COURSES IN COMMERCIAL HYDROPONICS",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "MODERN TUNNEL FARMING & GREENHOUSE DESIGN",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "DAIRY HERD MANAGEMENT & ARTIFICIAL INSEMINATION",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "AGRI-DRONE PILOT & PRECISION SPRAY CERTIFICATION",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  }
-                ]
+                "url": "https://web.uaf.edu.pk/#programs"
               },
               {
                 "label": "DIRECTORATE OF WATER MANAGEMENT RESEARCH CENTRE",
-                "url": "https://web.uaf.edu.pk/#programs",
-                "children": [
-                  {
-                    "label": "INDUS BASIN GROUNDWATER MONITORING NETWORK",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "PRECISION DRIP & SPRINKLER TELEMETRY",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "SOLAR PUMPING & SALINITY RECLAMATION",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  },
-                  {
-                    "label": "CLIMATE ADAPTIVE IRRIGATION REGIMES",
-                    "url": "https://web.uaf.edu.pk/#programs"
-                  }
-                ]
+                "url": "https://web.uaf.edu.pk/#programs"
               }
             ],
             "showUnderline": false,
@@ -5537,40 +5443,70 @@
                     "label": "Agronomy",
                     "url": "#agronomy",
                     "children": [
-                      { "label": "Department Overview", "url": "#agronomy-overview" },
-                      { "label": "Faculty and Staff", "url": "#agronomy-staff" }
+                      {
+                        "label": "Department Overview",
+                        "url": "#agronomy-overview"
+                      },
+                      {
+                        "label": "Faculty and Staff",
+                        "url": "#agronomy-staff"
+                      }
                     ]
                   },
                   {
                     "label": "Entomology",
                     "url": "#entomology",
                     "children": [
-                      { "label": "Department Overview", "url": "#entomology-overview" },
-                      { "label": "Faculty and Staff", "url": "#entomology-staff" }
+                      {
+                        "label": "Department Overview",
+                        "url": "#entomology-overview"
+                      },
+                      {
+                        "label": "Faculty and Staff",
+                        "url": "#entomology-staff"
+                      }
                     ]
                   },
                   {
                     "label": "Plant Pathology",
                     "url": "#plant-pathology",
                     "children": [
-                      { "label": "Department Overview", "url": "#plant-pathology-overview" },
-                      { "label": "Faculty and Staff", "url": "#plant-pathology-staff" }
+                      {
+                        "label": "Department Overview",
+                        "url": "#plant-pathology-overview"
+                      },
+                      {
+                        "label": "Faculty and Staff",
+                        "url": "#plant-pathology-staff"
+                      }
                     ]
                   },
                   {
                     "label": "Plant Breeding & Genetics",
                     "url": "#plant-breeding-and-genetics",
                     "children": [
-                      { "label": "Department Overview", "url": "#plant-breeding-and-genetics-overview" },
-                      { "label": "Faculty and Staff", "url": "#plant-breeding-and-genetics-staff" }
+                      {
+                        "label": "Department Overview",
+                        "url": "#plant-breeding-and-genetics-overview"
+                      },
+                      {
+                        "label": "Faculty and Staff",
+                        "url": "#plant-breeding-and-genetics-staff"
+                      }
                     ]
                   },
                   {
                     "label": "Forestry & Range Management",
                     "url": "#forestry-and-range-management",
                     "children": [
-                      { "label": "Department Overview", "url": "#forestry-and-range-management-overview" },
-                      { "label": "Faculty and Staff", "url": "#forestry-and-range-management-staff" }
+                      {
+                        "label": "Department Overview",
+                        "url": "#forestry-and-range-management-overview"
+                      },
+                      {
+                        "label": "Faculty and Staff",
+                        "url": "#forestry-and-range-management-staff"
+                      }
                     ]
                   }
                 ],

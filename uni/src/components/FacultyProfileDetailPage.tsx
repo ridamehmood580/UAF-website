@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import {
   Mail,
   Phone,
+  ArrowLeft,
   MapPin,
   ShieldCheck,
   ExternalLink,
@@ -42,6 +43,8 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
   departmentName,
   departmentShortLabel,
   facultyName,
+  onBack,
+  showBackBtn = false,
   showJournalsAndArticles = false
 }) => {
   // Springer publication link provided by user
@@ -462,6 +465,7 @@ export const FacultyProfileDetailPage: React.FC<FacultyProfileDetailPageProps> =
         ========================================================= */}
         <div className="flex items-center justify-between border-b border-stone-200 pb-3">
           <div className="flex items-center gap-2">
+            {showBackBtn && <button type="button" onClick={onBack} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-stone-700 transition hover:bg-stone-100 border border-stone-200"><ArrowLeft className="h-4 w-4"/>Back to people</button>}
             <button
               type="button"
               onClick={() => {

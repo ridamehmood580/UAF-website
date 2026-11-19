@@ -36,6 +36,17 @@ function Thumb({ id }) {
 }
 
 export default function TemplatePicker({ hasContent, onPick, onBlank, onClose }) {
+  const categories = useMemo(() => {
+    const groups = PAGE_TEMPLATES.reduce((result, template) => {
+      (result[template.category] ||= []).push(template);
+      return result;
+    }, {});
+    const order = ['Homepage sections', 'University pages', 'Academic pages', 'About pages', 'Faculty pages', 'Department pages', 'Department navigation', 'Header', 'Footer', 'Start simple'];
+    return Object.fromEntries(Object.entries(groups).sort(([a], [b]) => {
+      const ai = order.indexOf(a), bi = order.indexOf(b);
+      return (ai < 0 ? order.length : ai) - (bi < 0 ? order.length : bi);
+    }));
+  }, []);
   useEffect(() => {
     const onKey = e => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
@@ -53,17 +64,26 @@ export default function TemplatePicker({ hasContent, onPick, onBlank, onClose })
           <button className="icon-button" onClick={onClose} title="Close"><X size={18} /></button>
         </div>
         <div className="tpl-body">
-          {PAGE_TEMPLATES.map(t => (
-            <button className="tpl-card" key={t.id} onClick={() => onPick(t.id)} aria-label={`Use ${t.name || t.id} template`}>
-              <span className="tpl-name">{t.name || t.id}</span>
-              <Thumb id={t.id} />
-              <span className="tpl-info">
-                <i>{t.category}</i>
-                <small>{t.description}</small>
-              </span>
-            </button>
+          {Object.entries(categories).map(([category, templates]) => (
+            <section className="tpl-category" key={category}>
+              <div className="tpl-category-title"><h3>{category}</h3><span>{templates.length} templates</span></div>
+              <div className="tpl-category-grid">
+                {templates.map(t => (
+                  <div className="tpl-card" key={t.id} role="button" tabIndex={0} onClick={() => onPick(t.id)} onKeyDown={event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onPick(t.id);
+                    }
+                  }} aria-label={`Use ${t.name || t.id} template`}>
+                    <span className="tpl-name">{t.name || t.id}</span>
+                    <Thumb id={t.id} />
+                    <span className="tpl-info"><small>{t.description}</small></span>
+                  </div>
+                ))}
+              </div>
+            </section>
           ))}
-          <button className="tpl-card tpl-blank" onClick={onBlank}>
+          <button type="button" className="tpl-card tpl-blank" onClick={onBlank}>
             <span className="tpl-blank-icon"><FilePlus size={26} /></span>
             <span className="tpl-info">
               <b className="tpl-name">Empty page</b>

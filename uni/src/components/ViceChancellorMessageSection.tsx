@@ -46,7 +46,7 @@ export const ViceChancellorMessageSection: React.FC<ViceChancellorMessageSection
           >
             <div className="w-full relative rounded-2xl overflow-hidden shadow-xl border border-[#e5eaee] group cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500">
               <img
-                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=700&q=85"
+                src="/vice-chancellor-zulfiqar-ali.png"
                 alt="Prof. Dr. Zulfiqar Ali, Vice Chancellor, University of Agriculture Faisalabad"
                 className="w-full h-[420px] sm:h-[500px] lg:h-[540px] object-cover object-top group-hover:scale-105 transition-transform duration-700"
               />
@@ -93,19 +93,40 @@ export const ViceChancellorMessageSection: React.FC<ViceChancellorMessageSection
             {/* Message Body */}
             <div className="text-[#46505a] text-[15px] sm:text-[16px] leading-[1.9] text-justify space-y-4 font-normal">
               <p>
-                The University of Agriculture Faisalabad (UAF) traces its legacy back to 1906 as the Punjab Agriculture College and Research Institute, evolving into a university in 1961, with its roots in the early days of canal colonies that played a vital role in ensuring food security in a famine-prone region.
+                The University of Agriculture Faisalabad (UAF), Pakistan traces its legacy and history back to 1906 as The Punjab Agriculture College and Research Institute, evolving into university in 1961, with its roots in the early days of canal colonies that played a vital role in ensuring food security in a famine-prone region. It is a prestigious place, where I completed my higher education and started my career. I deeply admire the excellence, diversity, innovation and the bold visions of this university.
               </p>
               <p>
-                With a vision and mission focused on food security, agriculture, rural development, innovation and technology, UAF is quintessentially contributing to advancing teaching and research excellence and a knowledge-based economy. UAF is a hub of excellence, with a diverse array of cultures and innovation beyond disciplines.
+                With a vision and mission focused on food security, agriculture, rural development, innovation, and technology, the UAF is quintessentially contributing to advancing teaching and research excellence, and a knowledge-based economy. The UAF is a hub of excellence, with a diverse array of cultures and innovation beyond disciplines.
               </p>
               
               {isExpanded ? (
                 <div className="space-y-4 animate-in fade-in duration-300">
                   <p>
-                    Being in an agricultural country, we are committed to addressing global challenges: food security, climate change, water conservation, sustainable agriculture, economic development and social equality.
+                    Being in an agricultural country, we are committed to addressing global challenges: food security, climate change, water conservation, sustainable agriculture, economic development and social equality. Due to the evolution in the global landscape, our major focus is on agricultural productivity, climate-resilient cutting-edge technologies leading to agrifood systems transformation and playing our role in shaping a sustainable economy.
                   </p>
                   <p>
-                    Through our modernized curricula, cutting-edge laboratory facilities, and extensive outreach across farming communities, UAF continues to produce visionary agricultural scientists, engineers, veterinary doctors, and entrepreneurs. We welcome all aspiring students and international partners to join our vibrant academic community.
+                    We are eager to bridge the gap between academia, research, industry and practice that truly translates to the real-world solutions that equally benefit farmers, industry, and society.
+                  </p>
+                  <p>
+                    Over the decades, we have evolved into a globally recognized center of excellence that is committed to bringing scientific breakthroughs. The UAF is not only an institution that reflects ambitious, career-oriented youth, but it is the place where it empowers minds with advanced knowledge, critical thinking, learning, and generates entrepreneurs across all diverse disciplines.
+                  </p>
+                  <p>
+                    Its framework is designed to meet sustainable global standards through entrepreneurial initiatives fostering start-ups and spin-offs to evolve into venture capitalists (VCs). UAF prioritizes learning, discovery, skill development, demand-driven and solution-oriented research (products, varieties, goods and services) to support community and rural development. Additionally, it actively contributes to public policy, intervention, advocacy for rural farming community, agrarian reforms, and leadership.
+                  </p>
+                  <p>
+                    The UAF stewardship commemorates and mandates self-reliance through commissioned research, industry-academia-government partnerships, commercialization hubs, technological, and economic development. The UAF flagship in agriculture, animal health and production, mechanization, food sciences, health and allied sciences creates impact through skilled youth, enhanced crop productivity, and policy interventions.
+                  </p>
+                  <p>
+                    Aligned with UN SDGs ̶ particularly Zero Hunger, Good Health &amp; Wellbeing, Climate Action, Partnerships, and Gender Mainstreaming ̶ the UAF is committed to comply nationally determined contributions (NDCs). Recognized as an enterprise and STZA, the university aims to attract VCs and companies for commercial ecosystems such as a technology park.
+                  </p>
+                  <p>
+                    In light of paradigm transformation of global expectations from universities, the UAF expands its global outreach through international centers such as CAS-AFS, D-8 Food Security Center, PKNC, and Confucius institute. The UAF is a learner-centered institution inspired by a vibrant campus life to pursue and enjoy knowledge, ethics, creativity, discovery, and public service.
+                  </p>
+                  <p>
+                    I am eager to strengthen UAF’s legacy by integrating advanced technology, enhancing academia and industry linkages under the umbrella of research-driven solutions, teamwork and faculty leadership.
+                  </p>
+                  <p>
+                    I enthusiastically welcome students, faculty, staff, community, stakeholders, public-private entities, investors, entrepreneurs, global partners and policy makers to join hands with UAF to achieve greater agenda of education, food security, community service, equity, well-being and in achieving the vital goals of zero hunger. I believe in a respectable diversity where each scholar has an equal chance and access to knowledge, the system and opportunities.
                   </p>
                 </div>
               ) : (

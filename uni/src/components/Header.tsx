@@ -59,6 +59,42 @@ const GOLD_ACCENT = '#ed9d09';
 // Main navbar uses the navy blue from the university crest
 const NAV_BLUE = '#163887';
 
+const ADMINISTRATION_LINKS = [
+  ['Vice Chancellor Office', 'https://web.uaf.edu.pk/FacultyProfile/Department?id=49'],
+  ['Pro-Vice Chancellor Office', 'https://web.uaf.edu.pk/FacultyProfile/Department?id=47'],
+  ['Registrar Office', 'https://web.uaf.edu.pk/FacultyProfile/Department?id=50'],
+  ['Treasurer Office', 'https://web.uaf.edu.pk/FacultyProfile/Department?id=51'],
+  ['Controller of Examinations', '/?page=controller-examinations'],
+  ['Public Relations and Media', '/?page=public-relations'],
+  ['Directorate of Press & Publications', '/?page=press-publications'],
+  ['Directorate of ITRCDB', '/?page=itrcdb'],
+  ['Directorate of Graduate Studies', '/?page=graduate-studies'],
+  ['Directorate of Procurement and Inventory Control', '/?page=procurement-inventory'],
+  ['Directorate of Academics', 'https://web.uaf.edu.pk/FacultyProfile/Department?id=69'],
+  ['Directorate of Student Affairs', '/?page=student-affairs'],
+  ['Directorate of External Linkages', '/?page=external-linkages'],
+  ['Directorate of Sports', '/?page=sports'],
+  ['Directorate of Farms', '/?page=farms'],
+  ['Directorate of Outreach', '/?page=outreach'],
+  ['Directorate of Financial Assistance and University Advancement', '/?page=dfaua'],
+  ['Directorate of Planning and Development', '/?page=planning-development'],
+  ['Directorate of Monitoring & Evaluation', '/?page=monitoring-evaluation'],
+  ['Endowment Fund Secretariat', 'https://efs-uaf.org/'],
+  ['Human Resource', 'https://web.uaf.edu.pk/FacultyProfile/Department?id=44'],
+  ['Office of Research, Innovation and Commercialization', 'https://oric.uaf.edu.pk/'],
+  ['Business Incubation Center', '/?page=business-incubation'],
+  ['Quality Enhancement Cell', '/?page=quality-enhancement-cell'],
+  ['Senior Tutor Office', '/?page=senior-tutor-office'],
+  ['Directorate of Publications', '/?page=press-publications'],
+  ["Foreign Students' Advisor", '/?page=foreign-students-advisor'],
+] as const;
+
+const ABOUT_LINKS = [
+  ['Organization Chart', 'https://web.uaf.edu.pk/Contents/downloads/organization_chart.pdf'],
+  ['Act, Statues, Rules and Regulations', '/?page=act-statues-rules'],
+  ['Former Vice Chancellors', '/?page=former-vice-chancellors'],
+] as const;
+
 export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onOpenAdvisor,
@@ -107,39 +143,13 @@ export const Header: React.FC<HeaderProps> = ({
     'CONSTITUENT COLLEGES': [
       { name: 'UAF SUB-CAMPUS BUREWALA (VEHARI)', facultyId: 'fac-agri' },
       { name: 'UAF SUB-CAMPUS TOBA TEK SINGH', facultyId: 'fac-agri' },
-      { name: 'UAF SUB-CAMPUS DEPALPUR (OKARA)', facultyId: 'fac-agri' },
-      { name: 'UAF COMMUNITY COLLEGE PARS', facultyId: 'fac-agri' }
+      { name: 'UAF SUB-CAMPUS DEPALPUR (OKARA)', facultyId: 'fac-agri' }
     ],
-    'U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES': [
-      { name: 'USPCAS-AFS RESEARCH DIVISIONS', facultyId: 'fac-agri' },
-      { name: 'CLIMATE WATER BIO-RESOURCES WING', facultyId: 'fac-engg' },
-      { name: 'CHILLED CLIMATE RESEARCH PHYTOTRONS', facultyId: 'fac-agri' },
-      { name: 'POLICY DIALOGUE & OUTREACH SUITE', facultyId: 'fac-social' }
-    ],
-    'COMMUNITY COLLEGE': [
-      { name: 'DIPLOMA IN AGRICULTURAL SCIENCES (DAS)', facultyId: 'fac-agri' },
-      { name: 'INTERMEDIATE PRE-AGRICULTURE', facultyId: 'fac-agri' },
-      { name: 'LIVESTOCK ASSISTANT DIPLOMA (LAD)', facultyId: 'fac-husbandry' },
-      { name: 'FARM MACHINERY SKILL TRAINING', facultyId: 'fac-engg' }
-    ],
-    'DIRECTORATE OF CABB': [
-      { name: 'CENTRE OF AGRICULTURAL BIOCHEMISTRY & BIOTECHNOLOGY', facultyId: 'fac-sci' },
-      { name: 'PLANT TISSUE CULTURE & TRANSGENICS LAB', facultyId: 'fac-sci' },
-      { name: 'MOLECULAR DIAGNOSTICS & GENOMICS CORE', facultyId: 'fac-sci' },
-      { name: 'BIO-INFORMATICS & GENE EDITING (CRISPR)', facultyId: 'fac-sci' }
-    ],
-    'PROFESSIONAL TRAINING AND SKILL DEVELOPMENT CENTER': [
-      { name: 'SHORT COURSES IN COMMERCIAL HYDROPONICS', facultyId: 'fac-agri' },
-      { name: 'MODERN TUNNEL FARMING & GREENHOUSE DESIGN', facultyId: 'fac-agri' },
-      { name: 'DAIRY HERD MANAGEMENT & ARTIFICIAL INSEMINATION', facultyId: 'fac-husbandry' },
-      { name: 'AGRI-DRONE PILOT & PRECISION SPRAY CERTIFICATION', facultyId: 'fac-engg' }
-    ],
-    'DIRECTORATE OF WATER MANAGEMENT RESEARCH CENTRE': [
-      { name: 'INDUS BASIN GROUNDWATER MONITORING NETWORK', facultyId: 'fac-engg' },
-      { name: 'PRECISION DRIP & SPRINKLER TELEMETRY', facultyId: 'fac-engg' },
-      { name: 'SOLAR PUMPING & SALINITY RECLAMATION', facultyId: 'fac-engg' },
-      { name: 'CLIMATE ADAPTIVE IRRIGATION REGIMES', facultyId: 'fac-engg' }
-    ]
+    'U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES': [],
+    'COMMUNITY COLLEGE': [],
+    'DIRECTORATE OF CABB': [],
+    'PROFESSIONAL TRAINING AND SKILL DEVELOPMENT CENTER': [],
+    'DIRECTORATE OF WATER MANAGEMENT RESEARCH CENTRE': []
   };
 
   useEffect(() => {
@@ -217,6 +227,22 @@ export const Header: React.FC<HeaderProps> = ({
     setActiveDropdown(null);
     setDropdownOpenSource(null);
     setActiveAcademicCategory(null);
+    if (itemName?.includes('U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES')) {
+      window.location.href = 'https://uspcasafs.uaf.edu.pk/';
+      return;
+    }
+    if (itemName?.includes('PROFESSIONAL TRAINING AND SKILL DEVELOPMENT CENTER')) {
+      window.location.href = 'https://web.uaf.edu.pk/FacultyProfile/Department?id=54';
+      return;
+    }
+    if (itemName?.includes('WATER MANAGEMENT RESEARCH CENTRE')) {
+      window.location.href = '/?page=water-management-research-centre';
+      return;
+    }
+    if (itemName?.includes('DIRECTORATE OF CABB')) {
+      window.location.href = '/?page=cabb';
+      return;
+    }
     if (onSelectFaculty) {
       if (itemName?.includes('HORTICULTURAL')) {
         onSelectFaculty('fac-agri', 'horticulture');
@@ -458,15 +484,11 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               {activeDropdown === 'about' && (
                 <div className="absolute top-full left-0 w-64 bg-white rounded-md shadow-2xl border border-stone-200 py-2 z-50 animate-in fade-in duration-150 overflow-hidden">
-                  <a href="#vision" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
-                    VISION 2050 & HERITAGE
-                  </a>
-                  <a href="#vc-message" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
-                    VICE CHANCELLOR MESSAGE
-                  </a>
-                  <a href="#campus" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
-                    CAMPUS LIFE & BOTANICAL GARDENS
-                  </a>
+                  {ABOUT_LINKS.map(([label, href]) => (
+                    <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noreferrer' : undefined} onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
+                      {label}
+                    </a>
+                  ))}
                 </div>
               )}
             </li>
@@ -489,13 +511,12 @@ export const Header: React.FC<HeaderProps> = ({
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
               {activeDropdown === 'admin' && (
-                <div className="absolute top-full left-0 w-72 bg-white rounded-2xl shadow-2xl border border-stone-200 py-2 z-50 animate-in fade-in duration-150 overflow-hidden">
-                  <a href="#administration" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
-                    OFFICERS OF THE UNIVERSITY
-                  </a>
-                  <a href="#administration" onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
-                    SYNDICATE & STATUTORY BODIES
-                  </a>
+                <div className="absolute top-full left-0 w-80 max-h-[70vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-stone-200 py-2 z-50 animate-in fade-in duration-150">
+                  {ADMINISTRATION_LINKS.map(([label, href]) => (
+                    <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noreferrer' : undefined} onClick={() => setActiveDropdown(null)} className="block px-4 py-2.5 text-xs font-bold text-[#1e3a7a] hover:bg-[#2a4d96] hover:text-white transition-colors">
+                      {label}
+                    </a>
+                  ))}
                 </div>
               )}
             </li>
@@ -539,7 +560,9 @@ export const Header: React.FC<HeaderProps> = ({
                             <span className="group-hover:!text-white group-active:!text-white group-focus:!text-white transition-colors">
                               {subItem.name}
                             </span>
-                            <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a] opacity-0 group-hover:opacity-100 group-active:opacity-100 group-focus:opacity-100 transition-opacity shrink-0 ml-1.5" />
+                            {activeAcademicCategory !== 'CONSTITUENT COLLEGES' && (
+                              <ChevronRight className="w-3.5 h-3.5 text-[#e8a62a] opacity-0 group-hover:opacity-100 group-active:opacity-100 group-focus:opacity-100 transition-opacity shrink-0 ml-1.5" />
+                            )}
                           </button>
                         ))}
                       </div>
@@ -568,8 +591,30 @@ export const Header: React.FC<HeaderProps> = ({
                         return (
                           <button
                             key={category}
-                            onMouseEnter={() => setActiveAcademicCategory(category)}
-                            onClick={() => setActiveAcademicCategory(category)}
+                            onMouseEnter={() => setActiveAcademicCategory(ACADEMIC_SUBMENUS[category].length ? category : null)}
+                            onClick={() => {
+                              if (category === 'U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES') {
+                                window.location.href = 'https://uspcasafs.uaf.edu.pk/';
+                                return;
+                              }
+                              if (category === 'PROFESSIONAL TRAINING AND SKILL DEVELOPMENT CENTER') {
+                                window.location.href = 'https://web.uaf.edu.pk/FacultyProfile/Department?id=54';
+                                return;
+                              }
+                              if (category === 'COMMUNITY COLLEGE') {
+                                window.location.href = '/?page=community-college';
+                                return;
+                              }
+                              if (category === 'DIRECTORATE OF CABB') {
+                                window.location.href = '/?page=cabb';
+                                return;
+                              }
+                              if (category === 'DIRECTORATE OF WATER MANAGEMENT RESEARCH CENTRE') {
+                                window.location.href = '/?page=water-management-research-centre';
+                                return;
+                              }
+                              setActiveAcademicCategory(ACADEMIC_SUBMENUS[category].length ? category : null);
+                            }}
                             className={`group w-full px-5 py-3 text-left text-[12px] sm:text-[12.5px] font-bold tracking-wider uppercase flex items-center justify-between transition-colors cursor-pointer ${isActive
                                 ? '!bg-[#163887] !text-white'
                                 : 'text-[#1e3a7a] hover:!bg-[#163887] hover:!text-white active:!bg-[#163887] active:!text-white'
@@ -578,10 +623,10 @@ export const Header: React.FC<HeaderProps> = ({
                             <span className={`${isActive ? '!text-white' : 'group-hover:!text-white group-active:!text-white'} transition-colors`}>
                               {category}
                             </span>
-                            <ChevronLeft
+                            {ACADEMIC_SUBMENUS[category].length > 0 && <ChevronLeft
                               className={`w-4 h-4 transition-colors shrink-0 ml-2 ${isActive ? 'text-[#e8a62a]' : 'text-[#1e3a7a] group-hover:text-[#e8a62a]'
                                 }`}
-                            />
+                            />}
                           </button>
                         );
                       })}
@@ -757,9 +802,16 @@ export const Header: React.FC<HeaderProps> = ({
             >
               HOME
             </button>
-            <a href="#vision" onClick={() => setMobileMenuOpen(false)} className="block py-3 hover:text-amber-400">
-              ABOUT UAF (VISION 2050)
-            </a>
+            <div className="py-3 space-y-2">
+              <span className="text-xs text-amber-400 uppercase tracking-widest block font-black">ABOUT</span>
+              <div className="pl-2 space-y-2 text-xs font-semibold text-blue-100">
+                {ABOUT_LINKS.map(([label, href]) => (
+                  <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noreferrer' : undefined} onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-white">
+                    • {label}
+                  </a>
+                ))}
+              </div>
+            </div>
             <a href="#rti" onClick={() => setMobileMenuOpen(false)} className="block py-3 hover:text-amber-400">
               RTI & ORIC
             </a>

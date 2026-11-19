@@ -9,6 +9,6 @@ Start both apps from their project folders:
 1. In `webpage-builder`, run `npm run dev` (port 3001).
 2. In `uni`, run `npm run dev` (port 3000).
 
-Publishing writes page content and shared header/footer settings to `../uni/public/published-pages.json` and, when present, `../uni/dist/published-pages.json`. The Page Studio server keeps publication history in its ignored `storage/publication-history.json` file.
+Publishing writes each page, shared header/footer, and page-specific component as its own JSON file under `../uni/public/published-pages/` and, when present, mirrors those files under `../uni/dist/published-pages/`. Publishing the same target replaces that target's file. The Page Studio server keeps publication history in its ignored `storage/publication-history.json` file. Existing `published-pages.json` publications are read as a compatibility fallback.
 
-For a deployed static university site, deploy the updated `uni` output after publishing so the hosting provider receives the new `published-pages.json` file.
+For a deployed university site, deploy the updated `uni` output after publishing so the hosting provider receives the individual publication files.

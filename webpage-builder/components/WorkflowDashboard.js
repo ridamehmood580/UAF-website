@@ -49,15 +49,15 @@ export default function WorkflowDashboard({ pageData, onBack }) {
   const faculties = useMemo(() => {
     const grouped = new Map();
     for (const target of publishTargets.filter(item => item.department !== 'Main website')) {
-      const parts = target.label.split(' — ');
-      const faculty = parts.shift();
-      if (!grouped.has(faculty)) grouped.set(faculty, new Map());
+      const [category, ...parts] = target.label.split(' — ');
+      if (!grouped.has(category)) grouped.set(category, new Map());
+      const page = category === 'Faculties' ? parts.shift() : parts.shift();
       const path = parts.length > 1 ? parts.slice(0, -1).join(' — ') : '';
       const item = { ...target, label: parts.at(-1) || target.label };
-      if (!grouped.get(faculty).has(path)) grouped.get(faculty).set(path, []);
-      grouped.get(faculty).get(path).push(item);
+      if (!grouped.get(category).has(`${page}|||${path}`)) grouped.get(category).set(`${page}|||${path}`, { page, path, targets: [] });
+      grouped.get(category).get(`${page}|||${path}`).targets.push(item);
     }
-    return [...grouped].map(([name, branches]) => ({ name, branches: [...branches].map(([path, targets]) => ({ path, targets })) }));
+    return [...grouped].map(([name, branches]) => ({ name, pages: [...branches.values()] }));
   }, [publishTargets]);
   const optionRow = target => <div key={target.value} className="flex items-center gap-1 rounded-md hover:bg-emerald-50"><label className="flex flex-1 cursor-pointer items-center gap-2 px-2 py-1.5"><input type="radio" name="publish-target" checked={targetPage === target.value} onChange={() => setTargetPage(target.value)} />{target.label}{target.custom && <span className="rounded bg-emerald-100 px-1.5 text-[10px] font-bold uppercase text-emerald-800">New</span>}</label>{target.custom && <button type="button" title="Remove option" onClick={() => removeOption(target.value)} className="p-1.5 text-slate-400 hover:text-rose-600"><Trash2 size={14}/></button>}</div>;
   const addControl = (facultyId, unitId) => {
@@ -138,15 +138,17 @@ export default function WorkflowDashboard({ pageData, onBack }) {
           <div className="relative mt-1.5"><Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/><input value={targetSearch} onChange={event => setTargetSearch(event.target.value)} placeholder="Search pages or faculties…" className="block w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-emerald-700"/></div>
           {targetPage && <p className="mt-2 text-sm text-emerald-800">Selected: <strong>{getPublishTarget(targetPage, customMenu)?.label}</strong></p>}
           <div className="mt-2 max-h-72 overflow-auto rounded-xl border border-slate-200 bg-white p-2 text-sm">
-            {mainTargets.some(target => matches(target.label)) && <details open className="rounded-lg"><summary className="cursor-pointer px-2 py-2 font-bold text-slate-800">Main website</summary><div className="ml-4 border-l border-slate-200 pl-3">{mainTargets.filter(target => matches(target.label)).map(target => <label key={target.value} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-emerald-50"><input type="radio" name="publish-target" checked={targetPage === target.value} onChange={() => setTargetPage(target.value)} />{target.label.replace('Main website — ', '')}</label>)}</div></details>}
-            {faculties.map(faculty => {
-              const tree = FACULTY_TREE.find(item => item.name === faculty.name);
+            {mainTargets.some(target => matches(target.label)) && <details open={Boolean(targetSearch.trim())} className="rounded-lg"><summary className="cursor-pointer px-2 py-2 font-bold text-slate-800">Main website</summary><div className="ml-4 border-l border-slate-200 pl-3">{mainTargets.filter(target => matches(target.label)).map(target => <label key={target.value} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-emerald-50"><input type="radio" name="publish-target" checked={targetPage === target.value} onChange={() => setTargetPage(target.value)} />{target.label.replace('Main website — ', '')}</label>)}</div></details>}
+            {faculties.map(category => {
               const searching = Boolean(targetSearch.trim());
-              const visibleBranches = faculty.branches.map(branch => ({ ...branch, targets: branch.targets.filter(target => matches(`${faculty.name} ${branch.path} ${target.label}`)) })).filter(branch => branch.targets.length);
-              if (!visibleBranches.length && !matches(faculty.name)) return null;
-              return <details key={faculty.name} open={searching} className="rounded-lg"><summary className="cursor-pointer px-2 py-2 font-bold text-slate-800">{faculty.name}</summary><div className="ml-4 border-l border-slate-200 pl-3">{visibleBranches.map(branch => branch.path ? <details key={branch.path} open={searching}><summary className="cursor-pointer px-2 py-1.5 font-semibold text-slate-700">{branch.path}</summary><div className="ml-3 border-l border-slate-100 pl-2">{branch.targets.map(optionRow)}{!searching && tree && addControl(tree.id, tree.units.find(unit => unit.label === branch.path)?.id)}</div></details> : <div key="faculty-level">{branch.targets.map(optionRow)}{!searching && tree && addControl(tree.id, null)}</div>)}</div></details>;
+              const visiblePages = category.pages.map(page => ({ ...page, targets: page.targets.filter(target => matches(`${category.name} ${page.page} ${page.path} ${target.label}`)) })).filter(page => page.targets.length);
+              if (!visiblePages.length && !matches(category.name)) return null;
+              return <details key={category.name} open={searching} className="rounded-lg"><summary className="cursor-pointer px-2 py-2 font-bold text-slate-800">{category.name}</summary><div className="ml-4 border-l border-slate-200 pl-3">{visiblePages.map(page => {
+                const tree = category.name === 'Faculties' ? FACULTY_TREE.find(item => item.name === page.page) : null;
+                return <details key={`${page.page}-${page.path}`} open={searching} className="rounded-lg"><summary className="cursor-pointer px-2 py-1.5 font-semibold text-slate-700">{page.page}{page.path ? ` — ${page.path}` : ''}</summary><div className="ml-3 border-l border-slate-100 pl-2">{page.targets.map(optionRow)}{!searching && tree && addControl(tree.id, page.path ? tree.units.find(unit => unit.label === page.path)?.id : null)}</div></details>;
+              })}</div></details>;
             })}
-            {!mainTargets.some(target => matches(target.label)) && !faculties.some(faculty => faculty.branches.some(branch => branch.targets.some(target => matches(`${faculty.name} ${branch.path} ${target.label}`))) || matches(faculty.name)) && <p className="px-3 py-5 text-center text-slate-500">No matching pages.</p>}
+            {!mainTargets.some(target => matches(target.label)) && !faculties.some(category => category.pages.some(page => page.targets.some(target => matches(`${category.name} ${page.page} ${page.path} ${target.label}`))) || matches(category.name)) && <p className="px-3 py-5 text-center text-slate-500">No matching pages.</p>}
           </div>
         </div>}
         <button onClick={publish} disabled={publishing || ((!isGlobalChrome || isPageScopedChrome) && !targetPage) || !pageData?.elements?.length} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-800 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-50"><Upload size={16}/>{publishing ? 'Publishing…' : isGlobalChrome && !isPageScopedChrome ? 'Publish across all pages' : isPageScopedChrome ? 'Publish to selected page' : 'Publish to university website'}</button>

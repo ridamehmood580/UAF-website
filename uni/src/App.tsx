@@ -6,10 +6,8 @@ import { Marquee2026Ticker } from './components/Marquee2026Ticker';
 import { HeroSection } from './components/HeroSection';
 import { VisionAndAnnouncementsSection } from './components/VisionAndAnnouncementsSection';
 import { ViceChancellorMessageSection } from './components/ViceChancellorMessageSection';
-import { AboutSection } from './components/AboutSection';
 import { ExploreBentoSection } from './components/ExploreBentoSection';
 import { CampusEventsSection } from './components/CampusEventsSection';
-import { ResearchInnovationSection } from './components/ResearchInnovationSection';
 import { AdmissionsSection } from './components/AdmissionsSection';
 import { AdministrationSection } from './components/AdministrationSection';
 import { Footer } from './components/Footer';
@@ -18,6 +16,28 @@ import { EventDetailPage } from './components/EventDetailPage';
 import { AdmissionsDetailPage, type AdmissionCategory } from './components/AdmissionsDetailPage';
 import { PublishedSiteHeader } from './components/PublishedSiteHeader';
 import { PublishedSiteFooter } from './components/PublishedSiteFooter';
+import { ControllerExaminationsPage } from './components/ControllerExaminationsPage';
+import { PublicRelationsPage } from './components/PublicRelationsPage';
+import { PressPublicationsPage } from './components/PressPublicationsPage';
+import { ITRCDBPage } from './components/ITRCDBPage';
+import { GraduateStudiesPage } from './components/GraduateStudiesPage';
+import { ProcurementInventoryPage } from './components/ProcurementInventoryPage';
+import { StudentAffairsPage } from './components/StudentAffairsPage';
+import { ExternalLinkagesPage } from './components/ExternalLinkagesPage';
+import { SportsPage } from './components/SportsPage';
+import { FarmsPage } from './components/FarmsPage';
+import { WaterManagementResearchCentrePage } from './components/WaterManagementResearchCentrePage';
+import { CABBPage } from './components/CABBPage';
+import { CommunityCollegePage } from './components/CommunityCollegePage';
+import { OutreachPage } from './components/OutreachPage';
+import { FinancialAssistancePage } from './components/FinancialAssistancePage';
+import { PlanningDevelopmentPage } from './components/PlanningDevelopmentPage';
+import { MonitoringEvaluationPage } from './components/MonitoringEvaluationPage';
+import { BusinessIncubationPage } from './components/BusinessIncubationPage';
+import { QualityEnhancementPage } from './components/QualityEnhancementPage';
+import { SeniorTutorOfficePage } from './components/SeniorTutorOfficePage';
+import { ForeignStudentsAdvisorPage } from './components/ForeignStudentsAdvisorPage';
+import { FormerViceChancellorsPage, UniversityStatutesPage } from './components/AboutReferencePages';
 
 // Interactive Modals
 import { ScheduleAppointmentModal } from './components/ScheduleAppointmentModal';
@@ -119,7 +139,7 @@ export default function App() {
           setCurrentFacultyView(targetParts[1] || 'fac-agri');
           setFacultyInitialSection((targetParts[2] === 'unit' ? targetParts[3] : targetParts[2] || 'overview') as FacultySection);
           setFacultyInitialSubView((targetParts[2] === 'unit' ? targetParts[4] : undefined) as DepartmentSubView | undefined);
-        } else if (requestedPage && !pagePillNavigation) {
+        } else if (requestedPage && targetPage !== 'controller-examinations' && targetPage !== 'public-relations' && targetPage !== 'public-relations-sops' && targetPage !== 'press-publications' && targetPage !== 'itrcdb' && targetPage !== 'graduate-studies' && targetPage !== 'procurement-inventory' && targetPage !== 'student-affairs' && targetPage !== 'external-linkages' && targetPage !== 'sports' && targetPage !== 'farms' && targetPage !== 'water-management-research-centre' && targetPage !== 'cabb' && targetPage !== 'community-college' && targetPage !== 'outreach' && targetPage !== 'dfaua' && targetPage !== 'planning-development' && targetPage !== 'monitoring-evaluation' && targetPage !== 'business-incubation' && targetPage !== 'quality-enhancement-cell' && targetPage !== 'senior-tutor-office' && targetPage !== 'foreign-students-advisor' && targetPage !== 'act-statues-rules' && targetPage !== 'former-vice-chancellors' && !pagePillNavigation) {
           setPublishedPageNotFound(true);
         }
       } catch (error) {
@@ -140,6 +160,9 @@ export default function App() {
 
   const handleSelectFaculty = (facultyId: string, section?: string) => {
     setSelectedFacultyFilter(facultyId);
+    setPublishedPageTarget('home');
+    setPublishedPageData(null);
+    setPublishedPageNotFound(false);
     setCurrentFacultyView(facultyId);
     setCurrentEventView(null);
     setCurrentAdmissionsView(null);
@@ -157,6 +180,9 @@ export default function App() {
   };
 
   const handleSelectEvent = (eventId: string) => {
+    setPublishedPageTarget('home');
+    setPublishedPageData(null);
+    setPublishedPageNotFound(false);
     setCurrentEventView(eventId);
     setCurrentFacultyView(null);
     setCurrentAdmissionsView(null);
@@ -164,6 +190,9 @@ export default function App() {
   };
 
   const handleNavigateAdmissions = (category: AdmissionCategory) => {
+    setPublishedPageTarget('home');
+    setPublishedPageData(null);
+    setPublishedPageNotFound(false);
     setCurrentAdmissionsView(category);
     setCurrentFacultyView(null);
     setCurrentEventView(null);
@@ -274,6 +303,131 @@ export default function App() {
 
   if (publishedPageNotFound) {
     return <div className="min-h-screen flex items-center justify-center bg-white text-stone-700">This published page could not be found.</div>;
+  }
+
+  if (publishedPageTarget === 'controller-examinations') {
+    return <div className="min-h-screen w-full overflow-x-hidden bg-white">
+      {publishedSiteHeader ? <PublishedSiteHeader
+        data={publishedSiteHeader}
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenAdvisor={() => setIsAdvisorOpen(true)}
+        onOpenCalculator={() => handleOpenCalculator()}
+        onNavigateHome={handleNavigateHome}
+        onSelectFaculty={handleSelectFaculty}
+        onNavigateAdmissions={handleNavigateAdmissions}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+      /> : <Header
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenAdvisor={() => setIsAdvisorOpen(true)}
+        onOpenCalculator={() => handleOpenCalculator()}
+        onOpenAppointment={() => setIsAppointmentOpen(true)}
+        onSelectFaculty={handleSelectFaculty}
+        onNavigateHome={handleNavigateHome}
+        onNavigateAdmissions={handleNavigateAdmissions}
+        currentUser={currentUser}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenAdminDashboard={() => setCurrentCmsView('admin_dashboard')}
+        onOpenDepartmentStudio={() => setCurrentCmsView('page_studio')}
+        onOpenFacultyManager={() => setIsFacultyManagerOpen(true)}
+      />}
+      <ControllerExaminationsPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+      {publishedSiteFooter ? <PublishedSiteFooter data={publishedSiteFooter} /> : <Footer
+        onOpenCalculator={() => handleOpenCalculator()}
+        onOpenAdvisor={() => setIsAdvisorOpen(true)}
+        onOpenAppointment={() => setIsAppointmentOpen(true)}
+      />}
+      <BuilderLoginModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <ScheduleAppointmentModal isOpen={isAppointmentOpen} onClose={() => setIsAppointmentOpen(false)} />
+      <AdmissionEligibilityCalculatorModal isOpen={isCalculatorOpen} onClose={() => setIsCalculatorOpen(false)} onOpenAdvisor={() => setIsAdvisorOpen(true)} initialProgramId={calculatorProgramId} />
+      <UAFVirtualAdvisorModal isOpen={isAdvisorOpen} onClose={() => setIsAdvisorOpen(false)} onOpenCalculator={() => handleOpenCalculator()} onOpenAppointment={() => setIsAppointmentOpen(true)} />
+      <QuickSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} onSelectProgram={(programId) => handleOpenCalculator(programId)} />
+      <FacultyManagerModal isOpen={isFacultyManagerOpen} onClose={() => setIsFacultyManagerOpen(false)} />
+    </div>;
+  }
+
+  if (publishedPageTarget === 'public-relations' || publishedPageTarget === 'public-relations-sops' || publishedPageTarget === 'press-publications' || publishedPageTarget === 'itrcdb' || publishedPageTarget === 'graduate-studies' || publishedPageTarget === 'procurement-inventory' || publishedPageTarget === 'student-affairs' || publishedPageTarget === 'external-linkages' || publishedPageTarget === 'sports' || publishedPageTarget === 'farms' || publishedPageTarget === 'water-management-research-centre' || publishedPageTarget === 'cabb' || publishedPageTarget === 'community-college' || publishedPageTarget === 'outreach' || publishedPageTarget === 'dfaua' || publishedPageTarget === 'planning-development' || publishedPageTarget === 'monitoring-evaluation' || publishedPageTarget === 'business-incubation' || publishedPageTarget === 'quality-enhancement-cell' || publishedPageTarget === 'senior-tutor-office' || publishedPageTarget === 'foreign-students-advisor' || publishedPageTarget === 'act-statues-rules' || publishedPageTarget === 'former-vice-chancellors') {
+    return <div className="min-h-screen w-full overflow-x-hidden bg-white">
+      {publishedSiteHeader ? <PublishedSiteHeader
+        data={publishedSiteHeader}
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenAdvisor={() => setIsAdvisorOpen(true)}
+        onOpenCalculator={() => handleOpenCalculator()}
+        onNavigateHome={handleNavigateHome}
+        onSelectFaculty={handleSelectFaculty}
+        onNavigateAdmissions={handleNavigateAdmissions}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+      /> : <Header
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenAdvisor={() => setIsAdvisorOpen(true)}
+        onOpenCalculator={() => handleOpenCalculator()}
+        onOpenAppointment={() => setIsAppointmentOpen(true)}
+        onSelectFaculty={handleSelectFaculty}
+        onNavigateHome={handleNavigateHome}
+        onNavigateAdmissions={handleNavigateAdmissions}
+        currentUser={currentUser}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenAdminDashboard={() => setCurrentCmsView('admin_dashboard')}
+        onOpenDepartmentStudio={() => setCurrentCmsView('page_studio')}
+        onOpenFacultyManager={() => setIsFacultyManagerOpen(true)}
+      />}
+      {publishedPageTarget === 'act-statues-rules'
+        ? <UniversityStatutesPage />
+        : publishedPageTarget === 'former-vice-chancellors'
+        ? <FormerViceChancellorsPage />
+        : publishedPageTarget === 'foreign-students-advisor'
+        ? <ForeignStudentsAdvisorPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'senior-tutor-office'
+        ? <SeniorTutorOfficePage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'quality-enhancement-cell'
+        ? <QualityEnhancementPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'business-incubation'
+        ? <BusinessIncubationPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'monitoring-evaluation'
+        ? <MonitoringEvaluationPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'planning-development'
+        ? <PlanningDevelopmentPage />
+        : publishedPageTarget === 'dfaua'
+        ? <FinancialAssistancePage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'outreach'
+        ? <OutreachPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'community-college'
+        ? <CommunityCollegePage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'cabb'
+        ? <CABBPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'water-management-research-centre'
+        ? <WaterManagementResearchCentrePage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'farms'
+        ? <FarmsPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'sports'
+        ? <SportsPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'external-linkages'
+        ? <ExternalLinkagesPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'student-affairs'
+        ? <StudentAffairsPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'procurement-inventory'
+        ? <ProcurementInventoryPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'graduate-studies'
+        ? <GraduateStudiesPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'itrcdb'
+        ? <ITRCDBPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'press-publications'
+        ? <PressPublicationsPage
+          initialSection={new URLSearchParams(window.location.search).get('section') || undefined}
+          initialDepartment={new URLSearchParams(window.location.search).get('department') || undefined}
+        />
+        : <PublicRelationsPage initialSection={publishedPageTarget === 'public-relations-sops' ? 'sops' : new URLSearchParams(window.location.search).get('section') || undefined} />}
+      {publishedSiteFooter ? <PublishedSiteFooter data={publishedSiteFooter} /> : <Footer
+        onOpenCalculator={() => handleOpenCalculator()}
+        onOpenAdvisor={() => setIsAdvisorOpen(true)}
+        onOpenAppointment={() => setIsAppointmentOpen(true)}
+      />}
+      <BuilderLoginModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <ScheduleAppointmentModal isOpen={isAppointmentOpen} onClose={() => setIsAppointmentOpen(false)} />
+      <AdmissionEligibilityCalculatorModal isOpen={isCalculatorOpen} onClose={() => setIsCalculatorOpen(false)} onOpenAdvisor={() => setIsAdvisorOpen(true)} initialProgramId={calculatorProgramId} />
+      <UAFVirtualAdvisorModal isOpen={isAdvisorOpen} onClose={() => setIsAdvisorOpen(false)} onOpenCalculator={() => handleOpenCalculator()} onOpenAppointment={() => setIsAppointmentOpen(true)} />
+      <QuickSearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} onSelectProgram={(programId) => handleOpenCalculator(programId)} />
+      <FacultyManagerModal isOpen={isFacultyManagerOpen} onClose={() => setIsFacultyManagerOpen(false)} />
+    </div>;
   }
 
   if (publishedPageData && publishedPageTarget.startsWith('faculty:')) {
@@ -412,19 +566,11 @@ export default function App() {
               onOpenAppointmentModal={() => setIsAppointmentOpen(true)}
             />
 
-            {/* 6. South Asia's Premier Institution Heritage (1906 - 2026) */}
-            <AboutSection onSelectFaculty={handleSelectFaculty} />
-
             {/* 7. Bento Feature Grid - What will you discover at UAF */}
             <ExploreBentoSection
               onOpenCalculator={() => handleOpenCalculator()}
               onOpenAppointment={() => setIsAppointmentOpen(true)}
               onSelectFaculty={handleSelectFaculty}
-            />
-
-            {/* 8. Campus Life, High-Tech Laboratories & Experimental Research Farms */}
-            <ResearchInnovationSection
-              onOpenAdvisor={() => setIsAdvisorOpen(true)}
             />
 
             {/* 9. Official Campus Events, Conferences & Academic Calendar */}
@@ -435,8 +581,8 @@ export default function App() {
 
             {/* 10. Official Admissions 2026-27 Gateway & Degree Programs Matrix */}
             <AdmissionsSection
-              onOpenCalculator={() => handleOpenCalculator()}
               onOpenAdvisor={() => setIsAdvisorOpen(true)}
+              onNavigateAdmissions={handleNavigateAdmissions}
             />
 
             {/* 11. University Administration, Leadership & Syndicates */}

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getPublishTarget } from '../../../lib/publishTargets';
-import { copyTemplateAssets, historyFile, publishedFiles, readCustomMenu, readJson, writeJson } from '../../../lib/serverStore';
+import { copyTemplateAssets, historyFile, readCustomMenu, readJson, readPublication, writePublication, writeJson } from '../../../lib/serverStore';
 
 export const runtime = 'nodejs';
 
@@ -73,7 +73,7 @@ function normalizePublishedPage(pageData) {
 
 export async function GET() {
   try {
-    const publication = await readJson(publishedFiles[0], { pages: [] });
+    const publication = await readPublication();
     const history = await readJson(historyFile, { entries: [] });
     return NextResponse.json({ customMenu: await readCustomMenu(), pages: Array.isArray(publication.pages) ? publication.pages : [], chrome: publication.chrome || {}, history: Array.isArray(history.entries) ? history.entries : [] });
   } catch (error) {
@@ -101,7 +101,7 @@ export async function POST(request) {
   try {
     await copyTemplateAssets();
     const publishedAt = new Date().toISOString();
-    const publication = await readJson(publishedFiles[0], { pages: [] });
+    const publication = await readPublication();
     const previousHistory = await readJson(historyFile, { entries: [] });
     const historyEntries = Array.isArray(previousHistory.entries) ? previousHistory.entries : [];
     if (chromeRegion) {
@@ -130,7 +130,7 @@ export async function POST(request) {
             }
           : { ...(publication.chrome || {}), [chromeRegion]: entry },
       };
-      for (const outputFile of publishedFiles) await writeJson(outputFile, nextPublication);
+      await writePublication(nextPublication);
       const historyEntry = { ...entry, publicationType: pageScopedChrome ? 'chrome-page' : 'chrome', chromeRegion, previousPublication };
       const nextHistory = { entries: [...historyEntries, historyEntry].slice(-500) };
       await writeJson(historyFile, nextHistory);
@@ -149,7 +149,7 @@ export async function POST(request) {
     const pages = Array.isArray(publication.pages) ? publication.pages : [];
     const nextPages = [...pages.filter(page => page.targetPage !== target.value), entry];
     const nextPublication = { ...publication, pages: nextPages, customMenu };
-    for (const outputFile of publishedFiles) await writeJson(outputFile, nextPublication);
+    await writePublication(nextPublication);
 
     const historyEntry = { ...entry, publicationType: 'page', previousPublication };
     const nextHistory = { entries: [...historyEntries, historyEntry].slice(-500) };

@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { GraduationCap, ArrowRight, CheckCircle2, Calculator } from 'lucide-react';
+import { GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface AdmissionsSectionProps {
-  onOpenCalculator: () => void;
   onOpenAdvisor: () => void;
+  onNavigateAdmissions: (category: 'undergraduate' | 'postgraduate') => void;
 }
 
 export const AdmissionsSection: React.FC<AdmissionsSectionProps> = ({
-  onOpenCalculator,
-  onOpenAdvisor
+  onOpenAdvisor,
+  onNavigateAdmissions
 }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -81,15 +81,15 @@ export const AdmissionsSection: React.FC<AdmissionsSectionProps> = ({
             {/* Action Buttons */}
             <div className="pt-4 flex flex-wrap items-center gap-4">
               <button
-                onClick={onOpenCalculator}
+                onClick={() => onNavigateAdmissions('undergraduate')}
                 className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded bg-[#1d4e89] hover:bg-[#102a43] text-white font-bold text-xs sm:text-[13px] uppercase tracking-wider transition-all hover:-translate-y-1 shadow-md active:scale-95 cursor-pointer"
               >
-                <Calculator className="w-4 h-4 text-[#e8a62a]" />
-                <span>Undergraduate Merit Calculator</span>
+                <GraduationCap className="w-4 h-4 text-[#e8a62a]" />
+                <span>Undergraduate</span>
               </button>
 
               <button
-                onClick={onOpenCalculator}
+                onClick={() => onNavigateAdmissions('postgraduate')}
                 className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 rounded border border-[#1d4e89] hover:bg-[#e8eef9] text-black font-bold text-xs sm:text-[13px] uppercase tracking-wider transition-all hover:-translate-y-1 cursor-pointer"
               >
                 <GraduationCap className="w-4 h-4" />

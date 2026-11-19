@@ -184,7 +184,7 @@ function PrimitiveRenderer({
               </>}
               {el.showExternalIcon && <ExternalLink className="w-3.5 h-3.5 inline" />}
             </a>
-            {!!el.menuItems?.length && <div className="hover-menu-panel hover-menu-panel-root" style={{ marginTop: '-1px' }}>
+            {!!el.menuItems?.length && <div className="hover-menu-panel hover-menu-panel-root" style={{ marginTop: '-1px', ...(String(el.text || '').replace(/\s*[▾▼]$/, '').trim().toUpperCase() === 'ADMINISTRATION' ? { maxHeight: '70vh', overflowY: 'auto', overscrollBehavior: 'contain' } : {}) }}>
               {renderHoverMenu(el.menuItems, safeHref, isEditing)}
             </div>}
           </div>

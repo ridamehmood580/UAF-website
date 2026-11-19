@@ -1045,6 +1045,171 @@ const brandedBlank = () => [
   )
 ];
 
+const controllerExaminationsOverview = () => [
+  box('card', 80, 40, 1040, 430),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • EXAMINATIONS', 110, 62, 700, 20),
+  text('pageTitle', 'Office of the Controller of Examinations', 110, 92, 630, 52),
+  text('body', 'The Office of the Controller of Examinations compiles and notifies examination results, issues degrees, certificates, and diplomas, and verifies academic documents for employers, institutions, and applicants.', 110, 160, 560, 112),
+  text('body', 'The Office also organizes the annual University Convocation, including graduate eligibility verification, degree record preparation, and coordination with academic and administrative units.', 110, 282, 560, 100),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Major examination sections', 110, 395, 420, 26),
+  text('small', 'Postgraduate • Undergraduate • Affiliated Programs', 110, 427, 560, 24),
+  link('default', 'Administration & Staff Directory', 710, 340, 370, 'https://web.uaf.edu.pk/FacultyProfile/Department?id=71'),
+];
+
+const publicRelationsOverview = () => [
+  box('card', 80, 40, 1040, 430),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • PUBLIC INFORMATION', 110, 62, 700, 20),
+  text('pageTitle', 'Public Relations & Media', 110, 92, 630, 52),
+  text('body', 'Public Relations and Media communicates University information and activities to the public. Its work includes publicity, event coverage, photography and video, and information about University facilities, academic programmes, and admissions.', 110, 160, 560, 112),
+  text('body', 'The office supports electronic, print, national, international, and social media coverage, alongside educational broadcasting, awareness campaigns, protocol, event management, newsletters, and audiovisual services.', 110, 282, 560, 100),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Public Relations services', 110, 395, 420, 26),
+  text('small', 'Media Coverage • UAF FM 100.4 • Campus News', 110, 427, 560, 24),
+  link('default', 'Submit a Coverage Request', 710, 340, 370, 'https://docs.google.com/forms/d/e/1FAIpQLSd-jCR-CL1gRcgTfVe0ju0X2T7NIk3PU5Gg3qKaO0Dr1sQ4Jw/viewform'),
+  link('default', 'SOPs for Coverage', 710, 372, 370, '/?page=public-relations-sops'),
+];
+
+const pressPublicationsOverview = () => [
+  box('card', 80, 40, 1040, 430),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • PUBLICATIONS', 110, 62, 700, 20),
+  text('pageTitle', 'Directorate of Press & Publications', 110, 92, 630, 52),
+  text('body', 'The Directorate oversees the planning, production, and dissemination of University publications that promote academic work, research, and outreach.', 110, 160, 560, 92),
+  text('body', 'Its two components are the Office of University Books & Magazines and the University Press, supporting periodicals, books, reports, campus news, design, printing, and archiving.', 110, 264, 560, 92),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'University publishing services', 110, 374, 420, 26),
+  text('small', 'OUBM • University Press • Editorial Board', 110, 406, 560, 24),
+  link('default', 'Browse UAF publications', 710, 340, 370, 'https://web.uaf.edu.pk/main/zaraidigest'),
+];
+
+const itrcdbOverview = () => [
+  box('card', 80, 40, 1040, 430),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • INFORMATION TECHNOLOGY', 110, 62, 760, 20),
+  text('pageTitle', 'Directorate of ITRCDB', 110, 92, 630, 52),
+  text('body', 'The Information Technology Resource Center and Database (ITRCDB) is the University’s central technology hub. Established in December 2010, it provides web-based application development, campus solutions, internet services, data-centre operations, and IT support.', 110, 160, 560, 112),
+  text('body', 'Its services support University staff, faculty, and students across the main and sub-campuses, including digital academic and administrative systems, networks, databases, cloud email, and online services.', 110, 282, 560, 100),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'ITRCDB sections', 110, 395, 420, 26),
+  text('small', 'Overview • Director • Administration & Staff • Projects', 110, 427, 560, 24),
+  link('default', 'Administration & Staff Directory', 710, 340, 370, 'https://web.uaf.edu.pk/FacultyProfile/Department?id=43'),
+];
+
+const graduateStudiesOverview = () => [
+  box('card', 80, 40, 1040, 430),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • POSTGRADUATE EDUCATION', 110, 62, 760, 20),
+  text('pageTitle', 'Directorate of Graduate Studies', 110, 92, 700, 52),
+  text('body', 'The Directorate of Graduate Studies leads the development and administration of UAF postgraduate programmes. It facilitates programme development, academic policy, student recruitment and progress, and graduate programme quality.', 110, 160, 560, 112),
+  text('body', 'Its work includes postgraduate admissions, semester enrolment, course work, supervision, synopsis and thesis review, and coordination of the Graduate Studies and Research Board.', 110, 282, 560, 100),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Graduate studies resources', 110, 395, 420, 26),
+  text('small', 'Responsibilities • Staff • GSRB • Fellowship • Degrees • Enrolment', 110, 427, 560, 24),
+  link('default', 'Administration & Staff Directory', 710, 340, 370, 'https://web.uaf.edu.pk/FacultyProfile/Department?id=61'),
+];
+
+const procurementInventoryOverview = () => [
+  box('card', 80, 40, 1040, 430),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • PROCUREMENT & INVENTORY CONTROL', 110, 62, 820, 20),
+  text('pageTitle', 'Directorate of Procurement & Inventory Control', 110, 92, 780, 52),
+  text('body', 'The Directorate of Procurement and Inventory Control manages University procurement needs through planned purchasing, competitive tendering, framework contracts, and effective inventory control.', 110, 160, 560, 112),
+  text('body', 'Explore current tender listings, annual procurement planning, framework contract information, and purchased equipment resources. Current procurement notices are published on the official UAF portal.', 110, 282, 560, 100),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Directorate sections', 110, 395, 420, 26),
+  text('small', 'Overview • Administration & Staff • Tenders • Procurement Plan • Framework Contract • Purchased Equipment', 110, 427, 600, 24),
+  link('default', 'Current UAF Tenders', 710, 340, 370, 'https://web.uaf.edu.pk/Main/Tenders'),
+];
+
+const planningDevelopmentOverview = () => [
+  box('card', 80, 40, 1040, 510),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • CAMPUS DEVELOPMENT', 110, 62, 800, 20),
+  text('pageTitle', 'Directorate of Planning and Development', 110, 92, 760, 52),
+  text('body', 'The Directorate of Planning and Development is part of UAF’s administrative structure. The University’s published organizational chart assigns the Director (P&D) responsibilities for preparation of projects, consultation with funding agencies, implementation of projects, and coordination through the Campus Committee.', 110, 160, 560, 130),
+  text('body', 'Development work supports University teaching, research, and campus facilities. UAF’s public notices and reports document projects across the main campus and constituent campuses, including buildings, student facilities, laboratories, and essential infrastructure.', 110, 300, 560, 100),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Published responsibilities', 110, 415, 470, 26),
+  text('small', 'Prepare development projects • Consult funding agencies • Coordinate implementation • Campus Committee', 110, 448, 580, 45),
+  text('small', 'UAF’s official Directorate overview currently displays “Under Construction.” This template uses the documented responsibilities from the published organizational chart.', 710, 335, 370, 70)
+];
+
+const monitoringEvaluationOverview = () => [
+  box('card', 80, 40, 1040, 520),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • MONITORING & REPORTING', 110, 62, 820, 20),
+  text('pageTitle', 'Directorate of Monitoring & Evaluation', 110, 92, 780, 52),
+  text('body', 'The Directorate of Monitoring & Evaluation began work on January 1, 2015. UAF’s published overview describes regular monitoring of main-campus components and a coordination and reporting role for University development schemes and projects.', 110, 160, 560, 120),
+  text('body', 'Its listed work includes tracking tasks assigned across departments and sections, coordinating with Planning & Development, Engineering & Construction, Estate, and other units, and monitoring construction and civil works at UAF and its sub-campuses.', 110, 292, 560, 110),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Directorate sections', 110, 420, 420, 26),
+  text('small', 'Overview • History • Vision', 110, 452, 620, 24),
+  text('small', 'The public Directorate page does not publish a separate M&E vision statement. The Vision page uses UAF’s institutional vision.', 710, 335, 370, 65)
+];
+
+const businessIncubationOverview = () => [
+  box('card', 80, 40, 1040, 520),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • INNOVATION & ENTERPRISE', 110, 62, 820, 20),
+  text('pageTitle', 'Business Incubation Center', 110, 92, 760, 52),
+  text('body', 'Established at UAF in 2009, the Business Incubation Center helps translate University research into products and technologies. It connects academic expertise with the business community and supports entrepreneurs through mentoring, training, and funding opportunities.', 110, 160, 560, 120),
+  text('body', 'The Student Startup Business Center supports student ventures. Other published areas include business development services, operational procedures, an Intellectual Property Rights Office, and a showcase of UAF technologies.', 110, 292, 560, 100),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Business Incubation Center sections', 110, 410, 520, 26),
+  text('small', 'Overview • Incubation Programs • Student Startup Programs • Administration and Staff • Business Development Services • Operational Procedures • IPR Office • UAF Technologies', 110, 442, 960, 55),
+  text('small', 'Vision: Create a thriving and sustainable future by empowering innovative agropreneurs.', 710, 335, 370, 54)
+];
+
+const qualityEnhancementOverview = () => [
+  box('card', 80, 40, 1040, 520),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • QUALITY ASSURANCE', 110, 62, 820, 20),
+  text('pageTitle', 'Quality Enhancement Cell', 110, 92, 760, 52),
+  text('body', 'The Quality Enhancement Cell coordinates quality assurance and enhancement across UAF academic programmes. Its published work includes programme self-assessment, institutional review, accreditation coordination, feedback collection, and follow-up on improvement plans.', 110, 160, 560, 126),
+  text('body', 'The QEC sections include functions, protocols, activity calendar, quality policy, focal persons, assessment teams, self-assessment, plagiarism policy, online surveys, RIPE, events, programme review, PGPR, results, downloads, staff, and contact information.', 110, 298, 560, 120),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Quality improvement cycle', 110, 435, 520, 26),
+  text('small', 'Assess programmes • Review evidence • Plan improvements • Follow up', 110, 467, 700, 24),
+  text('small', 'Self Assessment, RIPE, and Events & Activities include nested navigation.', 710, 340, 370, 52)
+];
+
+const seniorTutorOverview = () => [
+  box('card', 80, 40, 1040, 520),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • STUDENT DEVELOPMENT', 110, 62, 820, 20),
+  text('pageTitle', 'Senior Tutor Office', 110, 92, 760, 52),
+  text('body', 'The Senior Tutor Office supports student development through personal tutoring and the Art and Literary Forum. UAF’s current published Quick Facts describe 268 tutorial groups and 22 clubs, societies, and forums under the office.', 110, 160, 560, 126),
+  text('body', 'The office coordinates co-curricular activities, events, festivals, competitions, workshops, and student guidance to support creative expression, character development, leadership, and soft skills.', 110, 298, 560, 100),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Office sections', 110, 435, 520, 26),
+  text('small', 'Overview • Administration and Staff • Achievements of ALF • Art and Literary • Tutorial Group Meeting', 110, 467, 900, 40)
+];
+
+const foreignStudentsAdvisorOverview = () => [
+  box('card', 80, 40, 1040, 520),
+  text('labelGold', 'UNIVERSITY ADMINISTRATION • INTERNATIONAL STUDENT SUPPORT', 110, 62, 900, 20),
+  text('pageTitle', 'Foreign Students’ Advisor', 110, 92, 800, 52),
+  text('body', 'The Foreign Students’ Advisor Office supports international applicants through admission and helps students with academic guidance, mentorship, visa-related document facilitation, student mobility, and cultural integration.', 110, 160, 560, 126),
+  text('body', 'Office sections include Overview, Administration and Staff, Application Guidelines, and Facilities. UAF describes campus accommodation, student activities, healthcare, library, sports, ICT, and other student services for international students.', 110, 298, 560, 110),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Office sections', 110, 435, 520, 26),
+  text('small', 'Overview • Administration and Staff • Application Guidelines • Facilities', 110, 467, 850, 34)
+];
+
+const universityStatutesOverview = () => [
+  box('card', 80, 40, 1040, 520),
+  text('labelGold', 'UNIVERSITY GOVERNANCE • OFFICIAL DOCUMENTS', 110, 62, 820, 20),
+  text('pageTitle', 'Act, Statues, Rules and Regulations', 110, 92, 900, 52),
+  text('body', 'Browse the University Act, governance rules, employee statutes, regulations, policies, and notices published by UAF. The current consolidated UAF Act listed by the University is amended up to 05 August 2025.', 110, 160, 560, 130),
+  text('body', 'Documents are grouped by University governance, service statutes and staff rules, and policies, regulations and notices.', 110, 300, 560, 90),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Published document collections', 110, 435, 560, 26),
+  text('small', 'University Act • Governance Rules • Service Statutes • Regulations & Policies', 110, 467, 850, 34)
+];
+
+const formerViceChancellorsOverview = () => [
+  box('card', 80, 40, 1040, 520),
+  text('labelGold', 'UNIVERSITY HISTORY • LEADERSHIP', 110, 62, 820, 20),
+  text('pageTitle', 'Former Vice Chancellors', 110, 92, 800, 52),
+  text('body', 'A historical record of the former Vice Chancellors and their service dates, based on the list published by the University of Agriculture, Faisalabad.', 110, 160, 560, 126),
+  text('body', 'The published historical list ends in 2008. This updated timeline continues it with later UAF Vice Chancellors, including appointments and acting-charge periods documented in university announcements and contemporaneous reports.', 110, 298, 560, 96),
+  image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+  text('subtitle', 'Historical leadership timeline', 110, 435, 560, 26),
+  text('small', '1961–2025 • Historical list extended with later verified office holders', 110, 467, 900, 34)
+];
+
 export const PAGE_TEMPLATES = [
   {
     id: 'faculty-pill-navigation-general',
@@ -1069,6 +1234,229 @@ export const PAGE_TEMPLATES = [
     pageTitle: 'Department Overview',
     description: 'Department overview: Left text (genesis, narrative & research labs), right compact photo with change photo option, zero overlap.',
     build: departmentOverview
+  },
+  {
+    id: 'controller-examinations',
+    name: 'Controller of Examinations',
+    category: 'University Administration',
+    pageTitle: 'Office of the Controller of Examinations',
+    description: 'Examinations overview with the UAF campus photo and a direct Administration & Staff directory link.',
+    build: controllerExaminationsOverview
+  },
+  {
+    id: 'public-relations-media',
+    name: 'Public Relations & Media',
+    category: 'University Administration',
+    pageTitle: 'Public Relations & Media',
+    description: 'University public information, media coverage, broadcasting, news, and outreach content.',
+    build: () => publicRelationsOverview()
+  },
+  {
+    id: 'press-publications',
+    name: 'Directorate of Press & Publications',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Press & Publications',
+    description: 'Directorate overview with the OUBM and University Press department pages, staff directories, and OUBM annual reports.',
+    build: pressPublicationsOverview
+  },
+  {
+    id: 'itrcdb',
+    name: 'Directorate of ITRCDB',
+    category: 'University Administration',
+    pageTitle: 'Directorate of ITRCDB',
+    description: 'ITRCDB overview with Director, Administration & Staff, and Projects sections.',
+    build: itrcdbOverview
+  },
+  {
+    id: 'graduate-studies',
+    name: 'Directorate of Graduate Studies',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Graduate Studies',
+    description: 'Graduate Studies overview with responsibilities, staff, GSRB, fellowship, degree programmes, enrolment, notices, and resources.',
+    build: graduateStudiesOverview
+  },
+  {
+    id: 'procurement-inventory',
+    name: 'Directorate of Procurement & Inventory Control',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Procurement & Inventory Control',
+    description: 'Procurement overview with staff, tenders, annual plan, framework contracts, and Purchased Equipment submenu pages.',
+    build: procurementInventoryOverview
+  },
+  {
+    id: 'student-affairs',
+    name: 'Directorate of Student Affairs',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Student Affairs',
+    description: 'Student Affairs overview, objectives, functions and components, staff directory, and archived bidding document.',
+    build: () => [
+      box('card', 80, 40, 1040, 430),
+      text('labelGold', 'UNIVERSITY ADMINISTRATION • STUDENT SUPPORT', 110, 62, 760, 20),
+      text('pageTitle', 'Directorate of Student Affairs', 110, 92, 700, 52),
+      text('body', 'The Directorate of Student Affairs provides academic and administrative support throughout University life. It maintains liaison between students and the University administration and helps address needs related to academic services, co-curricular activities, transport, health, fees, career planning, and discipline.', 110, 160, 560, 130),
+      text('body', 'Its work also supports peaceful campus life, student identification cards, event facilities, transport, food outlets, and essential campus services. The Director chairs the Campus Advisory Committee and serves as Secretary of the University Discipline Committee.', 110, 300, 560, 105),
+      image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+      text('subtitle', 'Directorate sections', 110, 420, 420, 26),
+      text('small', 'Overview • Objectives • Functions and Components • Administration & Staff • Bidding Documents', 110, 450, 620, 24),
+      link('default', 'View archived 2020 bidding document', 710, 340, 370, 'https://web.uaf.edu.pk/Contents/directorates/student_affairs/Bidding%20docmnt/040220Tender%20Documents-2020.pdf'),
+    ]
+  },
+  {
+    id: 'external-linkages',
+    name: 'Directorate of External Linkages',
+    category: 'University Administration',
+    pageTitle: 'Directorate of External Linkages',
+    description: 'External Linkages overview, responsibilities, current staff directory, published MoU register, and download resources.',
+    build: () => [
+      box('card', 80, 40, 1040, 430),
+      text('labelGold', 'UNIVERSITY ADMINISTRATION • PARTNERSHIPS', 110, 62, 760, 20),
+      text('pageTitle', 'Directorate of External Linkages', 110, 92, 700, 52),
+      text('body', 'The Directorate promotes connections between UAF and local, national, regional, and international communities. It develops partnerships with public, private, and non-government organizations to advance teaching, research, development, and knowledge exchange.', 110, 160, 560, 120),
+      text('body', 'Its responsibilities include student and faculty placement, industry collaboration, resource mobilization for training and research, and coordination with international organizations on conservation.', 110, 292, 560, 95),
+      image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+      text('subtitle', 'Directorate sections', 110, 405, 420, 26),
+      text('small', 'Overview • Responsibilities • Administration and Staff • List of MOUs • Download', 110, 435, 620, 24),
+      link('default', 'Download the published MoU / LoI register', 710, 340, 370, 'https://web.uaf.edu.pk/Contents/directorates/external_linkages/files/List_MoU_2008_2025.pdf'),
+    ]
+  },
+  {
+    id: 'sports',
+    name: 'Directorate of Sports',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Sports',
+    description: 'Sports Directorate overview, campus facilities, staff directory, and recent HEC and national achievements.',
+    build: () => [
+      box('card', 80, 40, 1040, 430),
+      text('labelGold', 'UNIVERSITY ADMINISTRATION • STUDENT SPORTS', 110, 62, 760, 20),
+      text('pageTitle', 'Directorate of Sports', 110, 92, 700, 52),
+      text('body', 'The Directorate of Sports encourages student participation and provides facilities for fitness, discipline, leadership, patience, and sportsmanship. UAF students take part in men’s and women’s HEC Intervarsity championships and the Directorate hosts campus and national sports events.', 110, 160, 560, 125),
+      text('body', 'The campus sports complex includes an international handball court, cricket stadium and academy, football and hockey grounds, gymnasiums, athletics tracks, courts, swimming pool, snooker academy, and equestrian facilities.', 110, 297, 560, 90),
+      image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+      text('subtitle', 'Directorate sections', 110, 405, 420, 26),
+      text('small', 'Overview • Our People • Achievements', 110, 435, 620, 24),
+      text('small', '2024–25 HEC participation: 11 men’s and 9 women’s inter-university sports.', 710, 340, 370, 44),
+      image('https://web.uaf.edu.pk/Contents/directorates/sports/Images/3.jpg', 110, 500, 310, 190, { alt: 'UAF cricket stadium' }),
+      image('https://web.uaf.edu.pk/Contents/directorates/sports/Images/6.jpg', 450, 500, 310, 190, { alt: 'UAF hockey ground' }),
+      image('https://web.uaf.edu.pk/Contents/directorates/sports/Images/9.jpg', 790, 500, 310, 190, { alt: 'UAF international handball court' }),
+    ]
+  },
+  {
+    id: 'farms',
+    name: 'Directorate of Farms',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Farms',
+    description: 'Farms overview, director contact, history, and objectives.',
+    build: () => [
+      box('card', 80, 40, 1040, 430),
+      text('labelGold', 'UNIVERSITY ADMINISTRATION • RESEARCH FARMS', 110, 62, 760, 20),
+      text('pageTitle', 'Directorate of Farms', 110, 92, 700, 52),
+      text('body', 'Established in 2006, the Directorate demonstrates modern agricultural technologies to students and farmers. Its adaptive research-based crop stations use available farm resources to improve production, reduce production costs, and increase soil fertility.', 110, 160, 560, 120),
+      text('body', 'It supports University research with land, machinery, seed, fertilizer, labour, and field facilities; conducts postgraduate experiments in varied agro-ecological conditions; and provides farmers with advice on advanced production technologies.', 110, 292, 560, 105),
+      image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+      text('subtitle', 'Directorate sections', 110, 405, 420, 26),
+      text('small', 'Overview • Director • History • Objectives', 110, 435, 620, 24),
+      text('small', 'UAF Annual Report 2024–25: 1,805 cultivated acres across the Directorate farm network.', 710, 340, 370, 50),
+    ]
+  },
+  {
+    id: 'outreach',
+    name: 'Directorate of Outreach',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Outreach',
+    description: 'Outreach overview, community programmes, and Administration and Staff directory.',
+    build: () => [
+      box('card', 80, 40, 1040, 500),
+      text('labelGold', 'UNIVERSITY ADMINISTRATION • COMMUNITY ENGAGEMENT', 110, 62, 760, 20),
+      text('pageTitle', 'Directorate of Outreach', 110, 92, 700, 52),
+      text('body', 'The Directorate of Outreach connects UAF academic expertise with farmers, industries, stakeholders, communities, and the public. It works to apply agriculture and related-sciences knowledge to community needs and sustainable development.', 110, 160, 560, 120),
+      text('body', 'Its focus areas include rural community empowerment, research and industry synergy, capacity development, public knowledge sharing, and women’s empowerment. Activities range from field days and crop trainings to livestock, food preservation, digital skills, and community programmes.', 110, 292, 560, 120),
+      image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+      text('subtitle', 'Directorate sections', 110, 430, 420, 26),
+      text('small', 'Overview • Administration and Staff', 110, 460, 620, 24),
+      text('small', 'Current directory: Director and three Additional Directors.', 710, 340, 370, 44),
+    ]
+  },
+  {
+    id: 'dfaua',
+    name: 'Directorate of Financial Assistance & University Advancement',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Financial Assistance & University Advancement',
+    description: 'Financial assistance, DFA&UA offices, scholarship forms and calendar, PEEF, disability services, and administration staff.',
+    build: () => [
+      box('card', 80, 40, 1040, 500),
+      text('labelGold', 'UNIVERSITY ADMINISTRATION • STUDENT SUPPORT', 110, 62, 760, 20),
+      text('pageTitle', 'Directorate of Financial Assistance & University Advancement', 110, 92, 730, 64),
+      text('body', 'DFA&UA supports access to higher education through financial sponsorship for deserving and meritorious students. Its structure includes Student Financial Assistance, University Advancement & Alumni, and Career Services.', 110, 170, 560, 115),
+      text('body', 'Support includes scholarships, fee concessions, internships, work-study, loan facilitation, career guidance, and alumni and donor partnerships. In 2024–25 UAF reported distributing Rs. 416 million among 5,460 students.', 110, 297, 560, 100),
+      image(IMG.facade, 710, 76, 370, 230, { alt: 'University of Agriculture Faisalabad campus' }),
+      text('subtitle', 'Directorate sections', 110, 425, 420, 26),
+      text('small', 'Overview • Administration and Staff • Financial Assistance • Offices (Student Financial Assistance, University Advancement & Alumni, Career Services: Overview and Contact Us) • Defaulter Scholars • Scholarship & Application Forms • Zakat • Calendar • PEEF • Services for Disable People', 110, 457, 960, 55),
+      text('small', 'Three offices: Student Financial Assistance, University Advancement & Alumni, Career Services.', 710, 340, 370, 50),
+    ]
+  },
+  {
+    id: 'planning-development',
+    name: 'Directorate of Planning and Development',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Planning and Development',
+    description: 'Overview of project preparation, funding-agency consultation, implementation, and campus development responsibilities.',
+    build: planningDevelopmentOverview
+  },
+  {
+    id: 'monitoring-evaluation',
+    name: 'Directorate of Monitoring & Evaluation',
+    category: 'University Administration',
+    pageTitle: 'Directorate of Monitoring & Evaluation',
+    description: 'M&E overview, history from its 2015 start, and the University-wide vision.',
+    build: monitoringEvaluationOverview
+  },
+  {
+    id: 'business-incubation',
+    name: 'Business Incubation Center',
+    category: 'University Administration',
+    pageTitle: 'Business Incubation Center',
+    description: 'BIC overview and content for incubation programs, student startups, staff, business development, operations, IPR, and UAF technologies.',
+    build: businessIncubationOverview
+  },
+  {
+    id: 'quality-enhancement-cell',
+    name: 'Quality Enhancement Cell',
+    category: 'University Administration',
+    pageTitle: 'Quality Enhancement Cell',
+    description: 'Quality assurance overview with functions, programme and institutional reviews, policies, activities, resources, staff, and contact details.',
+    build: qualityEnhancementOverview
+  },
+  {
+    id: 'senior-tutor-office',
+    name: 'Senior Tutor Office',
+    category: 'University Administration',
+    pageTitle: 'Senior Tutor Office',
+    description: 'Student tutoring, office staff, ALF achievements, creative clubs, and Tutorial Group Meeting resources.',
+    build: seniorTutorOverview
+  },
+  {
+    id: 'foreign-students-advisor',
+    name: 'Foreign Students’ Advisor',
+    category: 'University Administration',
+    pageTitle: 'Foreign Students’ Advisor',
+    description: 'International student overview, staff directory, admission guidelines, and campus facilities.',
+    build: foreignStudentsAdvisorOverview
+  },
+  {
+    id: 'act-statues-rules',
+    name: 'Act, Statues, Rules and Regulations',
+    category: 'University Administration',
+    pageTitle: 'Act, Statues, Rules and Regulations',
+    description: 'UAF Act, governance rules, staff statutes, policies, regulations, and notices.',
+    build: universityStatutesOverview
+  },
+  {
+    id: 'former-vice-chancellors',
+    name: 'Former Vice Chancellors',
+    category: 'University Administration',
+    pageTitle: 'Former Vice Chancellors',
+    description: 'Historical timeline of the former UAF Vice Chancellors and their terms.',
+    build: formerViceChancellorsOverview
   },
   {
     id: 'faculty-directory',
