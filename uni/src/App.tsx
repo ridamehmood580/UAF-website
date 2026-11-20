@@ -29,6 +29,8 @@ import { FarmsPage } from './components/FarmsPage';
 import { WaterManagementResearchCentrePage } from './components/WaterManagementResearchCentrePage';
 import { CABBPage } from './components/CABBPage';
 import { CommunityCollegePage } from './components/CommunityCollegePage';
+import { TobaTekSinghPage } from './components/TobaTekSinghPage';
+import { DepalpurCampusPage } from './components/DepalpurCampusPage';
 import { OutreachPage } from './components/OutreachPage';
 import { FinancialAssistancePage } from './components/FinancialAssistancePage';
 import { PlanningDevelopmentPage } from './components/PlanningDevelopmentPage';
@@ -139,7 +141,7 @@ export default function App() {
           setCurrentFacultyView(targetParts[1] || 'fac-agri');
           setFacultyInitialSection((targetParts[2] === 'unit' ? targetParts[3] : targetParts[2] || 'overview') as FacultySection);
           setFacultyInitialSubView((targetParts[2] === 'unit' ? targetParts[4] : undefined) as DepartmentSubView | undefined);
-        } else if (requestedPage && targetPage !== 'controller-examinations' && targetPage !== 'public-relations' && targetPage !== 'public-relations-sops' && targetPage !== 'press-publications' && targetPage !== 'itrcdb' && targetPage !== 'graduate-studies' && targetPage !== 'procurement-inventory' && targetPage !== 'student-affairs' && targetPage !== 'external-linkages' && targetPage !== 'sports' && targetPage !== 'farms' && targetPage !== 'water-management-research-centre' && targetPage !== 'cabb' && targetPage !== 'community-college' && targetPage !== 'outreach' && targetPage !== 'dfaua' && targetPage !== 'planning-development' && targetPage !== 'monitoring-evaluation' && targetPage !== 'business-incubation' && targetPage !== 'quality-enhancement-cell' && targetPage !== 'senior-tutor-office' && targetPage !== 'foreign-students-advisor' && targetPage !== 'act-statues-rules' && targetPage !== 'former-vice-chancellors' && !pagePillNavigation) {
+        } else if (requestedPage && targetPage !== 'controller-examinations' && targetPage !== 'public-relations' && targetPage !== 'public-relations-sops' && targetPage !== 'press-publications' && targetPage !== 'itrcdb' && targetPage !== 'graduate-studies' && targetPage !== 'procurement-inventory' && targetPage !== 'student-affairs' && targetPage !== 'external-linkages' && targetPage !== 'sports' && targetPage !== 'farms' && targetPage !== 'water-management-research-centre' && targetPage !== 'cabb' && targetPage !== 'community-college' && targetPage !== 'toba-tek-singh' && targetPage !== 'depalpur' && targetPage !== 'outreach' && targetPage !== 'dfaua' && targetPage !== 'planning-development' && targetPage !== 'monitoring-evaluation' && targetPage !== 'business-incubation' && targetPage !== 'quality-enhancement-cell' && targetPage !== 'senior-tutor-office' && targetPage !== 'foreign-students-advisor' && targetPage !== 'act-statues-rules' && targetPage !== 'former-vice-chancellors' && !pagePillNavigation) {
           setPublishedPageNotFound(true);
         }
       } catch (error) {
@@ -345,7 +347,7 @@ export default function App() {
     </div>;
   }
 
-  if (publishedPageTarget === 'public-relations' || publishedPageTarget === 'public-relations-sops' || publishedPageTarget === 'press-publications' || publishedPageTarget === 'itrcdb' || publishedPageTarget === 'graduate-studies' || publishedPageTarget === 'procurement-inventory' || publishedPageTarget === 'student-affairs' || publishedPageTarget === 'external-linkages' || publishedPageTarget === 'sports' || publishedPageTarget === 'farms' || publishedPageTarget === 'water-management-research-centre' || publishedPageTarget === 'cabb' || publishedPageTarget === 'community-college' || publishedPageTarget === 'outreach' || publishedPageTarget === 'dfaua' || publishedPageTarget === 'planning-development' || publishedPageTarget === 'monitoring-evaluation' || publishedPageTarget === 'business-incubation' || publishedPageTarget === 'quality-enhancement-cell' || publishedPageTarget === 'senior-tutor-office' || publishedPageTarget === 'foreign-students-advisor' || publishedPageTarget === 'act-statues-rules' || publishedPageTarget === 'former-vice-chancellors') {
+  if (publishedPageTarget === 'public-relations' || publishedPageTarget === 'public-relations-sops' || publishedPageTarget === 'press-publications' || publishedPageTarget === 'itrcdb' || publishedPageTarget === 'graduate-studies' || publishedPageTarget === 'procurement-inventory' || publishedPageTarget === 'student-affairs' || publishedPageTarget === 'external-linkages' || publishedPageTarget === 'sports' || publishedPageTarget === 'farms' || publishedPageTarget === 'water-management-research-centre' || publishedPageTarget === 'cabb' || publishedPageTarget === 'community-college' || publishedPageTarget === 'toba-tek-singh' || publishedPageTarget === 'depalpur' || publishedPageTarget === 'outreach' || publishedPageTarget === 'dfaua' || publishedPageTarget === 'planning-development' || publishedPageTarget === 'monitoring-evaluation' || publishedPageTarget === 'business-incubation' || publishedPageTarget === 'quality-enhancement-cell' || publishedPageTarget === 'senior-tutor-office' || publishedPageTarget === 'foreign-students-advisor' || publishedPageTarget === 'act-statues-rules' || publishedPageTarget === 'former-vice-chancellors') {
     return <div className="min-h-screen w-full overflow-x-hidden bg-white">
       {publishedSiteHeader ? <PublishedSiteHeader
         data={publishedSiteHeader}
@@ -390,6 +392,10 @@ export default function App() {
         ? <FinancialAssistancePage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
         : publishedPageTarget === 'outreach'
         ? <OutreachPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'toba-tek-singh'
+        ? <TobaTekSinghPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
+        : publishedPageTarget === 'depalpur'
+        ? <DepalpurCampusPage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
         : publishedPageTarget === 'community-college'
         ? <CommunityCollegePage initialSection={new URLSearchParams(window.location.search).get('section') || undefined} />
         : publishedPageTarget === 'cabb'

@@ -1,0 +1,77 @@
+'use client';
+
+import React, { useState } from 'react';
+import { ChevronDown, GraduationCap, MapPin, Users, BookOpen, FlaskConical } from 'lucide-react';
+
+type Section = 'overview' | 'objectives' | 'vision' | 'staff' | 'programs' | 'scholarships' | 'societies' | 'alumni' | 'journal' | 'merit' | 'contact';
+const primary: { id: Section; label: string }[] = [
+  { id: 'overview', label: 'Overview' }, { id: 'objectives', label: 'Objectives' },
+  { id: 'vision', label: 'Vision & Mission' }, { id: 'staff', label: 'Faculty and Staff' }
+];
+const more: { id: Section; label: string }[] = [
+  { id: 'programs', label: 'Educational Programs' }, { id: 'scholarships', label: 'Scholarships' },
+  { id: 'societies', label: 'Societies' }, { id: 'alumni', label: 'Campus Alumni' },
+  { id: 'journal', label: 'Journal' }, { id: 'merit', label: 'Merit Lists' }, { id: 'contact', label: 'Contact Us' }
+];
+const undergrad = ['B.Sc. (Hons.) Poultry Science', 'B.Sc. (Hons.) Home Economics', 'BS Computer Science'];
+const postgraduate = ['Ph.D. Poultry Science', 'M.Sc. (Hons.) Poultry Science', 'M.Sc. Zoology', 'M.Sc. Chemistry', 'M.Sc. Computer Science', 'M.Com', 'MBA (Executive)', 'MBA (Regular)'];
+const staff = [
+  ['Dr. Muhammad Farooq Khalid', 'Principal / Associate Professor', 'farooq325@uaf.edu.pk'],
+  ['Prof. Dr. Zia ur Rehman', 'Professor', 'drzia@uaf.edu.pk'],
+  ['Dr. Muhammad Tariq', 'Associate Professor', 'tariqlm@uaf.edu.pk'],
+  ['Dr. Umar Farooq', 'Associate Professor', 'u.farooq@uaf.edu.pk'],
+  ['Dr. Maliha Sarfraz', 'Assistant Professor', 'maliha.sarfraz@uaf.edu.pk'],
+  ['Dr. Ali Hasan', 'Assistant Professor', 'dr.alihasan@uaf.edu.pk'],
+  ['Dr. Muhammad Auon', 'Lecturer', 'muhammadauon@uaf.edu.pk'],
+  ['Mr. Wasif Shafique', 'Lecturer', 'wasif@uaf.edu.pk'],
+  ['Mr. Muhammad Ashraf', 'Lecturer', 'Muhammad.ashraf@uaf.edu.pk'],
+  ['Dr. Roma Saleem', 'Lecturer', 'roma.saleem@uaf.edu.pk']
+];
+
+export const TobaTekSinghPage: React.FC<{ initialSection?: string }> = ({ initialSection }) => {
+  const all = [...primary, ...more];
+  const [active, setActive] = useState<Section>(all.some((item) => item.id === initialSection) ? initialSection as Section : 'overview');
+  const [moreOpen, setMoreOpen] = useState(false);
+  const select = (id: Section) => {
+    setActive(id); setMoreOpen(false);
+    const url = new URL(window.location.href);
+    if (id === 'overview') url.searchParams.delete('section'); else url.searchParams.set('section', id);
+    window.history.replaceState({}, '', url);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const heading = all.find((item) => item.id === active)?.label || 'Overview';
+  const card = 'rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8';
+
+  return <main className="min-h-screen bg-[#f8f9fa] font-sans text-stone-900">
+    <section className="relative flex min-h-[380px] items-center overflow-hidden border-b border-[#c99738]/40 bg-[#071b2d] text-white sm:min-h-[440px]">
+      <img src="/uaf_facade_no_road.jpg" alt="University of Agriculture campus" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#071b2d]/85 via-[#071b2d]/60 to-[#071b2d]/20" />
+      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-5 py-12 sm:px-8">
+        <span className="rounded-full border border-white/20 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-wider text-amber-300">Constituent College · Toba Tek Singh</span>
+        <h1 className="mt-5 font-serif-heading text-4xl font-bold sm:text-5xl">UAF Constituent College <span className="font-medium italic text-[#e8a62a]">Toba Tek Singh</span></h1>
+        <p className="mt-4 max-w-3xl text-base leading-7">Agricultural, poultry, computer, and basic sciences education serving students and communities across the region.</p>
+        <div className="mt-6 flex flex-wrap gap-3 text-sm font-semibold"><span className="rounded-xl border border-white/20 bg-black/35 px-4 py-2"><GraduationCap className="mr-2 inline h-4 w-4 text-amber-400" />Established 2005</span><span className="rounded-xl border border-white/20 bg-black/35 px-4 py-2"><MapPin className="mr-2 inline h-4 w-4 text-amber-400" />Toba Tek Singh</span><span className="rounded-xl border border-white/20 bg-black/35 px-4 py-2"><FlaskConical className="mr-2 inline h-4 w-4 text-amber-400" />Poultry & Basic Sciences</span></div>
+      </div>
+    </section>
+    <div className="relative z-30 -mt-6 flex justify-center px-3 sm:-mt-7"><nav aria-label="College sections" className="flex max-w-full flex-wrap justify-center gap-1 rounded-2xl border-2 border-[#c99738]/80 bg-[#071b2d] p-2 text-xs font-bold text-white shadow-xl sm:rounded-full sm:px-4">
+      {primary.map((item) => <button key={item.id} onClick={() => select(item.id)} aria-current={active === item.id ? 'page' : undefined} className={`rounded-full px-3 py-2 transition ${active === item.id ? 'bg-[#163887] ring-1 ring-blue-400/50' : 'hover:bg-[#163887]'}`}>{item.label}</button>)}
+      <div className="relative" onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}><button aria-haspopup="menu" aria-expanded={moreOpen} onClick={() => setMoreOpen((open) => !open)} className={`flex items-center gap-1 rounded-full px-3 py-2 ${more.some((item) => item.id === active) || moreOpen ? 'bg-[#163887]' : 'hover:bg-[#163887]'}`}>More <ChevronDown className="h-4 w-4" /></button>
+        {moreOpen && <div role="menu" className="absolute right-0 top-full z-50 w-64 pt-2"><div className="overflow-hidden rounded-2xl border border-[#c99738]/50 bg-[#071b2d] py-2 shadow-2xl">{more.map((item) => <button role="menuitem" key={item.id} onClick={() => select(item.id)} className={`block w-full px-4 py-3 text-left text-sm hover:bg-[#163887] ${active === item.id ? 'bg-[#163887]' : ''}`}>{item.label}</button>)}</div></div>}
+      </div>
+    </nav></div>
+
+    <section className="mx-auto max-w-[1400px] px-4 pb-16 pt-14 sm:px-8 sm:pt-20"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#c99738]">University of Agriculture Faisalabad · Toba Tek Singh</p><h2 className="mb-6 mt-2 text-3xl font-bold text-[#163887]">{heading}</h2>
+      {active === 'overview' && <article className={`${card} flow-root border-l-4 border-l-[#163887]`}><figure className="mb-6 overflow-hidden rounded-xl border border-stone-200 md:float-right md:ml-7 md:w-[390px]"><img src="/templates/campus-grounds.jpg" alt="University campus grounds" className="h-60 w-full object-cover" /><figcaption className="bg-stone-50 p-3 text-xs font-semibold">UAF campus environment</figcaption></figure><p className="text-base leading-8 text-stone-700">The UAF Sub-Campus Toba Tek Singh was established on 5 June 2005 to expand university education for local communities. The district’s strong poultry sector shaped the campus’s focus on poultry education, farmer training, and the preparation of qualified professionals.</p><p className="mt-5 text-base leading-8 text-stone-700">The campus includes academic and laboratory facilities, hostels, library, cafeteria, infirmary, and computing resources. Video conferencing and PERN internet connectivity support teaching and learning. Alongside degree programs, the campus has offered short courses for farmers and diploma training in poultry and livestock assistance.</p><div className="mt-7 grid gap-4 sm:grid-cols-3">{[['Established', '5 June 2005'], ['Academic focus', 'Poultry, computer & basic sciences'], ['Community role', 'Education and farmer outreach']].map(([label, value]) => <div key={label} className="rounded-xl border border-stone-200 border-t-4 border-t-[#c99738] bg-stone-50 p-5"><p className="text-xs font-bold uppercase text-[#c99738]">{label}</p><p className="mt-2 font-bold text-[#163887]">{value}</p></div>)}</div></article>}
+      {active === 'objectives' && <div className="grid gap-4 md:grid-cols-2">{['Advance the frontiers of knowledge.', 'Provide broad opportunities for human development, professionalism, and practical skills supported by information technology.', 'Build an intellectual and scholarly environment grounded in critical thinking.', 'Prepare professionals in line with community needs.', 'Extend subsidized educational opportunities to deserving, meritorious students.', 'Promote women’s empowerment and leadership, and build pride through excellence in knowledge and resources.'].map((text, index) => <article key={text} className={`${card} flex gap-4`}><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#163887] font-bold text-white">{index + 1}</span><p className="leading-7">{text}</p></article>)}</div>}
+      {active === 'vision' && <div className="grid gap-5 md:grid-cols-2">{[['Vision', 'To grow as an apex academic and research institute in Poultry, Computer, and Basic Sciences.'], ['Mission', 'Reach related institutions, students, educators, underserved groups, and the public to expand learning in Poultry, Computer, and Basic Sciences. Prepare future scientists and connect knowledge with farmers and communities through technology transfer.']].map(([title, text]) => <article key={title} className={card}><h3 className="text-xl font-bold text-[#163887]">{title}</h3><p className="mt-4 leading-8 text-stone-700">{text}</p></article>)}</div>}
+      {active === 'staff' && <><div className={`${card} mb-5 flex items-center gap-4 border-l-4 border-l-[#163887]`}><Users className="h-10 w-10 text-[#163887]" /><div><p className="text-xs font-bold uppercase tracking-widest text-[#c99738]">College directory</p><h3 className="text-2xl font-extrabold text-[#163887]">Faculty and Staff</h3><p className="mt-1 text-sm text-stone-600">Directory entries published for Constituent College Toba Tek Singh.</p></div></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{staff.map(([name, title, email]) => <article key={email} className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm"><div className="flex h-28 items-center justify-center bg-gradient-to-r from-[#071b2d] to-[#163887]"><div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber-300 bg-white/10 text-white"><Users className="h-8 w-8" /></div></div><div className="p-5"><h3 className="font-bold text-[#163887]">{name}</h3><p className="mt-1 text-sm text-stone-600">{title}</p><a className="mt-3 block break-all text-sm text-blue-800 hover:underline" href={`mailto:${email}`}>{email}</a></div></article>)}</div></>}
+      {active === 'programs' && <div className="grid gap-5 md:grid-cols-2"><article className={card}><h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-[#163887]"><GraduationCap />Undergraduate</h3><ul className="space-y-3">{undergrad.map((program) => <li key={program} className="rounded-lg bg-stone-50 p-4 font-semibold">{program}</li>)}</ul><p className="mt-4 text-sm leading-6 text-stone-600">The published program information lists four-year undergraduate degrees; eligibility requirements are specified on the college program page.</p></article><article className={card}><h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-[#163887]"><BookOpen />Postgraduate</h3><ul className="grid gap-3 sm:grid-cols-2">{postgraduate.map((program) => <li key={program} className="rounded-lg bg-stone-50 p-4 font-semibold">{program}</li>)}</ul><p className="mt-4 text-sm leading-6 text-stone-600">Program availability and admission criteria can change by session.</p></article></div>}
+      {active === 'scholarships' && <article className={card}><h3 className="text-xl font-bold text-[#163887]">Scholarships, Fellowships & Financial Aid</h3><p className="mt-3 leading-7 text-stone-700">The college lists merit scholarships for 20% of the class and UAF need-based scholarships for students who need financial assistance. Awards are subject to the published eligibility criteria and current university policy.</p><div className="mt-5 grid gap-4 sm:grid-cols-2">{[['Merit Scholarship', 'Available to the top 20% of the class.'], ['UAF Need-Based Scholarship', 'For eligible students with demonstrated financial need.']].map(([title, text]) => <div key={title} className="rounded-xl border border-stone-200 bg-stone-50 p-5"><h4 className="font-bold text-[#163887]">{title}</h4><p className="mt-2 text-sm leading-6">{text}</p></div>)}</div></article>}
+      {active === 'societies' && <article className={card}><h3 className="text-xl font-bold text-[#163887]">Student Societies</h3><p className="mt-3 leading-7">Campus societies provide opportunities for student participation, peer learning, and co-curricular activities. The university’s published campus societies information includes student groups and their office bearers.</p><p className="mt-4 rounded-lg bg-stone-50 p-4 text-sm leading-6 text-stone-600">Society membership and event notices are shared through campus announcements.</p></article>}
+      {active === 'alumni' && <article className={card}><h3 className="text-xl font-bold text-[#163887]">Campus Alumni</h3><p className="mt-3 leading-7">The campus alumni record includes graduates of its academic programs, beginning with early Poultry Science cohorts. Alumni contribute to professional practice and the development of their communities.</p><p className="mt-4 text-sm text-stone-600">The official campus alumni archive is organized by program and graduating session.</p></article>}
+      {active === 'journal' && <article className={card}><h3 className="text-xl font-bold text-[#163887]">Journal</h3><p className="mt-3 leading-7">The college’s journal section connects readers to UAF journals and academic publications. Research across poultry, computer, and basic sciences supports teaching and knowledge exchange.</p><div className="mt-5 rounded-xl bg-stone-50 p-5"><p className="font-semibold text-[#163887]">Research and scholarly publishing</p><p className="mt-2 text-sm leading-6 text-stone-600">Consult the university journal catalogue for current titles and publication information.</p></div></article>}
+      {active === 'merit' && <article className={card}><h3 className="text-xl font-bold text-[#163887]">Merit Lists</h3><p className="mt-3 leading-7">Merit lists are issued for undergraduate and postgraduate admissions. Each list reflects the relevant admission session and program.</p><div className="mt-5 grid gap-4 sm:grid-cols-2">{[['Undergraduate merit lists', 'Admission lists for undergraduate programs'], ['Postgraduate merit lists', 'Admission lists for postgraduate programs']].map(([title, text]) => <div key={title} className="rounded-xl border border-stone-200 bg-stone-50 p-5"><h4 className="font-bold text-[#163887]">{title}</h4><p className="mt-2 text-sm text-stone-600">{text}</p></div>)}</div></article>}
+      {active === 'contact' && <div className="grid gap-5 md:grid-cols-2"><article className={card}><h3 className="text-xl font-bold text-[#163887]">City Campus</h3><p className="mt-4 flex items-start gap-3 leading-7"><MapPin className="mt-1 h-5 w-5 shrink-0 text-[#163887]" />University of Agriculture, Sub Campus, near Railway Station, Toba Tek Singh</p><p className="mt-3 font-semibold text-[#163887]">Phone: 046-9201098</p></article><article className={card}><h3 className="text-xl font-bold text-[#163887]">New Campus</h3><p className="mt-4 flex items-start gap-3 leading-7"><MapPin className="mt-1 h-5 w-5 shrink-0 text-[#163887]" />8 Km Khekha Banglow Road, Toba Tek Singh</p></article></div>}
+    </section>
+  </main>;
+};

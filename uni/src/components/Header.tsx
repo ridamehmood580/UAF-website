@@ -227,6 +227,18 @@ export const Header: React.FC<HeaderProps> = ({
     setActiveDropdown(null);
     setDropdownOpenSource(null);
     setActiveAcademicCategory(null);
+    if (itemName?.includes('BUREWALA')) {
+      window.location.href = 'https://burewala.uaf.edu.pk/';
+      return;
+    }
+    if (itemName?.includes('TOBA TEK SINGH')) {
+      window.location.href = '/?page=toba-tek-singh';
+      return;
+    }
+    if (itemName?.includes('DEPALPUR')) {
+      window.location.href = '/?page=depalpur';
+      return;
+    }
     if (itemName?.includes('U.S.–PAKISTAN CENTER FOR ADVANCED STUDIES')) {
       window.location.href = 'https://uspcasafs.uaf.edu.pk/';
       return;
